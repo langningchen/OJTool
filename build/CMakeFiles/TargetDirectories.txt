@@ -1,0 +1,3 @@
+/home/langningc2009/Coding/Projects/OJTool/build/CMakeFiles/main.dir
+/home/langningc2009/Coding/Projects/OJTool/build/CMakeFiles/edit_cache.dir
+/home/langningc2009/Coding/Projects/OJTool/build/CMakeFiles/rebuild_cache.dir

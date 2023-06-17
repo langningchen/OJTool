@@ -1,0 +1,98 @@
+[
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/Exception.cpp.o -c /home/langningc2009/Coding/Lib/Exception.cpp",
+  "file": "/home/langningc2009/Coding/Lib/Exception.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/Exception.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/Curl.cpp.o -c /home/langningc2009/Coding/Lib/Curl.cpp",
+  "file": "/home/langningc2009/Coding/Lib/Curl.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/Curl.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/StringOperation.cpp.o -c /home/langningc2009/Coding/Lib/StringOperation.cpp",
+  "file": "/home/langningc2009/Coding/Lib/StringOperation.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/StringOperation.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxml.cpp.o -c /home/langningc2009/Coding/Lib/tinyxml/tinyxml.cpp",
+  "file": "/home/langningc2009/Coding/Lib/tinyxml/tinyxml.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxml.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxmlerror.cpp.o -c /home/langningc2009/Coding/Lib/tinyxml/tinyxmlerror.cpp",
+  "file": "/home/langningc2009/Coding/Lib/tinyxml/tinyxmlerror.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxmlerror.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxmlparser.cpp.o -c /home/langningc2009/Coding/Lib/tinyxml/tinyxmlparser.cpp",
+  "file": "/home/langningc2009/Coding/Lib/tinyxml/tinyxmlparser.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinyxmlparser.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinystr.cpp.o -c /home/langningc2009/Coding/Lib/tinyxml/tinystr.cpp",
+  "file": "/home/langningc2009/Coding/Lib/tinyxml/tinystr.cpp",
+  "output": "CMakeFiles/main.dir/home/langningc2009/Coding/Lib/tinyxml/tinystr.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/main.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/main.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/main.cpp",
+  "output": "CMakeFiles/main.dir/main.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/Tool.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/Tool.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/Tool.cpp",
+  "output": "CMakeFiles/main.dir/Tool.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/Luogu.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/Luogu.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/Luogu.cpp",
+  "output": "CMakeFiles/main.dir/Luogu.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/Etiger.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/Etiger.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/Etiger.cpp",
+  "output": "CMakeFiles/main.dir/Etiger.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/XMOJ.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/XMOJ.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/XMOJ.cpp",
+  "output": "CMakeFiles/main.dir/XMOJ.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/USACO.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/USACO.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/USACO.cpp",
+  "output": "CMakeFiles/main.dir/USACO.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/Codeforces.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/Codeforces.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/Codeforces.cpp",
+  "output": "CMakeFiles/main.dir/Codeforces.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/UVa.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/UVa.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/UVa.cpp",
+  "output": "CMakeFiles/main.dir/UVa.cpp.o"
+},
+{
+  "directory": "/home/langningc2009/Coding/Projects/OJTool/build",
+  "command": "g++  -I/home/langningc2009/Coding/Projects/OJTool/../../Lib  -Wall -std=c++14 -pthread -g -o CMakeFiles/main.dir/AtCoder.cpp.o -c /home/langningc2009/Coding/Projects/OJTool/AtCoder.cpp",
+  "file": "/home/langningc2009/Coding/Projects/OJTool/AtCoder.cpp",
+  "output": "CMakeFiles/main.dir/AtCoder.cpp.o"
+}
+]
