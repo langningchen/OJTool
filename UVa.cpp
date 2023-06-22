@@ -1,5 +1,6 @@
 #include "Tool.hpp"
-void TOOL::UVA::Login(string Username, string Password)
+#include "UVa.hpp"
+void UVA::Login(string Username, string Password)
 {
     // Check if already logged in
     cout << "Checking login... " << flush;
@@ -22,8 +23,8 @@ void TOOL::UVA::Login(string Username, string Password)
     // Login
     cout << "Logging in... " << flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_comprofiler&task=login",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   string("username=" + URLEncode(Username) +
                          "&passwd=" + URLEncode(Password) +
@@ -49,12 +50,10 @@ void TOOL::UVA::Login(string Username, string Password)
                   &HTTPResponseCode,
                   FORM);
     if (HTTPResponseCode == 200)
-    {
-        TRIGGER_ERROR("Login failed");
-    }
+    TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
 }
-void TOOL::UVA::GetQuestionDetail(string QuestionID)
+void UVA::GetQuestionDetail(string QuestionID)
 {
     // Get the question detail
     string FixedQuestionID = QuestionID;
@@ -66,8 +65,8 @@ void TOOL::UVA::GetQuestionDetail(string QuestionID)
     GetDataToFile("https://onlinejudge.org/external/" +
                       FixedQuestionID.substr(0, FixedQuestionID.size() - 2) +
                       "/p" + FixedQuestionID + ".pdf",
-                  "Header.tmp",
-                  "UVa/" + QuestionID + ".pdf",
+                  "",
+                  "/tmp/" + QuestionID + ".pdf",
                   false,
                   "",
                   NULL,
@@ -79,12 +78,12 @@ void TOOL::UVA::GetQuestionDetail(string QuestionID)
 
 #ifndef TEST
     // Open the pdf file
-    if (system(string("code " + CurrentDir + "UVa/" + QuestionID + ".pdf").c_str()))
-        cout << "Open file \"" + CurrentDir + "UVa/" << QuestionID << ".md\" failed, please open it manually" << endl;
-    Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/" + QuestionID + ".pdf").c_str()))
+        cout << "Open file \"/tmp/" << QuestionID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get question detail succeed");
 #endif
 }
-void TOOL::UVA::SubmitCode(string QuestionID)
+void UVA::SubmitCode(string QuestionID)
 {
     // Get the submit page data
     cout << "Getting submit page data... " << flush;
@@ -144,25 +143,21 @@ void TOOL::UVA::SubmitCode(string QuestionID)
     // Submit the code
     cout << "Submitting... " << flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=25&page=save_submission",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   SubmitPostBody,
                   HeaderList,
                   &HTTPResponseCode,
                   MULTIPART);
     if (HTTPResponseCode == 200)
-    {
-        TRIGGER_ERROR("Submit failed");
-    }
+    TRIGGER_ERROR("Submit failed");
 
     // Get the submission id
     string SubmissionID = FindLocation();
     SubmissionID = SubmissionID.substr(SubmissionID.find_last_of('+') + 1);
     if (atoi(SubmissionID.c_str()) == 0)
-    {
-        TRIGGER_ERROR("Get submission id failed");
-    }
+    TRIGGER_ERROR("Get submission id failed");
     cout << "Succeed" << endl;
 
     // Get the submission result
@@ -179,7 +174,7 @@ void TOOL::UVA::SubmitCode(string QuestionID)
         Data = StringReplaceAll(Data, " <", "<");
         Data = StringReplaceAll(Data, "> ", ">");
         Data = StringReplaceAll(Data, " >", ">");
-        SetDataFromStringToFile("Data.tmp", Data);
+        SetDataFromStringToFile("/tmp/Data.tmp", Data);
 
         // Find the submission
         smatch Match;
@@ -198,8 +193,6 @@ void TOOL::UVA::SubmitCode(string QuestionID)
             }
         }
         else
-        {
-            TRIGGER_ERROR("Can not find the judge result with submission id " + SubmissionID);
-        }
+        TRIGGER_ERROR("Can not find the judge result with submission id " + SubmissionID);
     }
 }

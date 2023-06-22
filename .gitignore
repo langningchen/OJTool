@@ -1,0 +1,30 @@
+# Ignore files without extension
+*
+!*.*
+!*/
+
+# Ignore secret files
+Keys/
+Tools/LockAndUnlock.cpp
+
+# Ingore generated and temp files
+LGR*
+.ipynb_checkpoints/
+build/
+Debug/
+Release/
+**/*.tmp
+CPH/
+Etiger/*.md
+Etiger/*.in
+Etiger/*.out
+Luogu/*.md
+Codeforces/*.md
+UVa/*.pdf
+XMOJ/*.md
+XMOJ/*.in
+XMOJ/*.out
+USACO/*.md
+
+# Ignore unfinish files
+/Projects/Unfinished-*

@@ -1,14 +1,12 @@
 #include "Tool.hpp"
-TOOL::USACO::USACO()
-{
-}
-void TOOL::USACO::Login(string Username, string Password)
+#include "USACO.hpp"
+void USACO::Login(string Username, string Password)
 {
     // Login to USACO
     cout << "Logging in... " << flush;
     GetDataToFile("https://train.usaco.org/usacogate",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   "NAME=" + URLEncode(Username) +
                       "&PASSWORD=" + URLEncode(Password) +
@@ -18,18 +16,17 @@ void TOOL::USACO::Login(string Username, string Password)
                   "application/x-www-form-urlencoded");
     Token = GetStringBetween(GetDataFromFileToString(), "a=", "\"");
     if (Token == "")
-    {
-        TRIGGER_ERROR("Login failed");
-    }
+    TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
+    this->Username = Username;
 }
-void TOOL::USACO::GetQuestionDetail(string QuestionID)
+void USACO::GetQuestionDetail(string QuestionID)
 {
     // Get the question detail
     cout << "Getting question detail... " << flush;
     GetDataToFile("https://train.usaco.org/usacoprob2?a=XKG7SarkKso&S=" + QuestionID);
     SetDataFromStringToFile(
-        "USACO/" + QuestionID + ".md",
+        "/tmp/USACO-" + QuestionID + ".md",
         GetStringBetween(
             GetDataFromFileToString(),
             "<img src=\"/usaco/cow1.jpg\" width=\"742\" height=\"118\">",
@@ -38,16 +35,16 @@ void TOOL::USACO::GetQuestionDetail(string QuestionID)
 
 #ifndef TEST
     // Open the question detail file
-    if (system(string("code " + CurrentDir + "USACO/" + QuestionID + ".md").c_str()))
-        cout << "Open file \"USACO/" << QuestionID << ".md\" failed, please open it manually" << endl;
-    Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/USACO-" + QuestionID + ".md").c_str()))
+        cout << "Open file \"/tmp/USACO-" << QuestionID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get question detail succeed");
 #endif
 }
-void TOOL::USACO::SubmitCode(string QuestionID)
+void USACO::SubmitCode(string QuestionID)
 {
     string Code = GetDataFromFileToString("USACO/" + QuestionID + ".cpp");
     Code = "/*\n"s +
-           "ID: " + GetDataFromFileToString("Keys/USACOUsername") + "\n" +
+           "ID: " + Username + "\n" +
            "TASK: " + QuestionID + "\n" +
            "LANG: C++14\n" +
            "*/\n" +
@@ -69,8 +66,8 @@ void TOOL::USACO::SubmitCode(string QuestionID)
     // Submit code
     cout << "Submitting code... " << flush;
     GetDataToFile("https://train.usaco.org/upload3",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   MultiPartData,
                   NULL,
@@ -78,11 +75,11 @@ void TOOL::USACO::SubmitCode(string QuestionID)
                   MULTIPART);
     cout << "Succeed" << endl;
 
-    SetDataFromStringToFile("../../tmp/" + QuestionID + ".log",
+    SetDataFromStringToFile("/tmp/" + QuestionID + ".log",
                             EraseHTMLElement(
                                 GetStringBetween(
                                     GetDataFromFileToString(),
                                     "<div style=background-color:white;padding:5px;>",
                                     "</div>")));
-    system(("code /tmp/" + QuestionID + ".log").c_str());
+    system(("code-insiders /tmp/" + QuestionID + ".log").c_str());
 }

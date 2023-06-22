@@ -1,11 +1,18 @@
+#include <iostream>
+#include "tinyxml/tinyxml.h"
+#include "tinyxml/tinystr.h"
+#include "Curl.hpp"
 #include "Tool.hpp"
-void TOOL::ATCODER::Login(string Username, string Password)
+#include "AtCoder.hpp"
+using namespace std;
+
+void ATCODER::Login(string Username, string Password)
 {
     cout << "Checking logged... " << flush;
     int HTTPResponseCode = 0;
     GetDataToFile("https://atcoder.jp/settings",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   false,
                   "",
                   NULL,
@@ -23,27 +30,23 @@ void TOOL::ATCODER::Login(string Username, string Password)
                                         "var csrfToken = \"",
                                         "\"");
     if (CSRFToken == "")
-    {
-        TRIGGER_ERROR("Get CSRF token failed");
-    }
+    TRIGGER_ERROR("Get CSRF token failed");
     cout << "Succeed" << endl;
 
     cout << "Logging in... " << flush;
     GetDataToFile("https://atcoder.jp/login",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   "username=" + URLEncode(Username) + "&password=" + URLEncode(Password) + "&csrf_token=" + URLEncode(CSRFToken),
                   NULL,
                   NULL,
                   FORM);
     if (FindLocation().find("login") != string::npos)
-    {
-        TRIGGER_ERROR("Login failed");
-    }
+    TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
 }
-void TOOL::ATCODER::GetQuestionDetail(string QuestionID)
+void ATCODER::GetQuestionDetail(string QuestionID)
 {
     cout << "Getting question detail... " << flush;
     string ContestName = SpiltString(QuestionID, "_")[0];
@@ -52,11 +55,9 @@ void TOOL::ATCODER::GetQuestionDetail(string QuestionID)
 
     cout << "Parsing question detail... " << flush;
     TiXmlDocument QuestionXmlDocument;
-    QuestionXmlDocument.Parse(TidyHTMLDocument(GetDataFromFileToString()).c_str());
+    QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
     if (QuestionXmlDocument.Error())
-    {
-        TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
-    }
+    TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
     cout << "Succeed" << endl;
 
     TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
@@ -75,16 +76,16 @@ void TOOL::ATCODER::GetQuestionDetail(string QuestionID)
                       "|:---:|:---:|\n" +
                       "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
                       "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-    SetDataFromStringToFile("AtCoder/" + QuestionID + ".md", QuestionDetail);
+    SetDataFromStringToFile("/tmp/AtCoder-" + QuestionID + ".md", QuestionDetail);
 
 #ifndef TEST
     // Open the question detail file
-    if (system(string("code " + CurrentDir + "AtCoder/" + QuestionID + ".md").c_str()))
-        cout << "Open file \"AtCoder/" << QuestionID << ".md\" failed, please open it manually" << endl;
-    Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/AtCoder-" + QuestionID + ".md").c_str()))
+        cout << "Open file \"/tmp/AtCoder-" << QuestionID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get question detail succeed");
 #endif
 }
-void TOOL::ATCODER::SubmitCode(string QuestionID)
+void ATCODER::SubmitCode(string QuestionID)
 {
     // Get the code
     string Code = GetDataFromFileToString("AtCoder/" + QuestionID + ".cpp");
@@ -101,8 +102,8 @@ void TOOL::ATCODER::SubmitCode(string QuestionID)
     cout << "Submitting... " << flush;
     int HTTPResponseCode = 0;
     GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submit",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   "data.TaskScreenName=" + QuestionID + "&data.LanguageId=4003&sourceCode=" + URLEncode(Code) + "&csrf_token=" + URLEncode(CSRFToken),
                   NULL,
@@ -117,13 +118,11 @@ void TOOL::ATCODER::SubmitCode(string QuestionID)
 
     cout << "Getting submission ID... " << flush;
     GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/me");
-    string SubmissionID = GetStringBetween(GetDataFromFileToString("Body.tmp"),
+    string SubmissionID = GetStringBetween(GetDataFromFileToString(),
                                            "data-id=\"",
                                            "\"");
     if (SubmissionID == "")
-    {
-        TRIGGER_ERROR("Get submission ID failed");
-    }
+    TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
 
     cout << "Judging... " << flush;
@@ -139,5 +138,5 @@ void TOOL::ATCODER::SubmitCode(string QuestionID)
     HTMLData = StringReplaceAll(HTMLData, "= ", "=");
     HTMLData = StringReplaceAll(HTMLData, " =", "=");
     HTMLData = StringReplaceAll(HTMLData, "  ", " ");
-    SetDataFromStringToFile("Temp.txt", HTMLData);
+    SetDataFromStringToFile("/tmp/Temp.txt", HTMLData);
 }

@@ -1,5 +1,6 @@
 #include "Tool.hpp"
-TOOL::ETIGER::ETIGER()
+#include "Etiger.hpp"
+ETIGER::ETIGER()
 {
     DifficultyName[1] = make_pair("入门难度", "#979797");
     DifficultyName[2] = make_pair("普及-", "#79d479");
@@ -10,7 +11,7 @@ TOOL::ETIGER::ETIGER()
     DifficultyName[7] = make_pair("NOI+/CTSC/IOI", "orange");
     DifficultyName[8] = make_pair("传说", "red");
 }
-void TOOL::ETIGER::Login(string Username, string Password)
+void ETIGER::Login(string Username, string Password)
 {
     // Create login request
     json LoginRequest;
@@ -26,8 +27,8 @@ void TOOL::ETIGER::Login(string Username, string Password)
     // Send login request
     cout << "Logging in... " << flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/user/login",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   LoginRequest.dump(),
                   HeaderList);
@@ -47,7 +48,7 @@ void TOOL::ETIGER::Login(string Username, string Password)
     // Save token
     Token = LoginInfo["data"]["ticket"].as_string();
 }
-void TOOL::ETIGER::ClockIn()
+void ETIGER::ClockIn()
 {
     // Add headers
     curl_slist *HeaderList = NULL;
@@ -59,8 +60,8 @@ void TOOL::ETIGER::ClockIn()
     // Send clock in request
     cout << "Clocking in... " << flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/sign/dailySign",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   false,
                   "",
                   HeaderList);
@@ -76,7 +77,7 @@ void TOOL::ETIGER::ClockIn()
     }
     cout << "Succeed" << endl;
 }
-void TOOL::ETIGER::GetQuestionDetail(string QuestionID)
+void ETIGER::GetQuestionDetail(string QuestionID)
 {
     // Add headers
     curl_slist *HeaderList = NULL;
@@ -88,8 +89,8 @@ void TOOL::ETIGER::GetQuestionDetail(string QuestionID)
     // Send request
     cout << "Getting question detail... " << flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/question/getById?id=" + QuestionID,
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   false,
                   "",
                   HeaderList);
@@ -128,7 +129,7 @@ void TOOL::ETIGER::GetQuestionDetail(string QuestionID)
         CPHData["tests"][i]["id"] = i;
     }
     CPHData["local"] = false;
-    CPHData["srcPath"] = CurrentDir + "Etiger/" + QuestionID + ".cpp";
+    CPHData["srcPath"] = "~/Etiger/" + QuestionID + ".cpp";
     CPHData["testType"] = "single";
     CPHData["input"]["type"] = "stdin";
     CPHData["output"]["type"] = "stdout";
@@ -136,7 +137,7 @@ void TOOL::ETIGER::GetQuestionDetail(string QuestionID)
     CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
     CPHData["batch"]["id"] = QuestionID;
     CPHData["batch"]["size"] = 1;
-    SetDataFromStringToFile(GetCPHFileName("Etiger", QuestionID), CPHData.dump());
+    SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", QuestionID), CPHData.dump());
 
     // Sava markdown file
     string OutputContent = "";
@@ -206,17 +207,17 @@ void TOOL::ETIGER::GetQuestionDetail(string QuestionID)
                      "|通过人数|$" + QuestionInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
                      "|通过率|$" + QuestionInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
                      "\n";
-    SetDataFromStringToFile("Etiger/" + QuestionID + ".md", OutputContent);
+    SetDataFromStringToFile("/tmp/Etiger-" + QuestionID + ".md", OutputContent);
 
 #ifndef TEST
     // Open file
-    if (system(string("code " + CurrentDir + "Etiger/" + QuestionID + ".md").c_str()))
-        cout << "Open file \"" + CurrentDir + "Etiger/" << QuestionID << ".md\" failed, please open it manually" << endl;
-    Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/Etiger-" + QuestionID + ".md").c_str()))
+        cout << "Open file \"/tmp/Etiger-" << QuestionID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get question detail succeed");
 #endif
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
-void TOOL::ETIGER::SubmitCode(string QuestionID)
+void ETIGER::SubmitCode(string QuestionID)
 {
     // Get code and uncomment freopen
     string Code = GetDataFromFileToString("Etiger/" + QuestionID + ".cpp");
@@ -240,8 +241,8 @@ void TOOL::ETIGER::SubmitCode(string QuestionID)
     // Submit
     cout << "Submitting... " << flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/saveSubmit",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   SubmitRequest.dump(),
                   HeaderList);
@@ -261,11 +262,8 @@ void TOOL::ETIGER::SubmitCode(string QuestionID)
     {
         SetDataFromStringToFile("Etiger/" + QuestionID + ".cpp", Code + "\n");
         // Remove temporary files
-        remove((CurrentDir + GetCPHFileName("Etiger", QuestionID)).c_str());
-        remove(string(CurrentDir + "Etiger/" + QuestionID + ".md").c_str());
-        remove(string(CurrentDir + "Etiger/" + QuestionID).c_str());
         cout << "Congratulations! You have passed this question!" << endl;
-        Speak("Congratulations! You have passed this question!");
+        TOOL::Speak("Congratulations! You have passed this question!");
     }
     else
     {
@@ -283,18 +281,18 @@ void TOOL::ETIGER::SubmitCode(string QuestionID)
                 cout << "    Input: " << i["input"].as_string() << endl
                      << "    Standard output: " << i["output"].as_string() << endl
                      << "    My output: " << i["myOutput"].as_string() << endl;
-                json CPHData = json::parse(GetDataFromFileToString(GetCPHFileName("Etiger", QuestionID)));
+                json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", QuestionID)));
                 CPHData["tests"].push_back({{"input", i["input"].as_string()},
                                             {"output", i["output"].as_string()},
                                             {"id", Counter}});
-                SetDataFromStringToFile(GetCPHFileName("Etiger", QuestionID), CPHData.dump());
+                SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", QuestionID), CPHData.dump());
             }
         }
         cout << SubmitInfo["data"]["grade"] << "pts" << endl;
-        Speak("You did not pass this question");
+        TOOL::Speak("You did not pass this question");
     }
 }
-void TOOL::ETIGER::GetAnswerOrTips(string QuestionID)
+void ETIGER::GetAnswerOrTips(string QuestionID)
 {
     // Create header
     curl_slist *HeaderList = NULL;
@@ -306,8 +304,8 @@ void TOOL::ETIGER::GetAnswerOrTips(string QuestionID)
     // Get tips
     cout << "Getting comments page data... " << flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/comment/getByQuestionForPage?questionId=" + QuestionID + "&cpage=1&pagesize=10",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   false,
                   "",
                   HeaderList);

@@ -1,0 +1,24 @@
+#ifndef XMOJ_HPP
+#define XMOJ_HPP
+
+#include <string>
+#include "OJ.hpp"
+using namespace std;
+
+class XMOJ : public OJ
+{
+private:
+    string ResultName[17];
+    string GetCSRF();
+    string HTMLToText(string Data);
+    void _GetQuestionDetail(string QuestionID, string QuestionHandle);
+
+public:
+    XMOJ();
+    void Login(string Username, string Password);
+    void GetQuestionDetail(string QuestionID);
+    void SubmitCode(string QuestionID);
+    void GetContestQuestionsDetails(string ContestID);
+};
+
+#endif

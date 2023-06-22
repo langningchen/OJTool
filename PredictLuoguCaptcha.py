@@ -14,7 +14,7 @@ if __name__ == "__main__":
                           ).predict(
                               np.array([
                                   np.array(
-                                      Image.open("./Captcha.jpeg")
+                                      Image.open("/tmp/Captcha.jpeg")
                                   ) / 255.0
                               ]),
                               verbose=0),

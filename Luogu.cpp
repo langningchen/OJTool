@@ -1,5 +1,6 @@
+#include "Luogu.hpp"
 #include "Tool.hpp"
-TOOL::LUOGU::LUOGU()
+LUOGU::LUOGU()
 {
     ColorList["blue-1"] = "e0f7ff";
     ColorList["blue-2"] = "89d1f5";
@@ -128,25 +129,23 @@ TOOL::LUOGU::LUOGU()
         RecordName[i["id"].as_integer()] = make_pair(i["name"].as_string(),
                                                      i["shortName"].as_string());
 }
-string TOOL::LUOGU::GetCSRF()
+string LUOGU::GetCSRF()
 {
     // Get csrf token
     string Token = GetStringBetween(GetDataFromFileToString(),
                                     "<meta name=\"csrf-token\" content=\"", "\"");
     if (Token == "")
-    {
         TRIGGER_ERROR("Can not find csrf token");
-    }
     return Token;
 }
-void TOOL::LUOGU::Login(string Username, string Password)
+void LUOGU::Login(string Username, string Password)
 {
     // Check if the user is logged in.
     int HTTPResponseCode = 0;
     cout << "Checking login... " << flush;
     GetDataToFile("https://www.luogu.com.cn/auth/login",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   false,
                   "",
                   NULL,
@@ -165,8 +164,8 @@ void TOOL::LUOGU::Login(string Username, string Password)
         // Get login captcha
         cout << "Getting login captcha... " << flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
-                      "Header.tmp",
-                      "Captcha.jpeg");
+                      "",
+                      "/tmp/Captcha.jpeg");
         cout << "Succeed" << endl;
 
         // Predict captcha
@@ -177,12 +176,12 @@ void TOOL::LUOGU::Login(string Username, string Password)
         try
         {
             GetDataToFile("https://luogu-captcha-bypass.piterator.com/predict/",
-                          "Header.tmp",
-                          "Body.tmp",
+                          "",
+                          "",
                           true,
                           "data:image/jpeg;base64," +
                               Base64Encode(
-                                  GetDataFromFileToString("Captcha.jpeg")),
+                                  GetDataFromFileToString("/tmp/Captcha.jpeg")),
                           HeaderList);
             cout << "Succeed" << endl;
             Captcha = GetDataFromFileToString();
@@ -191,20 +190,19 @@ void TOOL::LUOGU::Login(string Username, string Password)
         {
             cout << "Failed" << endl
                  << "Predicting captcha by tensorflow... " << flush;
-            if (system(("python " + CurrentDir + "Projects/OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1").c_str()) == 0)
+            if (system("python ~/OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
             {
                 cout << "Succeed" << endl;
-                Captcha = FixString(GetDataFromFileToString("Captcha.txt"));
+                Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
             }
             else
             {
                 cout << "Failed" << endl;
-                system(("code " + CurrentDir + "Captcha.jpeg").c_str());
+                system("code-insiders /tmp/Captcha.jpeg");
                 cout << "Please input the captcha: ";
                 cin >> Captcha;
             }
         }
-        remove((CurrentDir + "Captcha.jpeg").c_str());
 
         // Create a json object to store the login request info
         json LoginRequest;
@@ -226,8 +224,8 @@ void TOOL::LUOGU::Login(string Username, string Password)
         // Send the login request to the server
         cout << "Logging in... " << flush;
         GetDataToFile("https://www.luogu.com.cn/api/auth/userPassLogin",
-                      "Header.tmp",
-                      "Body.tmp",
+                      "",
+                      "",
                       true,
                       LoginRequest.dump(),
                       HeaderList);
@@ -254,7 +252,7 @@ void TOOL::LUOGU::Login(string Username, string Password)
         ErrorCounter++;
     }
 }
-void TOOL::LUOGU::ClockIn()
+void LUOGU::ClockIn()
 {
     // Gets the clock-in page data
     cout << "Get clock in page data... " << flush;
@@ -273,8 +271,8 @@ void TOOL::LUOGU::ClockIn()
     // Clocks in
     cout << "Clocking in... " << flush;
     GetDataToFile("https://www.luogu.com.cn/index/ajax_punch",
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   "{}",
                   HeaderList);
@@ -289,7 +287,7 @@ void TOOL::LUOGU::ClockIn()
     }
     cout << "Succeed" << endl;
 }
-void TOOL::LUOGU::GetQuestionDetail(string QuestionID)
+void LUOGU::GetQuestionDetail(string QuestionID)
 {
     // Gets the question detail page
     cout << "Getting question detail page... " << flush;
@@ -325,7 +323,7 @@ void TOOL::LUOGU::GetQuestionDetail(string QuestionID)
         CPHData["tests"].push_back(json(Temp));
     }
     CPHData["local"] = false;
-    CPHData["srcPath"] = CurrentDir + "Luogu/" + QuestionID + ".cpp";
+    CPHData["srcPath"] = "~/Luogu/" + QuestionID + ".cpp";
     CPHData["testType"] = "single";
     CPHData["input"]["type"] = "stdin";
     CPHData["output"]["type"] = "stdout";
@@ -333,7 +331,7 @@ void TOOL::LUOGU::GetQuestionDetail(string QuestionID)
     CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
     CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
     CPHData["batch"]["size"] = 1;
-    SetDataFromStringToFile(GetCPHFileName("Luogu", QuestionID), CPHData.dump());
+    SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", QuestionID), CPHData.dump());
 
     // Save data for markdown
     string OutputContent = "# " + QuestionID + " " + QuestionInfo["currentData"]["problem"]["title"].as_string() + "\n";
@@ -425,16 +423,16 @@ void TOOL::LUOGU::GetQuestionDetail(string QuestionID)
                      "|From|`" + TypeName[QuestionInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
                      "|Last submit language|`" + LanguageName[QuestionInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
                      "\n";
-    SetDataFromStringToFile("Luogu/" + QuestionID + ".md", OutputContent);
+    SetDataFromStringToFile("/tmp/Luogu-" + QuestionID + ".md", OutputContent);
 
 #ifndef TEST
     // Open the file
-    if (system(string("code " + CurrentDir + "Luogu/" + QuestionID + ".md").c_str()))
-        cout << "Open file \"" + CurrentDir + "Luogu/" << QuestionID << ".md\" failed, please open it manually" << endl;
-    Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/Luogu-" + QuestionID + ".md").c_str()))
+        cout << "Open file \"/tmp/Luogu-" << QuestionID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get question detail succeed");
 #endif
 }
-void TOOL::LUOGU::SubmitCode(string QuestionID)
+void LUOGU::SubmitCode(string QuestionID)
 {
     // Get the code
     string Code = GetDataFromFileToString("Luogu/" + QuestionID + ".cpp");
@@ -467,8 +465,8 @@ void TOOL::LUOGU::SubmitCode(string QuestionID)
     // Submit the code
     cout << "Submitting... " << flush;
     GetDataToFile("https://www.luogu.com.cn/fe/api/problem/submit/" + QuestionID,
-                  "Header.tmp",
-                  "Body.tmp",
+                  "",
+                  "",
                   true,
                   SubmitRequest.dump(),
                   HeaderList);
@@ -511,12 +509,8 @@ void TOOL::LUOGU::SubmitCode(string QuestionID)
         // Check whether the code is accepted
         if (RecordInfo["currentData"]["record"]["score"].as_integer() == 100)
         {
-            // Delete the temporary files
-            remove((CurrentDir + GetCPHFileName("Luogu", QuestionID)).c_str());
-            remove(string(CurrentDir + "Luogu/" + QuestionID + ".md").c_str());
-            remove(string(CurrentDir + "Luogu/" + QuestionID).c_str());
             cout << "Congratulations! You have passed this question!" << endl;
-            Speak("Congratulations! You have passed this question!");
+            TOOL::Speak("Congratulations! You have passed this question!");
         }
         else
         {
@@ -543,11 +537,11 @@ void TOOL::LUOGU::SubmitCode(string QuestionID)
                         << jit2["memory"].as_integer() << "KB" << endl;
             }
             cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
-            Speak("You did not pass this question");
+            TOOL::Speak("You did not pass this question");
         }
     }
 }
-void TOOL::LUOGU::GetAnswerOrTips(string QuestionID)
+void LUOGU::GetAnswerOrTips(string QuestionID)
 {
     // Get the solution page data
     cout << "Getting solution page data... " << flush;
