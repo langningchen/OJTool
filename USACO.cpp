@@ -33,12 +33,10 @@ void USACO::GetQuestionDetail(string QuestionID)
             "<div style='width:6.25in;background-color:#FFFFCC;border:1px solid black;'>"));
     cout << "Succeed" << endl;
 
-#ifndef TEST
     // Open the question detail file
     if (system(string("code-insiders /tmp/USACO-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/USACO-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void USACO::SubmitCode(string QuestionID)
 {

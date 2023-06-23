@@ -76,12 +76,10 @@ void UVA::GetQuestionDetail(string QuestionID)
                   true);
     cout << "Succeed" << endl;
 
-#ifndef TEST
     // Open the pdf file
     if (system(string("code-insiders /tmp/" + QuestionID + ".pdf").c_str()))
         cout << "Open file \"/tmp/" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void UVA::SubmitCode(string QuestionID)
 {

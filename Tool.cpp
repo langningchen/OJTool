@@ -8,7 +8,7 @@
 #include "XMOJ.hpp"
 void TOOL::Speak(string Name)
 {
-    system(("mplayer \"~/OJTool/Audios/" + Name + ".mp3\"" +
+    system(("mocp -l \"" + GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3\"" +
             " > /dev/null 2>&1")
                .c_str());
 }
@@ -21,7 +21,7 @@ string TOOL::GetCPHFileName(string Path, string FileName)
            FileName +
            ".cpp_" +
            // Encode the full path of the file
-           MD5Encoder.encode("~/" + Path + "/" + FileName + ".cpp") +
+           MD5Encoder.encode(GetUserHomeFolder() + "/" + Path + "/" + FileName + ".cpp") +
            // Add the .prob extension to the file name
            ".prob";
 }

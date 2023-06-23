@@ -189,7 +189,7 @@ void LUOGU::Login(string Username, string Password)
         catch (CLNException &Exception)
         {
             cout << "Failed" << endl
-                 << "Predicting captcha by tensorflow... " << flush;
+                 << "Predicting captcha by AI model... " << flush;
             if (system("python ~/OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
             {
                 cout << "Succeed" << endl;
@@ -425,12 +425,10 @@ void LUOGU::GetQuestionDetail(string QuestionID)
                      "\n";
     SetDataFromStringToFile("/tmp/Luogu-" + QuestionID + ".md", OutputContent);
 
-#ifndef TEST
     // Open the file
     if (system(string("code-insiders /tmp/Luogu-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/Luogu-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void LUOGU::SubmitCode(string QuestionID)
 {

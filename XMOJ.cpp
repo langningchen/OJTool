@@ -64,14 +64,15 @@ void XMOJ::Login(string Username, string Password)
                   NULL,
                   "application/x-www-form-urlencoded");
     string HTMLData = GetDataFromFileToString();
-    cout << "\"" << HTMLData << "\"" << endl;
     if (HTMLData.find("history.go(-2);") != string::npos)
     cout << "Success" << endl;
     else
     TRIGGER_ERROR("Login failed: " + GetStringBetween(HTMLData, "alert('", "');"));
 }
 void XMOJ::GetQuestionDetail(string QuestionID)
-_GetQuestionDetail(QuestionID, "id=" + QuestionID);
+{
+    _GetQuestionDetail(QuestionID, "id=" + QuestionID);
+}
 void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
 {
     // Gets the question detail page
@@ -184,12 +185,10 @@ void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
                      "\n";
     SetDataFromStringToFile("/tmp/XMOJ-" + QuestionID + ".md", OutputContent);
 
-#ifndef TEST
     // Open the question detail file
     if (system(string("code-insiders /tmp/XMOJ-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/XMOJ-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void XMOJ::SubmitCode(string QuestionID)
 {

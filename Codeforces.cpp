@@ -305,12 +305,10 @@ void CODEFORCES::GetQuestionDetail(string QuestionID)
                      << endl;
     OutputFileStream.close();
 
-#ifndef TEST
     // Open the question detail file
     if (system(string("code-insiders /tmp/Codeforces-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/Codeforces-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void CODEFORCES::SubmitCode(string QuestionID)
 {

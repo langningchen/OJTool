@@ -21,4 +21,4 @@ if __name__ == "__main__":
                           axis=-1)[0])
                       )
                   ),
-          file=open("Captcha.txt", mode="w"))
+          file=open("/tmp/Captcha.txt", mode="w"))

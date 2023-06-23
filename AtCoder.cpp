@@ -78,12 +78,10 @@ void ATCODER::GetQuestionDetail(string QuestionID)
                       "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
     SetDataFromStringToFile("/tmp/AtCoder-" + QuestionID + ".md", QuestionDetail);
 
-#ifndef TEST
     // Open the question detail file
     if (system(string("code-insiders /tmp/AtCoder-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/AtCoder-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 void ATCODER::SubmitCode(string QuestionID)
 {

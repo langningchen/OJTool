@@ -209,12 +209,10 @@ void ETIGER::GetQuestionDetail(string QuestionID)
                      "\n";
     SetDataFromStringToFile("/tmp/Etiger-" + QuestionID + ".md", OutputContent);
 
-#ifndef TEST
     // Open file
     if (system(string("code-insiders /tmp/Etiger-" + QuestionID + ".md").c_str()))
         cout << "Open file \"/tmp/Etiger-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
-#endif
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
 void ETIGER::SubmitCode(string QuestionID)
