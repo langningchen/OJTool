@@ -250,60 +250,63 @@ void CODEFORCES::Login(string Username, string Password)
 }
 void CODEFORCES::GetQuestionDetail(string QuestionID)
 {
-    // Get the question detail
-    cout << "Getting question detail... " << flush;
-    GetDataToFile("https://codeforces.com/problemset/problem/" +
-                  QuestionID.substr(0, QuestionID.size() - 1) + "/" +
-                  QuestionID.substr(QuestionID.size() - 1));
-    cout << "Succeed" << endl;
-
-    // Format the question detail and prase it
-    cout << "Parsing question detail... " << flush;
-    TiXmlDocument QuestionXmlDocument;
-    QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
-    if (QuestionXmlDocument.Error())
-        TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
-    ofstream OutputFileStream(string("/tmp/Codeforces-" + QuestionID + ".md").c_str());
-    cout << "Succeed" << endl;
-
-    // Find the question detail
-    TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
-                                        .FirstChild("html")
-                                        .FirstChild("body")
-                                        .Child("div", 3)
-                                        .Child("div", 4)
-                                        .Child("div", 1)
-                                        .Child("div", 2)
-                                        .Child("div", 1)
-                                        .Child("div", 0);
-
-    // Output the question detail
-    OutputFileStream << "# " << QuestionXmlHandle.Child(0).Child(0).ToElement()->GetText()
-                     << endl
-                     << endl
-                     << "## Description" << endl
-                     << Output(QuestionXmlHandle.Child(1).ToElement()) << endl
-                     << endl;
-    for (TiXmlNode *i = QuestionXmlHandle.Child(2).Node(); i != NULL; i = i->NextSibling())
+    if (!IfFileExist("/tmp/Codeforces-" + QuestionID + ".md"))
     {
-        TiXmlNode *j = i->ToElement()->FirstChild();
-        OutputFileStream << "## " << j->ToElement()->FirstChild()->ToText()->Value() << endl
+        // Get the question detail
+        cout << "Getting question detail... " << flush;
+        GetDataToFile("https://codeforces.com/problemset/problem/" +
+                      QuestionID.substr(0, QuestionID.size() - 1) + "/" +
+                      QuestionID.substr(QuestionID.size() - 1));
+        cout << "Succeed" << endl;
+
+        // Format the question detail and prase it
+        cout << "Parsing question detail... " << flush;
+        TiXmlDocument QuestionXmlDocument;
+        QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
+        if (QuestionXmlDocument.Error())
+            TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
+        ofstream OutputFileStream(string("/tmp/Codeforces-" + QuestionID + ".md").c_str());
+        cout << "Succeed" << endl;
+
+        // Find the question detail
+        TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
+                                            .FirstChild("html")
+                                            .FirstChild("body")
+                                            .Child("div", 3)
+                                            .Child("div", 4)
+                                            .Child("div", 1)
+                                            .Child("div", 2)
+                                            .Child("div", 1)
+                                            .Child("div", 0);
+
+        // Output the question detail
+        OutputFileStream << "# " << QuestionXmlHandle.Child(0).Child(0).ToElement()->GetText()
+                         << endl
+                         << endl
+                         << "## Description" << endl
+                         << Output(QuestionXmlHandle.Child(1).ToElement()) << endl
                          << endl;
-        j = j->NextSibling();
-        for (; j != NULL; j = j->NextSibling())
-            OutputFileStream << Output(j->ToElement()) << endl;
-        OutputFileStream << endl;
+        for (TiXmlNode *i = QuestionXmlHandle.Child(2).Node(); i != NULL; i = i->NextSibling())
+        {
+            TiXmlNode *j = i->ToElement()->FirstChild();
+            OutputFileStream << "## " << j->ToElement()->FirstChild()->ToText()->Value() << endl
+                             << endl;
+            j = j->NextSibling();
+            for (; j != NULL; j = j->NextSibling())
+                OutputFileStream << Output(j->ToElement()) << endl;
+            OutputFileStream << endl;
+        }
+        OutputFileStream << "## More details" << endl
+                         << endl
+                         << "|Name|Value|" << endl
+                         << "|:---:|:---:|" << endl
+                         << "|Time Limit|" << QuestionXmlHandle.Child(0).Child(1).Child(1).ToText()->Value() << "|" << endl
+                         << "|Memory Limit|" << QuestionXmlHandle.Child(0).Child(2).Child(1).ToText()->Value() << "|" << endl
+                         << "|Input|" << QuestionXmlHandle.Child(0).Child(3).Child(1).ToText()->Value() << "|" << endl
+                         << "|Output|" << QuestionXmlHandle.Child(0).Child(4).Child(1).ToText()->Value() << "|" << endl
+                         << endl;
+        OutputFileStream.close();
     }
-    OutputFileStream << "## More details" << endl
-                     << endl
-                     << "|Name|Value|" << endl
-                     << "|:---:|:---:|" << endl
-                     << "|Time Limit|" << QuestionXmlHandle.Child(0).Child(1).Child(1).ToText()->Value() << "|" << endl
-                     << "|Memory Limit|" << QuestionXmlHandle.Child(0).Child(2).Child(1).ToText()->Value() << "|" << endl
-                     << "|Input|" << QuestionXmlHandle.Child(0).Child(3).Child(1).ToText()->Value() << "|" << endl
-                     << "|Output|" << QuestionXmlHandle.Child(0).Child(4).Child(1).ToText()->Value() << "|" << endl
-                     << endl;
-    OutputFileStream.close();
 
     // Open the question detail file
     if (system(string("code-insiders /tmp/Codeforces-" + QuestionID + ".md").c_str()))

@@ -26,7 +26,7 @@ string XMOJ::GetCSRF()
     GetDataToFile("http://www.xmoj.tech/csrf.php");
     string Token = GetStringBetween(GetDataFromFileToString(), "value=\"", "\"");
     if (Token == "")
-    TRIGGER_ERROR("Can not find csrf token");
+        TRIGGER_ERROR("Can not find csrf token");
     return Token;
 }
 string XMOJ::HTMLToText(string Data)
@@ -65,9 +65,9 @@ void XMOJ::Login(string Username, string Password)
                   "application/x-www-form-urlencoded");
     string HTMLData = GetDataFromFileToString();
     if (HTMLData.find("history.go(-2);") != string::npos)
-    cout << "Success" << endl;
+        cout << "Success" << endl;
     else
-    TRIGGER_ERROR("Login failed: " + GetStringBetween(HTMLData, "alert('", "');"));
+        TRIGGER_ERROR("Login failed: " + GetStringBetween(HTMLData, "alert('", "');"));
 }
 void XMOJ::GetQuestionDetail(string QuestionID)
 {
@@ -75,115 +75,118 @@ void XMOJ::GetQuestionDetail(string QuestionID)
 }
 void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
 {
-    // Gets the question detail page
-    cout << "Getting question detail page... " << flush;
-    GetDataToFile("http://www.xmoj.tech/problem.php?" + QuestionHandle);
-    string HTMLData = GetDataFromFileToString();
-    string Title = GetStringBetween(HTMLData, "<h2>", "</h2>");
-    if (Title == "")
-    TRIGGER_ERROR("Get question detail failed: " + GetStringBetween(HTMLData, "<h2>", "</h2>"));
-    cout << "Succeed" << endl;
-    string InputMethod = GetStringBetween(HTMLData, "<span class=green>输入文件: </span>", "&nbsp;");
-    string OutputMethod = GetStringBetween(HTMLData, "<span class=green>输出文件: </span>", "&nbsp;");
-    string TimeLimit = GetStringBetween(HTMLData, "<span class=green>时间限制: </span>", "&nbsp;");
-    string MemoryLimit = GetStringBetween(HTMLData, "<span class=green>内存限制: </span>", "<br>");
-    string SubmitCount = GetStringBetween(HTMLData, "<span class=green>提交: </span>", "&nbsp;");
-    string PassCount = GetStringBetween(HTMLData, "<span class=green>解决: </span>", "<br>");
-    string Description = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>题目描述</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
-    string Range = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row-head title'>数据范围</div><div class='cnt-row-body'><div class=content>", "</div></div>"));
-    string InputFormat = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>输入</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
-    string OutputFormat = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>输出</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
-    vector<pair<pair<string, string>, string>> Samples;
-    while (1)
+    if (!IfFileExist("/tmp/XMOJ-" + QuestionID + ".md"))
     {
-        string InputSample = GetStringBetween(HTMLData, "<div class='in-out-item' style='margin-right:.5em;'><span class='title'>样例输入 #" + to_string(Samples.size() + 1) + "</span><a class='copy-btn'>复制</a><pre class=content style='overflow:auto;'><span class=sampledata>", "</span></pre></div>");
-        if (InputSample == "")
-            break;
-        string OutputSample = GetStringBetween(HTMLData, "<div class='in-out-item' style='margin-left:.5em;'><span class='title'>样例输出 #" + to_string(Samples.size() + 1) + "</span><a class='copy-btn'>复制</a><pre class=content style='overflow:auto;'><span class=sampledata>", "</span></pre></div>");
-        string SampleDescription = GetStringBetween(HTMLData, "<div style='margin:.5em 0;'><div class='title' style='margin:.8em 0;'>样例说明 #" + to_string(Samples.size() + 1) + "</div><div class=content>", "</div></div></div>");
-        Samples.push_back({{InputSample, OutputSample}, SampleDescription});
-    }
+        // Gets the question detail page
+        cout << "Getting question detail page... " << flush;
+        GetDataToFile("http://www.xmoj.tech/problem.php?" + QuestionHandle);
+        string HTMLData = GetDataFromFileToString();
+        string Title = GetStringBetween(HTMLData, "<h2>", "</h2>");
+        if (Title == "")
+            TRIGGER_ERROR("Get question detail failed: " + GetStringBetween(HTMLData, "<h2>", "</h2>"));
+        cout << "Succeed" << endl;
+        string InputMethod = GetStringBetween(HTMLData, "<span class=green>输入文件: </span>", "&nbsp;");
+        string OutputMethod = GetStringBetween(HTMLData, "<span class=green>输出文件: </span>", "&nbsp;");
+        string TimeLimit = GetStringBetween(HTMLData, "<span class=green>时间限制: </span>", "&nbsp;");
+        string MemoryLimit = GetStringBetween(HTMLData, "<span class=green>内存限制: </span>", "<br>");
+        string SubmitCount = GetStringBetween(HTMLData, "<span class=green>提交: </span>", "&nbsp;");
+        string PassCount = GetStringBetween(HTMLData, "<span class=green>解决: </span>", "<br>");
+        string Description = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>题目描述</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
+        string Range = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row-head title'>数据范围</div><div class='cnt-row-body'><div class=content>", "</div></div>"));
+        string InputFormat = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>输入</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
+        string OutputFormat = HTMLToText(GetStringBetween(HTMLData, "<div class='cnt-row'><div class='cnt-row-head title'>输出</div><div class='cnt-row-body'><div class=content>", "</div></div></div>"));
+        vector<pair<pair<string, string>, string>> Samples;
+        while (1)
+        {
+            string InputSample = GetStringBetween(HTMLData, "<div class='in-out-item' style='margin-right:.5em;'><span class='title'>样例输入 #" + to_string(Samples.size() + 1) + "</span><a class='copy-btn'>复制</a><pre class=content style='overflow:auto;'><span class=sampledata>", "</span></pre></div>");
+            if (InputSample == "")
+                break;
+            string OutputSample = GetStringBetween(HTMLData, "<div class='in-out-item' style='margin-left:.5em;'><span class='title'>样例输出 #" + to_string(Samples.size() + 1) + "</span><a class='copy-btn'>复制</a><pre class=content style='overflow:auto;'><span class=sampledata>", "</span></pre></div>");
+            string SampleDescription = GetStringBetween(HTMLData, "<div style='margin:.5em 0;'><div class='title' style='margin:.8em 0;'>样例说明 #" + to_string(Samples.size() + 1) + "</div><div class=content>", "</div></div></div>");
+            Samples.push_back({{InputSample, OutputSample}, SampleDescription});
+        }
 
-    // Save data for CPH
-    MD5 MD5Encoder;
-    json CPHData;
-    CPHData["name"] = Title;
-    CPHData["group"] = "XMOJ - test";
-    CPHData["url"] = "http://www.xmoj.tech/problem.php?" + QuestionHandle;
-    CPHData["interactive"] = false;
-    CPHData["memoryLimit"] = atoi(MemoryLimit.substr(0, MemoryLimit.size() - 2).c_str()) * 1024 * 1024;
-    CPHData["timeLimit"] = atoi(GetStringBetween(TimeLimit, "", " ").c_str()) * 1000;
-    for (size_t i = 0; i < Samples.size(); i++)
-    {
-        json Temp;
-        Temp["id"] = i;
-        Temp["input"] = HTMLDecode(FixString(Samples[i].first.first));
-        Temp["output"] = HTMLDecode(FixString(Samples[i].first.second));
-        CPHData["tests"].push_back(json(Temp));
-    }
-    CPHData["local"] = false;
-    CPHData["srcPath"] = "~/XMOJ/" + QuestionID + ".cpp";
-    CPHData["testType"] = "single";
-    CPHData["input"]["type"] = "stdin";
-    CPHData["output"]["type"] = "stdout";
-    CPHData["languages"]["java"]["mainClass"] = "Main";
-    CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
-    CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
-    CPHData["batch"]["size"] = 1;
-    SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", QuestionID), CPHData.dump());
+        // Save data for CPH
+        MD5 MD5Encoder;
+        json CPHData;
+        CPHData["name"] = Title;
+        CPHData["group"] = "XMOJ - test";
+        CPHData["url"] = "http://www.xmoj.tech/problem.php?" + QuestionHandle;
+        CPHData["interactive"] = false;
+        CPHData["memoryLimit"] = atoi(MemoryLimit.substr(0, MemoryLimit.size() - 2).c_str()) * 1024 * 1024;
+        CPHData["timeLimit"] = atoi(GetStringBetween(TimeLimit, "", " ").c_str()) * 1000;
+        for (size_t i = 0; i < Samples.size(); i++)
+        {
+            json Temp;
+            Temp["id"] = i;
+            Temp["input"] = HTMLDecode(FixString(Samples[i].first.first));
+            Temp["output"] = HTMLDecode(FixString(Samples[i].first.second));
+            CPHData["tests"].push_back(json(Temp));
+        }
+        CPHData["local"] = false;
+        CPHData["srcPath"] = "~/XMOJ/" + QuestionID + ".cpp";
+        CPHData["testType"] = "single";
+        CPHData["input"]["type"] = "stdin";
+        CPHData["output"]["type"] = "stdout";
+        CPHData["languages"]["java"]["mainClass"] = "Main";
+        CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
+        CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
+        CPHData["batch"]["size"] = 1;
+        SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", QuestionID), CPHData.dump());
 
-    // Save data for markdown
-    string OutputContent = "# " + Title + "\n";
-    OutputContent += "## Description\n"s +
-                     "\n" +
-                     FixString(Description) + "\n" +
-                     "\n" +
-                     "## Input format\n" +
-                     "\n" +
-                     FixString(InputFormat) + "\n" +
-                     "\n" +
-                     "## Output format\n" +
-                     "\n" +
-                     FixString(OutputFormat) + "\n" +
-                     "\n";
-    if (Range != "")
-        OutputContent += "## Range\n"s +
+        // Save data for markdown
+        string OutputContent = "# " + Title + "\n";
+        OutputContent += "## Description\n"s +
                          "\n" +
-                         FixString(Range) + "\n" +
+                         FixString(Description) + "\n" +
+                         "\n" +
+                         "## Input format\n" +
+                         "\n" +
+                         FixString(InputFormat) + "\n" +
+                         "\n" +
+                         "## Output format\n" +
+                         "\n" +
+                         FixString(OutputFormat) + "\n" +
                          "\n";
-    OutputContent += "## Samples\n"s +
-                     "\n";
-    int Counter = 0;
-    for (auto i : Samples)
-    {
-        Counter++;
-        OutputContent += string("Input #" + to_string(Counter) + "\n") +
-                         "```\n" +
-                         FixString(i.first.first) + "\n" +
-                         "```\n" +
-                         "Output #" + to_string(Counter) + "\n" +
-                         "```\n" +
-                         FixString(i.first.second) + "\n" +
-                         "```\n";
-        if (i.second != "")
-            OutputContent += "Description #" + to_string(Counter) + "\n" +
-                             FixString(i.second) + "\n";
-        OutputContent += "\n";
+        if (Range != "")
+            OutputContent += "## Range\n"s +
+                             "\n" +
+                             FixString(Range) + "\n" +
+                             "\n";
+        OutputContent += "## Samples\n"s +
+                         "\n";
+        int Counter = 0;
+        for (auto i : Samples)
+        {
+            Counter++;
+            OutputContent += string("Input #" + to_string(Counter) + "\n") +
+                             "```\n" +
+                             FixString(i.first.first) + "\n" +
+                             "```\n" +
+                             "Output #" + to_string(Counter) + "\n" +
+                             "```\n" +
+                             FixString(i.first.second) + "\n" +
+                             "```\n";
+            if (i.second != "")
+                OutputContent += "Description #" + to_string(Counter) + "\n" +
+                                 FixString(i.second) + "\n";
+            OutputContent += "\n";
+        }
+        OutputContent += "\n"s +
+                         "## Other information\n" +
+                         "\n";
+        OutputContent += "|Item|Value|\n"s +
+                         "|:---:|:---:|\n" +
+                         "|Input method|`" + InputMethod + "`|\n" +
+                         "|Output method|`" + OutputMethod + "`|\n" +
+                         "|Time limit|$" + TimeLimit + "$|\n" +
+                         "|Memory limit|$" + MemoryLimit + "$|\n" +
+                         "|Submit count|$" + SubmitCount + "$|\n" +
+                         "|Pass count|$" + PassCount + "$|\n" +
+                         "|Pass rate|$" + to_string(atoi(PassCount.c_str()) * 100.0 / atoi(SubmitCount.c_str())) + "\\%$|\n" +
+                         "\n";
+        SetDataFromStringToFile("/tmp/XMOJ-" + QuestionID + ".md", OutputContent);
     }
-    OutputContent += "\n"s +
-                     "## Other information\n" +
-                     "\n";
-    OutputContent += "|Item|Value|\n"s +
-                     "|:---:|:---:|\n" +
-                     "|Input method|`" + InputMethod + "`|\n" +
-                     "|Output method|`" + OutputMethod + "`|\n" +
-                     "|Time limit|$" + TimeLimit + "$|\n" +
-                     "|Memory limit|$" + MemoryLimit + "$|\n" +
-                     "|Submit count|$" + SubmitCount + "$|\n" +
-                     "|Pass count|$" + PassCount + "$|\n" +
-                     "|Pass rate|$" + to_string(atoi(PassCount.c_str()) * 100.0 / atoi(SubmitCount.c_str())) + "\\%$|\n" +
-                     "\n";
-    SetDataFromStringToFile("/tmp/XMOJ-" + QuestionID + ".md", OutputContent);
 
     // Open the question detail file
     if (system(string("code-insiders /tmp/XMOJ-" + QuestionID + ".md").c_str()))
@@ -217,14 +220,14 @@ void XMOJ::SubmitCode(string QuestionID)
                   &HTTPResponseCode,
                   "application/x-www-form-urlencoded");
     if (HTTPResponseCode != 302)
-    TRIGGER_ERROR("Submit failed");
+        TRIGGER_ERROR("Submit failed");
     cout << "Succeed" << endl;
 
     cout << "Getting submission id... " << flush;
     GetDataToFile("http://www.xmoj.tech/" + FindLocation());
     string SubmissionID = GetStringBetween(GetDataFromFileToString(), "<tbody>\r\n<tr class=\"oddrow\"><td></td><td>", "</td>");
     if (SubmissionID == "")
-    TRIGGER_ERROR("Can not find submission id");
+        TRIGGER_ERROR("Can not find submission id");
     cout << "Succeed" << endl;
 
     // Get the record info and wait for the result

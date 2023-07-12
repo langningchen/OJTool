@@ -50,35 +50,38 @@ void UVA::Login(string Username, string Password)
                   &HTTPResponseCode,
                   FORM);
     if (HTTPResponseCode == 200)
-    TRIGGER_ERROR("Login failed");
+        TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
 }
 void UVA::GetQuestionDetail(string QuestionID)
 {
-    // Get the question detail
-    string FixedQuestionID = QuestionID;
-    while (FixedQuestionID[0] == '0')
-        FixedQuestionID.erase(0, 1);
+    if (!IfFileExist("/tmp/UVa-" + QuestionID + ".pdf"))
+    {
+        // Get the question detail
+        string FixedQuestionID = QuestionID;
+        while (FixedQuestionID[0] == '0')
+            FixedQuestionID.erase(0, 1);
 
-    // Save the pdf file
-    cout << "Getting question detail... " << flush;
-    GetDataToFile("https://onlinejudge.org/external/" +
-                      FixedQuestionID.substr(0, FixedQuestionID.size() - 2) +
-                      "/p" + FixedQuestionID + ".pdf",
-                  "",
-                  "/tmp/" + QuestionID + ".pdf",
-                  false,
-                  "",
-                  NULL,
-                  NULL,
-                  "application/json",
-                  "",
-                  true);
-    cout << "Succeed" << endl;
+        // Save the pdf file
+        cout << "Getting question detail... " << flush;
+        GetDataToFile("https://onlinejudge.org/external/" +
+                          FixedQuestionID.substr(0, FixedQuestionID.size() - 2) +
+                          "/p" + FixedQuestionID + ".pdf",
+                      "",
+                      "/tmp/UVa-" + QuestionID + ".pdf",
+                      false,
+                      "",
+                      NULL,
+                      NULL,
+                      "application/json",
+                      "",
+                      true);
+        cout << "Succeed" << endl;
+    }
 
     // Open the pdf file
-    if (system(string("code-insiders /tmp/" + QuestionID + ".pdf").c_str()))
-        cout << "Open file \"/tmp/" << QuestionID << ".md\" failed, please open it manually" << endl;
+    if (system(string("code-insiders /tmp/UVa-" + QuestionID + ".pdf").c_str()))
+        cout << "Open file \"/tmp/UVa-" << QuestionID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get question detail succeed");
 }
 void UVA::SubmitCode(string QuestionID)
@@ -149,13 +152,13 @@ void UVA::SubmitCode(string QuestionID)
                   &HTTPResponseCode,
                   MULTIPART);
     if (HTTPResponseCode == 200)
-    TRIGGER_ERROR("Submit failed");
+        TRIGGER_ERROR("Submit failed");
 
     // Get the submission id
     string SubmissionID = FindLocation();
     SubmissionID = SubmissionID.substr(SubmissionID.find_last_of('+') + 1);
     if (atoi(SubmissionID.c_str()) == 0)
-    TRIGGER_ERROR("Get submission id failed");
+        TRIGGER_ERROR("Get submission id failed");
     cout << "Succeed" << endl;
 
     // Get the submission result
@@ -191,6 +194,6 @@ void UVA::SubmitCode(string QuestionID)
             }
         }
         else
-        TRIGGER_ERROR("Can not find the judge result with submission id " + SubmissionID);
+            TRIGGER_ERROR("Can not find the judge result with submission id " + SubmissionID);
     }
 }

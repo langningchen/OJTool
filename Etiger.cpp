@@ -79,135 +79,138 @@ void ETIGER::ClockIn()
 }
 void ETIGER::GetQuestionDetail(string QuestionID)
 {
-    // Add headers
-    curl_slist *HeaderList = NULL;
-    HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
-    HeaderList = curl_slist_append(HeaderList, "lang: zh");
-    HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
-    HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
-
-    // Send request
-    cout << "Getting question detail... " << flush;
-    GetDataToFile("https://www.etiger.vip/thrall-web/question/getById?id=" + QuestionID,
-                  "",
-                  "",
-                  false,
-                  "",
-                  HeaderList);
-
-    // Parse response
-    json QuestionInfo = json::parse(GetDataFromFileToString());
-    if (QuestionInfo["code"] != 200)
+    if (!IfFileExist("/tmp/Etiger-" + QuestionID + ".md"))
     {
-        TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get question detail failed",
-                                            QuestionInfo["code"].as_integer(),
-                                            QuestionInfo["msg"].as_string());
-    }
-    cout << "Succeed" << endl;
+        // Add headers
+        curl_slist *HeaderList = NULL;
+        HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
+        HeaderList = curl_slist_append(HeaderList, "lang: zh");
+        HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
+        HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
 
-    // Save data for CPH
-    json CPHData;
-    CPHData["name"] = QuestionInfo["data"]["title"].as_string();
-    CPHData["group"] = "Etiger - test";
-    CPHData["url"] = "https://etiger.vip";
-    CPHData["interactive"] = false;
-    CPHData["memoryLimit"] = QuestionInfo["data"]["memLimit"].as_integer();
-    CPHData["timeLimit"] = QuestionInfo["data"]["timeLimit"].as_integer() * 1000;
-    string InputSample = QuestionInfo["data"]["inputSample"].as_string();
-    string OutputSample = QuestionInfo["data"]["outputSample"].as_string();
-    vector<string> InputSamples = SpiltString(InputSample, ";");
-    vector<string> OutputSamples = SpiltString(OutputSample, ";");
-    for (size_t i = 0; i < InputSamples.size(); i++)
-    {
-        string Input = FixString(InputSamples[i]);
-        string Output = FixString(OutputSamples[i]);
-        // If input or output is empty, skip this test case
-        if (Input == "" || Input == "无" || Output == "" || Output == "无")
-            continue;
-        CPHData["tests"][i]["input"] = Input;
-        CPHData["tests"][i]["output"] = Output;
-        CPHData["tests"][i]["id"] = i;
-    }
-    CPHData["local"] = false;
-    CPHData["srcPath"] = "~/Etiger/" + QuestionID + ".cpp";
-    CPHData["testType"] = "single";
-    CPHData["input"]["type"] = "stdin";
-    CPHData["output"]["type"] = "stdout";
-    CPHData["languages"]["java"]["mainClass"] = "Main";
-    CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
-    CPHData["batch"]["id"] = QuestionID;
-    CPHData["batch"]["size"] = 1;
-    SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", QuestionID), CPHData.dump());
+        // Send request
+        cout << "Getting question detail... " << flush;
+        GetDataToFile("https://www.etiger.vip/thrall-web/question/getById?id=" + QuestionID,
+                      "",
+                      "",
+                      false,
+                      "",
+                      HeaderList);
 
-    // Sava markdown file
-    string OutputContent = "";
-    OutputContent += "# " + QuestionID + " " + QuestionInfo["data"]["title"].as_string() + "\n" +
-                     "\n" +
-                     "## 题目描述\n" +
-                     "\n" +
-                     FixString(EraseHTMLElement(QuestionInfo["data"]["content"].as_string())) + "\n" +
-                     "\n" +
-                     "## 输入格式\n" +
-                     "\n" +
-                     FixString(QuestionInfo["data"]["inputFormat"].as_string()) + "\n" +
-                     "\n" +
-                     "## 输出格式\n" +
-                     "\n" +
-                     FixString(QuestionInfo["data"]["outputFormat"].as_string()) + "\n" +
-                     "\n";
-    if (!QuestionInfo["data"]["ioName"].is_null())
-        OutputContent += "## 输入输出文件\n"s +
-                         "\n" +
-                         "`" + FixString(QuestionInfo["data"]["ioName"].as_string()) + "`\n" +
-                         "\n";
-    OutputContent += "## 输入输出样例\n"s +
-                     "\n";
-    int Counter = 1;
-    while (InputSample.find(";") != string::npos && OutputSample.find(";") != string::npos)
-    {
-        if (FixString(InputSample.substr(0, InputSample.find(";"))) != "无")
+        // Parse response
+        json QuestionInfo = json::parse(GetDataFromFileToString());
+        if (QuestionInfo["code"] != 200)
         {
-            OutputContent += "输入 #" + to_string(Counter) + "\n" +
-                             "```\n" +
-                             FixString(InputSample.substr(0, InputSample.find(";"))) + "\n" +
-                             "```\n" +
-                             "输出 #" + to_string(Counter) + "\n" +
-                             "```\n" +
-                             FixString(OutputSample.substr(0, OutputSample.find(";"))) + "\n" +
-                             "```\n";
+            TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get question detail failed",
+                                                QuestionInfo["code"].as_integer(),
+                                                QuestionInfo["msg"].as_string());
         }
-        InputSample.erase(0, InputSample.find(";") + 1);
-        OutputSample.erase(0, OutputSample.find(";") + 1);
-        Counter++;
-    }
-    OutputContent += "\n";
-    if (EraseHTMLElement(QuestionInfo["data"]["description"].as_string()) != "")
-    {
-        OutputContent += "## 说明\n"s +
+        cout << "Succeed" << endl;
+
+        // Save data for CPH
+        json CPHData;
+        CPHData["name"] = QuestionInfo["data"]["title"].as_string();
+        CPHData["group"] = "Etiger - test";
+        CPHData["url"] = "https://etiger.vip";
+        CPHData["interactive"] = false;
+        CPHData["memoryLimit"] = QuestionInfo["data"]["memLimit"].as_integer();
+        CPHData["timeLimit"] = QuestionInfo["data"]["timeLimit"].as_integer() * 1000;
+        string InputSample = QuestionInfo["data"]["inputSample"].as_string();
+        string OutputSample = QuestionInfo["data"]["outputSample"].as_string();
+        vector<string> InputSamples = SpiltString(InputSample, ";");
+        vector<string> OutputSamples = SpiltString(OutputSample, ";");
+        for (size_t i = 0; i < InputSamples.size(); i++)
+        {
+            string Input = FixString(InputSamples[i]);
+            string Output = FixString(OutputSamples[i]);
+            // If input or output is empty, skip this test case
+            if (Input == "" || Input == "无" || Output == "" || Output == "无")
+                continue;
+            CPHData["tests"][i]["input"] = Input;
+            CPHData["tests"][i]["output"] = Output;
+            CPHData["tests"][i]["id"] = i;
+        }
+        CPHData["local"] = false;
+        CPHData["srcPath"] = "~/Etiger/" + QuestionID + ".cpp";
+        CPHData["testType"] = "single";
+        CPHData["input"]["type"] = "stdin";
+        CPHData["output"]["type"] = "stdout";
+        CPHData["languages"]["java"]["mainClass"] = "Main";
+        CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
+        CPHData["batch"]["id"] = QuestionID;
+        CPHData["batch"]["size"] = 1;
+        SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", QuestionID), CPHData.dump());
+
+        // Sava markdown file
+        string OutputContent = "";
+        OutputContent += "# " + QuestionID + " " + QuestionInfo["data"]["title"].as_string() + "\n" +
                          "\n" +
-                         FixString(EraseHTMLElement(QuestionInfo["data"]["description"].as_string())) + "\n" +
+                         "## 题目描述\n" +
+                         "\n" +
+                         FixString(EraseHTMLElement(QuestionInfo["data"]["content"].as_string())) + "\n" +
+                         "\n" +
+                         "## 输入格式\n" +
+                         "\n" +
+                         FixString(QuestionInfo["data"]["inputFormat"].as_string()) + "\n" +
+                         "\n" +
+                         "## 输出格式\n" +
+                         "\n" +
+                         FixString(QuestionInfo["data"]["outputFormat"].as_string()) + "\n" +
                          "\n";
+        if (!QuestionInfo["data"]["ioName"].is_null())
+            OutputContent += "## 输入输出文件\n"s +
+                             "\n" +
+                             "`" + FixString(QuestionInfo["data"]["ioName"].as_string()) + "`\n" +
+                             "\n";
+        OutputContent += "## 输入输出样例\n"s +
+                         "\n";
+        int Counter = 1;
+        while (InputSample.find(";") != string::npos && OutputSample.find(";") != string::npos)
+        {
+            if (FixString(InputSample.substr(0, InputSample.find(";"))) != "无")
+            {
+                OutputContent += "输入 #" + to_string(Counter) + "\n" +
+                                 "```\n" +
+                                 FixString(InputSample.substr(0, InputSample.find(";"))) + "\n" +
+                                 "```\n" +
+                                 "输出 #" + to_string(Counter) + "\n" +
+                                 "```\n" +
+                                 FixString(OutputSample.substr(0, OutputSample.find(";"))) + "\n" +
+                                 "```\n";
+            }
+            InputSample.erase(0, InputSample.find(";") + 1);
+            OutputSample.erase(0, OutputSample.find(";") + 1);
+            Counter++;
+        }
+        OutputContent += "\n";
+        if (EraseHTMLElement(QuestionInfo["data"]["description"].as_string()) != "")
+        {
+            OutputContent += "## 说明\n"s +
+                             "\n" +
+                             FixString(EraseHTMLElement(QuestionInfo["data"]["description"].as_string())) + "\n" +
+                             "\n";
+        }
+        OutputContent += "## 其他数据\n"s +
+                         "\n" +
+                         "|项目|值|\n" +
+                         "|:---:|:---:|\n" +
+                         "|难度|<span style=\"" +
+                         "text-align: center; " +
+                         "display: inline-block; " +
+                         "border-radius: 3px; " +
+                         "color: white; " +
+                         "width: 120px; " +
+                         "height: 24px; " +
+                         "background-color: " + DifficultyName[QuestionInfo["data"]["level"].as_integer()].second +
+                         "\">" +
+                         DifficultyName[QuestionInfo["data"]["level"].as_integer()].first + "</span>|\n" +
+                         "|提交次数|$" + QuestionInfo["data"]["submitInfo"]["totalCount"].as_string() + "$|\n" +
+                         "|提交人数|$" + QuestionInfo["data"]["submitInfo"]["submitPersonCount"].as_string() + "$|\n" +
+                         "|通过人数|$" + QuestionInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
+                         "|通过率|$" + QuestionInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
+                         "\n";
+        SetDataFromStringToFile("/tmp/Etiger-" + QuestionID + ".md", OutputContent);
     }
-    OutputContent += "## 其他数据\n"s +
-                     "\n" +
-                     "|项目|值|\n" +
-                     "|:---:|:---:|\n" +
-                     "|难度|<span style=\"" +
-                     "text-align: center; " +
-                     "display: inline-block; " +
-                     "border-radius: 3px; " +
-                     "color: white; " +
-                     "width: 120px; " +
-                     "height: 24px; " +
-                     "background-color: " + DifficultyName[QuestionInfo["data"]["level"].as_integer()].second +
-                     "\">" +
-                     DifficultyName[QuestionInfo["data"]["level"].as_integer()].first + "</span>|\n" +
-                     "|提交次数|$" + QuestionInfo["data"]["submitInfo"]["totalCount"].as_string() + "$|\n" +
-                     "|提交人数|$" + QuestionInfo["data"]["submitInfo"]["submitPersonCount"].as_string() + "$|\n" +
-                     "|通过人数|$" + QuestionInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
-                     "|通过率|$" + QuestionInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
-                     "\n";
-    SetDataFromStringToFile("/tmp/Etiger-" + QuestionID + ".md", OutputContent);
 
     // Open file
     if (system(string("code-insiders /tmp/Etiger-" + QuestionID + ".md").c_str()))

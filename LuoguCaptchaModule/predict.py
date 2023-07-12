@@ -1,9 +1,3 @@
-"""
-captcha-tensorflow
-Copyright (c) 2017 Jackon Yang
-https://github.com/JackonYang/captcha-tensorflow/blob/master/captcha-solver-model-restore.ipynb
-"""
-
 from os import path
 
 # import matplotlib.pyplot as plt
@@ -13,7 +7,6 @@ from keras.models import load_model
 from PIL import Image
 
 MODEL_PATH = "saved_model/luogu_captcha"
-
 
 model = load_model(path.join(path.dirname(__file__), MODEL_PATH))
 

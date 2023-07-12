@@ -16,22 +16,24 @@ void USACO::Login(string Username, string Password)
                   "application/x-www-form-urlencoded");
     Token = GetStringBetween(GetDataFromFileToString(), "a=", "\"");
     if (Token == "")
-    TRIGGER_ERROR("Login failed");
+        TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
     this->Username = Username;
 }
 void USACO::GetQuestionDetail(string QuestionID)
 {
-    // Get the question detail
-    cout << "Getting question detail... " << flush;
-    GetDataToFile("https://train.usaco.org/usacoprob2?a=XKG7SarkKso&S=" + QuestionID);
-    SetDataFromStringToFile(
-        "/tmp/USACO-" + QuestionID + ".md",
-        GetStringBetween(
-            GetDataFromFileToString(),
-            "<img src=\"/usaco/cow1.jpg\" width=\"742\" height=\"118\">",
-            "<div style='width:6.25in;background-color:#FFFFCC;border:1px solid black;'>"));
-    cout << "Succeed" << endl;
+    if (!IfFileExist("/tmp/USACO-" + QuestionID + ".md"))
+    {
+        // Get the question detail
+        cout << "Getting question detail... " << flush;
+        GetDataToFile("https://train.usaco.org/usacoprob2?a=" + Token + "&S=" + QuestionID);
+        string QuestionDetail = GetDataFromFileToString();
+        QuestionDetail = "<table><td><b" + GetStringBetween(QuestionDetail, "<td><b", "</div>");
+        SetDataFromStringToFile(
+            "/tmp/USACO-" + QuestionID + ".md",
+            QuestionDetail);
+        cout << "Succeed" << endl;
+    }
 
     // Open the question detail file
     if (system(string("code-insiders /tmp/USACO-" + QuestionID + ".md").c_str()))

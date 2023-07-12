@@ -289,141 +289,144 @@ void LUOGU::ClockIn()
 }
 void LUOGU::GetQuestionDetail(string QuestionID)
 {
-    // Gets the question detail page
-    cout << "Getting question detail page... " << flush;
-    GetDataToFile("https://www.luogu.com.cn/problem/" + QuestionID + "?_contentOnly=1");
-    json QuestionInfo = json::parse(GetDataFromFileToString());
-    if (QuestionInfo["code"].as_integer() != 200)
+    if (!IfFileExist("/tmp/Luogu-" + QuestionID + ".md"))
     {
-        TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get question detail failed",
-                                            QuestionInfo["code"].as_integer(),
-                                            QuestionInfo["currentData"]["errorMessage"].as_string());
-    }
-    cout << "Succeed" << endl;
-
-    // Save data for CPH
-    MD5 MD5Encoder;
-    json CPHData;
-    CPHData["name"] = QuestionInfo["currentData"]["problem"]["title"].as_string();
-    CPHData["group"] = "Luogu - test";
-    CPHData["url"] = "https://www.luogu.com.cn/problem/" + QuestionID;
-    CPHData["interactive"] = false;
-    CPHData["memoryLimit"] = 0;
-    for (auto i : QuestionInfo["currentData"]["problem"]["limits"]["memory"])
-        CPHData["memoryLimit"] = max(CPHData["memoryLimit"].as_integer(), i.as_integer());
-    CPHData["timeLimit"] = 0;
-    for (auto i : QuestionInfo["currentData"]["problem"]["limits"]["time"])
-        CPHData["timeLimit"] = max(CPHData["timeLimit"].as_integer(), i.as_integer());
-    for (size_t i = 0; i < QuestionInfo["currentData"]["problem"]["samples"].size(); i++)
-    {
-        json Temp;
-        Temp["id"] = i;
-        Temp["input"] = FixString(QuestionInfo["currentData"]["problem"]["samples"][i][0].as_string());
-        Temp["output"] = FixString(QuestionInfo["currentData"]["problem"]["samples"][i][1].as_string());
-        CPHData["tests"].push_back(json(Temp));
-    }
-    CPHData["local"] = false;
-    CPHData["srcPath"] = "~/Luogu/" + QuestionID + ".cpp";
-    CPHData["testType"] = "single";
-    CPHData["input"]["type"] = "stdin";
-    CPHData["output"]["type"] = "stdout";
-    CPHData["languages"]["java"]["mainClass"] = "Main";
-    CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
-    CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
-    CPHData["batch"]["size"] = 1;
-    SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", QuestionID), CPHData.dump());
-
-    // Save data for markdown
-    string OutputContent = "# " + QuestionID + " " + QuestionInfo["currentData"]["problem"]["title"].as_string() + "\n";
-    if (QuestionInfo["currentData"]["problem"]["accepted"].as_bool())
-        OutputContent += "***您已经通过此题！***\n"s +
-                         "\n";
-    else if (QuestionInfo["currentData"]["problem"]["submitted"].as_bool())
-        OutputContent += "***您已经提交过此题但未通过！***\n"s +
-                         "\n";
-    if (QuestionInfo["currentData"]["problem"]["background"].as_string() != "")
-        OutputContent += "## Background\n"s +
-                         "\n" +
-                         FixString(QuestionInfo["currentData"]["problem"]["background"]) + "\n" +
-                         "\n";
-    OutputContent += "## Description\n"s +
-                     "\n" +
-                     FixString(QuestionInfo["currentData"]["problem"]["description"]) + "\n" +
-                     "\n" +
-                     "## Input format\n" +
-                     "\n" +
-                     FixString(QuestionInfo["currentData"]["problem"]["inputFormat"]) + "\n" +
-                     "\n" +
-                     "## Output format\n" +
-                     "\n" +
-                     FixString(QuestionInfo["currentData"]["problem"]["outputFormat"]) + "\n" +
-                     "\n" +
-                     "## Samples\n" +
-                     "\n";
-    if (QuestionInfo["currentData"]["problem"]["samples"].size() == 0)
-        OutputContent += "None\n\n";
-    else
-    {
-        int Counter = 0;
-        for (auto i : QuestionInfo["currentData"]["problem"]["samples"])
+        // Gets the question detail page
+        cout << "Getting question detail page... " << flush;
+        GetDataToFile("https://www.luogu.com.cn/problem/" + QuestionID + "?_contentOnly=1");
+        json QuestionInfo = json::parse(GetDataFromFileToString());
+        if (QuestionInfo["code"].as_integer() != 200)
         {
-            Counter++;
-            OutputContent += string("Input #" + to_string(Counter) + "\n") +
-                             "```\n" +
-                             FixString(i[0].as_string()) + "\n" +
-                             "```\n" +
-                             "Output #" + to_string(Counter) + "\n" +
-                             "```\n" +
-                             FixString(i[1].as_string()) + "\n" +
-                             "```\n";
+            TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get question detail failed",
+                                                QuestionInfo["code"].as_integer(),
+                                                QuestionInfo["currentData"]["errorMessage"].as_string());
         }
+        cout << "Succeed" << endl;
+
+        // Save data for CPH
+        MD5 MD5Encoder;
+        json CPHData;
+        CPHData["name"] = QuestionInfo["currentData"]["problem"]["title"].as_string();
+        CPHData["group"] = "Luogu - test";
+        CPHData["url"] = "https://www.luogu.com.cn/problem/" + QuestionID;
+        CPHData["interactive"] = false;
+        CPHData["memoryLimit"] = 0;
+        for (auto i : QuestionInfo["currentData"]["problem"]["limits"]["memory"])
+            CPHData["memoryLimit"] = max(CPHData["memoryLimit"].as_integer(), i.as_integer());
+        CPHData["timeLimit"] = 0;
+        for (auto i : QuestionInfo["currentData"]["problem"]["limits"]["time"])
+            CPHData["timeLimit"] = max(CPHData["timeLimit"].as_integer(), i.as_integer());
+        for (size_t i = 0; i < QuestionInfo["currentData"]["problem"]["samples"].size(); i++)
+        {
+            json Temp;
+            Temp["id"] = i;
+            Temp["input"] = FixString(QuestionInfo["currentData"]["problem"]["samples"][i][0].as_string());
+            Temp["output"] = FixString(QuestionInfo["currentData"]["problem"]["samples"][i][1].as_string());
+            CPHData["tests"].push_back(json(Temp));
+        }
+        CPHData["local"] = false;
+        CPHData["srcPath"] = "~/Luogu/" + QuestionID + ".cpp";
+        CPHData["testType"] = "single";
+        CPHData["input"]["type"] = "stdin";
+        CPHData["output"]["type"] = "stdout";
+        CPHData["languages"]["java"]["mainClass"] = "Main";
+        CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
+        CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
+        CPHData["batch"]["size"] = 1;
+        SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", QuestionID), CPHData.dump());
+
+        // Save data for markdown
+        string OutputContent = "# " + QuestionID + " " + QuestionInfo["currentData"]["problem"]["title"].as_string() + "\n";
+        if (QuestionInfo["currentData"]["problem"]["accepted"].as_bool())
+            OutputContent += "***您已经通过此题！***\n"s +
+                             "\n";
+        else if (QuestionInfo["currentData"]["problem"]["submitted"].as_bool())
+            OutputContent += "***您已经提交过此题但未通过！***\n"s +
+                             "\n";
+        if (QuestionInfo["currentData"]["problem"]["background"].as_string() != "")
+            OutputContent += "## Background\n"s +
+                             "\n" +
+                             FixString(QuestionInfo["currentData"]["problem"]["background"]) + "\n" +
+                             "\n";
+        OutputContent += "## Description\n"s +
+                         "\n" +
+                         FixString(QuestionInfo["currentData"]["problem"]["description"]) + "\n" +
+                         "\n" +
+                         "## Input format\n" +
+                         "\n" +
+                         FixString(QuestionInfo["currentData"]["problem"]["inputFormat"]) + "\n" +
+                         "\n" +
+                         "## Output format\n" +
+                         "\n" +
+                         FixString(QuestionInfo["currentData"]["problem"]["outputFormat"]) + "\n" +
+                         "\n" +
+                         "## Samples\n" +
+                         "\n";
+        if (QuestionInfo["currentData"]["problem"]["samples"].size() == 0)
+            OutputContent += "None\n\n";
+        else
+        {
+            int Counter = 0;
+            for (auto i : QuestionInfo["currentData"]["problem"]["samples"])
+            {
+                Counter++;
+                OutputContent += string("Input #" + to_string(Counter) + "\n") +
+                                 "```\n" +
+                                 FixString(i[0].as_string()) + "\n" +
+                                 "```\n" +
+                                 "Output #" + to_string(Counter) + "\n" +
+                                 "```\n" +
+                                 FixString(i[1].as_string()) + "\n" +
+                                 "```\n";
+            }
+        }
+        OutputContent += "\n"s +
+                         "## Hint\n" +
+                         "\n" +
+                         FixString(QuestionInfo["currentData"]["problem"]["hint"]) +
+                         "\n" +
+                         "\n";
+        OutputContent += "## Limits\n";
+        OutputContent += "|Test case|Time limit|Memory limit|\n"s +
+                         "|:---:|:---:|:---:|\n";
+        for (unsigned int Counter = 0; Counter < QuestionInfo["currentData"]["problem"]["limits"]["memory"].size(); Counter++)
+        {
+            OutputContent += "|$" + to_string(Counter + 1) + "$|" +
+                             "$" + to_string(QuestionInfo["currentData"]["problem"]["limits"]["memory"][Counter].as_integer() / 1024.0) + "MB$|" +
+                             "$" + to_string(QuestionInfo["currentData"]["problem"]["limits"]["time"][Counter].as_integer() / 1000) + "s$|\n";
+        }
+        OutputContent += "\n"s +
+                         "## Last submit code\n" +
+                         "\n" +
+                         "```" + LanguageMarkdownName[QuestionInfo["currentData"]["lastLanguage"].as_integer()] + "\n" +
+                         "" + FixString(QuestionInfo["currentData"]["lastCode"].as_string()) + "\n" +
+                         "```\n" +
+                         "\n" +
+                         "## Other information\n" +
+                         "\n";
+        string Tags = "";
+        for (auto i : QuestionInfo["currentData"]["problem"]["tags"])
+            Tags += "<span style=\"display: inline-block; "s +
+                    "margin-right: 5px; " +
+                    "margin-bottom: 5px; " +
+                    "border-radius: 2px; " +
+                    "color: white; " +
+                    "padding: 0px 8px; " +
+                    "background-color: #" + ColorList[TagName[i.as_integer()].second] + "; \">" +
+                    TagName[i.as_integer()].first +
+                    "</span>";
+        OutputContent += "|Item|Value|\n"s +
+                         "|:---:|:---:|\n" +
+                         "|Difficulty|<span style=\"font-weight: bold; color: #" + ColorList[DifficultyName[QuestionInfo["currentData"]["problem"]["difficulty"].as_integer()].second] + "\">" + DifficultyName[QuestionInfo["currentData"]["problem"]["difficulty"].as_integer()].first + "</span>|\n" +
+                         "|Label|" + Tags + "|\n" +
+                         "|Submit count|$" + QuestionInfo["currentData"]["problem"]["totalSubmit"].as_string() + "$|\n" +
+                         "|Pass count|$" + QuestionInfo["currentData"]["problem"]["totalAccepted"].as_string() + "$|\n" +
+                         "|Pass rate|$" + to_string(QuestionInfo["currentData"]["problem"]["totalAccepted"].as_integer() * 100.0 / QuestionInfo["currentData"]["problem"]["totalSubmit"].as_integer()) + "\\%$|\n" +
+                         "|From|`" + TypeName[QuestionInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
+                         "|Last submit language|`" + LanguageName[QuestionInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
+                         "\n";
+        SetDataFromStringToFile("/tmp/Luogu-" + QuestionID + ".md", OutputContent);
     }
-    OutputContent += "\n"s +
-                     "## Hint\n" +
-                     "\n" +
-                     FixString(QuestionInfo["currentData"]["problem"]["hint"]) +
-                     "\n" +
-                     "\n";
-    OutputContent += "## Limits\n";
-    OutputContent += "|Test case|Time limit|Memory limit|\n"s +
-                     "|:---:|:---:|:---:|\n";
-    for (unsigned int Counter = 0; Counter < QuestionInfo["currentData"]["problem"]["limits"]["memory"].size(); Counter++)
-    {
-        OutputContent += "|$" + to_string(Counter + 1) + "$|" +
-                         "$" + to_string(QuestionInfo["currentData"]["problem"]["limits"]["memory"][Counter].as_integer() / 1024.0) + "MB$|" +
-                         "$" + to_string(QuestionInfo["currentData"]["problem"]["limits"]["time"][Counter].as_integer() / 1000) + "s$|\n";
-    }
-    OutputContent += "\n"s +
-                     "## Last submit code\n" +
-                     "\n" +
-                     "```" + LanguageMarkdownName[QuestionInfo["currentData"]["lastLanguage"].as_integer()] + "\n" +
-                     "" + FixString(QuestionInfo["currentData"]["lastCode"].as_string()) + "\n" +
-                     "```\n" +
-                     "\n" +
-                     "## Other information\n" +
-                     "\n";
-    string Tags = "";
-    for (auto i : QuestionInfo["currentData"]["problem"]["tags"])
-        Tags += "<span style=\"display: inline-block; "s +
-                "margin-right: 5px; " +
-                "margin-bottom: 5px; " +
-                "border-radius: 2px; " +
-                "color: white; " +
-                "padding: 0px 8px; " +
-                "background-color: #" + ColorList[TagName[i.as_integer()].second] + "; \">" +
-                TagName[i.as_integer()].first +
-                "</span>";
-    OutputContent += "|Item|Value|\n"s +
-                     "|:---:|:---:|\n" +
-                     "|Difficulty|<span style=\"font-weight: bold; color: #" + ColorList[DifficultyName[QuestionInfo["currentData"]["problem"]["difficulty"].as_integer()].second] + "\">" + DifficultyName[QuestionInfo["currentData"]["problem"]["difficulty"].as_integer()].first + "</span>|\n" +
-                     "|Label|" + Tags + "|\n" +
-                     "|Submit count|$" + QuestionInfo["currentData"]["problem"]["totalSubmit"].as_string() + "$|\n" +
-                     "|Pass count|$" + QuestionInfo["currentData"]["problem"]["totalAccepted"].as_string() + "$|\n" +
-                     "|Pass rate|$f " + to_string(QuestionInfo["currentData"]["problem"]["totalAccepted"].as_integer() * 100.0 / QuestionInfo["currentData"]["problem"]["totalSubmit"].as_integer()) + "\\%$|\n" +
-                     "|From|`" + TypeName[QuestionInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
-                     "|Last submit language|`" + LanguageName[QuestionInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
-                     "\n";
-    SetDataFromStringToFile("/tmp/Luogu-" + QuestionID + ".md", OutputContent);
 
     // Open the file
     if (system(string("code-insiders /tmp/Luogu-" + QuestionID + ".md").c_str()))

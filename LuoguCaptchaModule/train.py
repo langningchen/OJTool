@@ -1,9 +1,3 @@
-"""
-captcha-tensorflow
-Copyright (c) 2017 Jackon Yang
-https://github.com/JackonYang/captcha-tensorflow/blob/master/captcha-solver-tf2-4digits-AlexNet-98.8.ipynb
-"""
-
 from glob import glob
 from os import path
 from datetime import datetime

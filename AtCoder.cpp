@@ -30,7 +30,7 @@ void ATCODER::Login(string Username, string Password)
                                         "var csrfToken = \"",
                                         "\"");
     if (CSRFToken == "")
-    TRIGGER_ERROR("Get CSRF token failed");
+        TRIGGER_ERROR("Get CSRF token failed");
     cout << "Succeed" << endl;
 
     cout << "Logging in... " << flush;
@@ -43,40 +43,43 @@ void ATCODER::Login(string Username, string Password)
                   NULL,
                   FORM);
     if (FindLocation().find("login") != string::npos)
-    TRIGGER_ERROR("Login failed");
+        TRIGGER_ERROR("Login failed");
     cout << "Succeed" << endl;
 }
 void ATCODER::GetQuestionDetail(string QuestionID)
 {
-    cout << "Getting question detail... " << flush;
-    string ContestName = SpiltString(QuestionID, "_")[0];
-    GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + QuestionID);
-    cout << "Succeed" << endl;
+    if (!IfFileExist("/tmp/AtCoder-" + QuestionID + ".md"))
+    {
+        cout << "Getting question detail... " << flush;
+        string ContestName = SpiltString(QuestionID, "_")[0];
+        GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + QuestionID);
+        cout << "Succeed" << endl;
 
-    cout << "Parsing question detail... " << flush;
-    TiXmlDocument QuestionXmlDocument;
-    QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
-    if (QuestionXmlDocument.Error())
-    TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
-    cout << "Succeed" << endl;
+        cout << "Parsing question detail... " << flush;
+        TiXmlDocument QuestionXmlDocument;
+        QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
+        if (QuestionXmlDocument.Error())
+            TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
+        cout << "Succeed" << endl;
 
-    TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
-                                        .FirstChild("html")
-                                        .FirstChild("body")
-                                        .Child("div", 2)
-                                        .FirstChild("div")
-                                        .FirstChild("div")
-                                        .Child("div", 1);
-    string QuestionDetail = "# " + ContestName + " " + QuestionXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
-                            "\n";
-    string TimeAndMemoryLimit = FixString(QuestionXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
-    QuestionDetail += "## Other information\n"s +
-                      "\n" +
-                      "|Item|Value|\n" +
-                      "|:---:|:---:|\n" +
-                      "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
-                      "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-    SetDataFromStringToFile("/tmp/AtCoder-" + QuestionID + ".md", QuestionDetail);
+        TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
+                                            .FirstChild("html")
+                                            .FirstChild("body")
+                                            .Child("div", 2)
+                                            .FirstChild("div")
+                                            .FirstChild("div")
+                                            .Child("div", 1);
+        string QuestionDetail = "# " + ContestName + " " + QuestionXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
+                                "\n";
+        string TimeAndMemoryLimit = FixString(QuestionXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
+        QuestionDetail += "## Other information\n"s +
+                          "\n" +
+                          "|Item|Value|\n" +
+                          "|:---:|:---:|\n" +
+                          "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
+                          "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
+        SetDataFromStringToFile("/tmp/AtCoder-" + QuestionID + ".md", QuestionDetail);
+    }
 
     // Open the question detail file
     if (system(string("code-insiders /tmp/AtCoder-" + QuestionID + ".md").c_str()))
@@ -120,21 +123,30 @@ void ATCODER::SubmitCode(string QuestionID)
                                            "data-id=\"",
                                            "\"");
     if (SubmissionID == "")
-    TRIGGER_ERROR("Get submission ID failed");
+        TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
 
     cout << "Judging... " << flush;
-    GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID);
-    std::string HTMLData = GetDataFromFileToString();
-    HTMLData = StringReplaceAll(HTMLData, "\r", " ");
-    HTMLData = StringReplaceAll(HTMLData, "\n", " ");
-    HTMLData = StringReplaceAll(HTMLData, "\t", " ");
-    HTMLData = StringReplaceAll(HTMLData, "< ", "<");
-    HTMLData = StringReplaceAll(HTMLData, " <", "<");
-    HTMLData = StringReplaceAll(HTMLData, " >", ">");
-    HTMLData = StringReplaceAll(HTMLData, "> ", ">");
-    HTMLData = StringReplaceAll(HTMLData, "= ", "=");
-    HTMLData = StringReplaceAll(HTMLData, " =", "=");
-    HTMLData = StringReplaceAll(HTMLData, "  ", " ");
-    SetDataFromStringToFile("/tmp/Temp.txt", HTMLData);
+    while (1)
+    {
+        GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID + "/status/json");
+        json JSONData = json::parse(GetDataFromFileToString());
+        cout << "\rJudging... " << GetStringBetween(JSONData["Html"].as_string(), ">", "<") << flush;
+        if (JSONData["Status"].as_string() == "AC")
+        {
+            cout << "\rJudging... Succeed" << endl
+                 << "Congratulations! You have passed this question!" << endl;
+            TOOL::Speak("Congratulations! You have passed this question!");
+            break;
+        }
+        else if (JSONData["Interval"].is_null())
+        {
+            cout << "\rJudging... Succeed"
+                 << " " << JSONData["Status"].as_string() << endl;
+            system(("www-browser https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID).c_str());
+            TOOL::Speak("You did not pass this question");
+            break;
+        }
+        usleep(500000);
+    }
 }
