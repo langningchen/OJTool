@@ -62,5 +62,6 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "none",
+    "cph.general.saveLocation": ""
 }

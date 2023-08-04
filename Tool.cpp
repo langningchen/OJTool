@@ -17,7 +17,7 @@ string TOOL::GetCPHFileName(string Path, string FileName)
     // Create an object of the MD5 class to encode the file name
     MD5 MD5Encoder;
     // Return the file name in the CPH directory
-    return "/tmp/." +
+    return "/home/langningc2009/CPH/." +
            FileName +
            ".cpp_" +
            // Encode the full path of the file
