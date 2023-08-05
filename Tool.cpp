@@ -17,7 +17,7 @@ string TOOL::GetCPHFileName(string Path, string FileName)
     // Create an object of the MD5 class to encode the file name
     MD5 MD5Encoder;
     // Return the file name in the CPH directory
-    return "/home/langningc2009/CPH/." +
+    return "/CPH/." +
            FileName +
            ".cpp_" +
            // Encode the full path of the file
@@ -32,12 +32,12 @@ void TOOL::Execute()
     {
         LUOGU Luogu;
         Luogu.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            Luogu.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            Luogu.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            Luogu.SubmitCode(QuestionID);
+            Luogu.SubmitCode(ProblemID);
         else if (Operation == "GetAnswerOrTips")
-            Luogu.GetAnswerOrTips(QuestionID);
+            Luogu.GetAnswerOrTips(ProblemID);
         else if (Operation == "ClockIn")
             Luogu.ClockIn();
         else
@@ -47,12 +47,12 @@ void TOOL::Execute()
     {
         ETIGER Etiger;
         Etiger.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            Etiger.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            Etiger.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            Etiger.SubmitCode(QuestionID);
+            Etiger.SubmitCode(ProblemID);
         else if (Operation == "GetAnswerOrTips")
-            Etiger.GetAnswerOrTips(QuestionID);
+            Etiger.GetAnswerOrTips(ProblemID);
         else if (Operation == "ClockIn")
             Etiger.ClockIn();
         else
@@ -62,10 +62,10 @@ void TOOL::Execute()
     {
         XMOJ _XMOJ;
         _XMOJ.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            _XMOJ.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            _XMOJ.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            _XMOJ.SubmitCode(QuestionID);
+            _XMOJ.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     }
@@ -73,10 +73,10 @@ void TOOL::Execute()
     {
         USACO _USACO;
         _USACO.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            _USACO.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            _USACO.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            _USACO.SubmitCode(QuestionID);
+            _USACO.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     }
@@ -84,10 +84,10 @@ void TOOL::Execute()
     {
         UVA UVa;
         UVa.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            UVa.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            UVa.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            UVa.SubmitCode(QuestionID);
+            UVa.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     }
@@ -95,10 +95,10 @@ void TOOL::Execute()
     {
         CODEFORCES Codeforces;
         Codeforces.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            Codeforces.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            Codeforces.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            Codeforces.SubmitCode(QuestionID);
+            Codeforces.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     }
@@ -106,10 +106,10 @@ void TOOL::Execute()
     {
         ATCODER AtCoder;
         AtCoder.Login(Username, Password);
-        if (Operation == "GetQuestionDetail")
-            AtCoder.GetQuestionDetail(QuestionID);
+        if (Operation == "GetProblemDetail")
+            AtCoder.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
-            AtCoder.SubmitCode(QuestionID);
+            AtCoder.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     }

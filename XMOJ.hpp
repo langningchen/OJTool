@@ -11,14 +11,14 @@ private:
     string ResultName[17];
     string GetCSRF();
     string HTMLToText(string Data);
-    void _GetQuestionDetail(string QuestionID, string QuestionHandle);
+    void _GetProblemDetail(string ProblemID, string ProblemHandle);
 
 public:
     XMOJ();
     void Login(string Username, string Password);
-    void GetQuestionDetail(string QuestionID);
-    void SubmitCode(string QuestionID);
-    void GetContestQuestionsDetails(string ContestID);
+    void GetProblemDetail(string ProblemID);
+    void SubmitCode(string ProblemID);
+    void GetContestProblemsDetails(string ContestID);
 };
 
 #endif

@@ -18,7 +18,7 @@ public:
     string Password;
     string OJ;
     string Operation;
-    string QuestionID;
+    string ProblemID;
 
     void Execute();
 

@@ -19,6 +19,7 @@ void ATCODER::Login(string Username, string Password)
                   &HTTPResponseCode);
     if (HTTPResponseCode != 302)
     {
+        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -44,57 +45,58 @@ void ATCODER::Login(string Username, string Password)
                   FORM);
     if (FindLocation().find("login") != string::npos)
         TRIGGER_ERROR("Login failed");
+    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
-void ATCODER::GetQuestionDetail(string QuestionID)
+void ATCODER::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/AtCoder-" + QuestionID + ".md"))
+    if (!IfFileExist("/tmp/AtCoder-" + ProblemID + ".md"))
     {
-        cout << "Getting question detail... " << flush;
-        string ContestName = SpiltString(QuestionID, "_")[0];
-        GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + QuestionID);
+        cout << "Getting problem detail... " << flush;
+        string ContestName = SpiltString(ProblemID, "_")[0];
+        GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
         cout << "Succeed" << endl;
 
-        cout << "Parsing question detail... " << flush;
-        TiXmlDocument QuestionXmlDocument;
-        QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
-        if (QuestionXmlDocument.Error())
-            TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
+        cout << "Parsing problem detail... " << flush;
+        TiXmlDocument ProblemXmlDocument;
+        ProblemXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
+        if (ProblemXmlDocument.Error())
+            TRIGGER_ERROR("Parse problem detail error: "s + ProblemXmlDocument.ErrorDesc());
         cout << "Succeed" << endl;
 
-        TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
-                                            .FirstChild("html")
-                                            .FirstChild("body")
-                                            .Child("div", 2)
-                                            .FirstChild("div")
-                                            .FirstChild("div")
-                                            .Child("div", 1);
-        string QuestionDetail = "# " + ContestName + " " + QuestionXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
-                                "\n";
-        string TimeAndMemoryLimit = FixString(QuestionXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
-        QuestionDetail += "## Other information\n"s +
-                          "\n" +
-                          "|Item|Value|\n" +
-                          "|:---:|:---:|\n" +
-                          "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
-                          "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-        SetDataFromStringToFile("/tmp/AtCoder-" + QuestionID + ".md", QuestionDetail);
+        TiXmlHandle ProblemXmlHandle = TiXmlHandle(&ProblemXmlDocument)
+                                           .FirstChild("html")
+                                           .FirstChild("body")
+                                           .Child("div", 2)
+                                           .FirstChild("div")
+                                           .FirstChild("div")
+                                           .Child("div", 1);
+        string ProblemDetail = "# " + ContestName + " " + ProblemXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
+                               "\n";
+        string TimeAndMemoryLimit = FixString(ProblemXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
+        ProblemDetail += "## Other information\n"s +
+                         "\n" +
+                         "|Item|Value|\n" +
+                         "|:---:|:---:|\n" +
+                         "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
+                         "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
+        SetDataFromStringToFile("/tmp/AtCoder-" + ProblemID + ".md", ProblemDetail);
     }
 
-    // Open the question detail file
-    if (system(string("code-insiders /tmp/AtCoder-" + QuestionID + ".md").c_str()))
-        cout << "Open file \"/tmp/AtCoder-" << QuestionID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get question detail succeed");
+    // Open the problem detail file
+    if (system(string("code-insiders /tmp/AtCoder-" + ProblemID + ".md").c_str()))
+        cout << "Open file \"/tmp/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get problem detail succeed");
 }
-void ATCODER::SubmitCode(string QuestionID)
+void ATCODER::SubmitCode(string ProblemID)
 {
     // Get the code
-    string Code = GetDataFromFileToString("AtCoder/" + QuestionID + ".cpp");
-    string ContestName = SpiltString(QuestionID, "_")[0];
+    string Code = GetDataFromFileToString("AtCoder/" + ProblemID + ".cpp");
+    string ContestName = SpiltString(ProblemID, "_")[0];
 
     // Get the token
     cout << "Getting submit page data... " << flush;
-    GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + QuestionID);
+    GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
     string CSRFToken = GetStringBetween(GetDataFromFileToString(),
                                         "var csrfToken = \"",
                                         "\"");
@@ -106,7 +108,7 @@ void ATCODER::SubmitCode(string QuestionID)
                   "",
                   "",
                   true,
-                  "data.TaskScreenName=" + QuestionID + "&data.LanguageId=4003&sourceCode=" + URLEncode(Code) + "&csrf_token=" + URLEncode(CSRFToken),
+                  "data.TaskScreenName=" + ProblemID + "&data.LanguageId=4003&sourceCode=" + URLEncode(Code) + "&csrf_token=" + URLEncode(CSRFToken),
                   NULL,
                   &HTTPResponseCode,
                   FORM);
@@ -135,8 +137,8 @@ void ATCODER::SubmitCode(string QuestionID)
         if (JSONData["Status"].as_string() == "AC")
         {
             cout << "\rJudging... Succeed" << endl
-                 << "Congratulations! You have passed this question!" << endl;
-            TOOL::Speak("Congratulations! You have passed this question!");
+                 << "Congratulations! You have solved this problem!" << endl;
+            TOOL::Speak("Congratulations! You have solved this problem!");
             break;
         }
         else if (JSONData["Interval"].is_null())
@@ -144,7 +146,7 @@ void ATCODER::SubmitCode(string QuestionID)
             cout << "\rJudging... Succeed"
                  << " " << JSONData["Status"].as_string() << endl;
             system(("www-browser https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID).c_str());
-            TOOL::Speak("You did not pass this question");
+            TOOL::Speak("You did not solve this problem");
             break;
         }
         usleep(500000);

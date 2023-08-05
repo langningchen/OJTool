@@ -46,6 +46,7 @@ void XMOJ::Login(string Username, string Password)
     GetDataToFile("http://www.xmoj.tech/mail.php");
     if (GetDataFromFileToString().find("请登录后继续操作") == string::npos)
     {
+        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -64,26 +65,26 @@ void XMOJ::Login(string Username, string Password)
                   NULL,
                   "application/x-www-form-urlencoded");
     string HTMLData = GetDataFromFileToString();
-    if (HTMLData.find("history.go(-2);") != string::npos)
-        cout << "Success" << endl;
-    else
+    if (HTMLData.find("history.go(-2);") == string::npos)
         TRIGGER_ERROR("Login failed: " + GetStringBetween(HTMLData, "alert('", "');"));
+    TOOL::Speak("Login succeeds");
+    cout << "Success" << endl;
 }
-void XMOJ::GetQuestionDetail(string QuestionID)
+void XMOJ::GetProblemDetail(string ProblemID)
 {
-    _GetQuestionDetail(QuestionID, "id=" + QuestionID);
+    _GetProblemDetail(ProblemID, "id=" + ProblemID);
 }
-void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
+void XMOJ::_GetProblemDetail(string ProblemID, string ProblemHandle)
 {
-    if (!IfFileExist("/tmp/XMOJ-" + QuestionID + ".md"))
+    if (!IfFileExist("/tmp/XMOJ-" + ProblemID + ".md"))
     {
-        // Gets the question detail page
-        cout << "Getting question detail page... " << flush;
-        GetDataToFile("http://www.xmoj.tech/problem.php?" + QuestionHandle);
+        // Gets the problem detail page
+        cout << "Getting problem detail page... " << flush;
+        GetDataToFile("http://www.xmoj.tech/problem.php?" + ProblemHandle);
         string HTMLData = GetDataFromFileToString();
         string Title = GetStringBetween(HTMLData, "<h2>", "</h2>");
         if (Title == "")
-            TRIGGER_ERROR("Get question detail failed: " + GetStringBetween(HTMLData, "<h2>", "</h2>"));
+            TRIGGER_ERROR("Get problem detail failed: " + GetStringBetween(HTMLData, "<h2>", "</h2>"));
         cout << "Succeed" << endl;
         string InputMethod = GetStringBetween(HTMLData, "<span class=green>输入文件: </span>", "&nbsp;");
         string OutputMethod = GetStringBetween(HTMLData, "<span class=green>输出文件: </span>", "&nbsp;");
@@ -111,7 +112,7 @@ void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
         json CPHData;
         CPHData["name"] = Title;
         CPHData["group"] = "XMOJ - test";
-        CPHData["url"] = "http://www.xmoj.tech/problem.php?" + QuestionHandle;
+        CPHData["url"] = "http://www.xmoj.tech/problem.php?" + ProblemHandle;
         CPHData["interactive"] = false;
         CPHData["memoryLimit"] = atoi(MemoryLimit.substr(0, MemoryLimit.size() - 2).c_str()) * 1024 * 1024;
         CPHData["timeLimit"] = atoi(GetStringBetween(TimeLimit, "", " ").c_str()) * 1000;
@@ -124,15 +125,15 @@ void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
             CPHData["tests"].push_back(json(Temp));
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "~/XMOJ/" + QuestionID + ".cpp";
+        CPHData["srcPath"] = "/home/langningc2009/XMOJ/" + ProblemID + ".cpp";
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
         CPHData["languages"]["java"]["mainClass"] = "Main";
         CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
-        CPHData["batch"]["id"] = MD5Encoder.encode(QuestionID);
+        CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
-        SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", QuestionID), CPHData.dump());
+        SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", ProblemID), CPHData.dump());
 
         // Save data for markdown
         string OutputContent = "# " + Title + "\n";
@@ -185,20 +186,20 @@ void XMOJ::_GetQuestionDetail(string QuestionID, string QuestionHandle)
                          "|Pass count|$" + PassCount + "$|\n" +
                          "|Pass rate|$" + to_string(atoi(PassCount.c_str()) * 100.0 / atoi(SubmitCount.c_str())) + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/XMOJ-" + QuestionID + ".md", OutputContent);
+        SetDataFromStringToFile("/tmp/XMOJ-" + ProblemID + ".md", OutputContent);
     }
 
-    // Open the question detail file
-    if (system(string("code-insiders /tmp/XMOJ-" + QuestionID + ".md").c_str()))
-        cout << "Open file \"/tmp/XMOJ-" << QuestionID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get question detail succeed");
+    // Open the problem detail file
+    if (system(string("code-insiders /tmp/XMOJ-" + ProblemID + ".md").c_str()))
+        cout << "Open file \"/tmp/XMOJ-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get problem detail succeed");
 }
-void XMOJ::SubmitCode(string QuestionID)
+void XMOJ::SubmitCode(string ProblemID)
 {
-    string Code = GetDataFromFileToString("XMOJ/" + QuestionID + ".cpp");
+    string Code = GetDataFromFileToString("XMOJ/" + ProblemID + ".cpp");
     Code = StringReplaceAll(Code, "// freopen", "freopen");
     cout << "Getting submit page data... " << flush;
-    GetDataToFile("http://www.xmoj.tech/submitpage.php?id=" + QuestionID);
+    GetDataToFile("http://www.xmoj.tech/submitpage.php?id=" + ProblemID);
     cout << "Succeed" << endl;
     string SubmitPageData = GetDataFromFileToString();
     int HTTPResponseCode = 0;
@@ -209,7 +210,7 @@ void XMOJ::SubmitCode(string QuestionID)
                   "",
                   "",
                   true,
-                  "id=" + QuestionID +
+                  "id=" + ProblemID +
                       "&language=1" +
                       "&source=" + URLEncode(Code) +
                       "&enable_O2=on" +
@@ -242,9 +243,9 @@ void XMOJ::SubmitCode(string QuestionID)
     cout << "Succeed" << endl;
     if (JudgeResult == 4)
     {
-        SetDataFromStringToFile("XMOJ/" + QuestionID + ".cpp", Code + "\n");
-        cout << "Congratulations! You have passed this question!" << endl;
-        TOOL::Speak("Congratulations! You have passed this question!");
+        SetDataFromStringToFile("XMOJ/" + ProblemID + ".cpp", Code + "\n");
+        cout << "Congratulations! You have solved this problem!" << endl;
+        TOOL::Speak("Congratulations! You have solved this problem!");
     }
     else
     {
@@ -298,22 +299,22 @@ void XMOJ::SubmitCode(string QuestionID)
                 }
             }
         }
-        TOOL::Speak("You did not pass this question");
+        TOOL::Speak("You did not solve this problem");
     }
 }
-void XMOJ::GetContestQuestionsDetails(string ContestID)
+void XMOJ::GetContestProblemsDetails(string ContestID)
 {
     GetDataToFile("http://www.xmoj.tech/contest.php?cid=" + ContestID);
     string ContestPageData = GetDataFromFileToString();
-    int QuestionCount = 0;
+    int ProblemCount = 0;
     while (1)
     {
-        string QuestionID = GetStringBetween(ContestPageData, "\t&nbsp;", " &nbsp;");
-        if (QuestionID == "")
+        string ProblemID = GetStringBetween(ContestPageData, "\t&nbsp;", " &nbsp;");
+        if (ProblemID == "")
             break;
-        _GetQuestionDetail(QuestionID, "cid=" + ContestID + "&pid=" + to_string(QuestionCount));
+        _GetProblemDetail(ProblemID, "cid=" + ContestID + "&pid=" + to_string(ProblemCount));
         ContestPageData = ContestPageData.substr(ContestPageData.find("\t&nbsp;") + 1);
-        QuestionCount++;
-        cout << "Question " << QuestionID << " has been downloaded" << endl;
+        ProblemCount++;
+        cout << "Problem " << ProblemID << " has been downloaded" << endl;
     }
 }

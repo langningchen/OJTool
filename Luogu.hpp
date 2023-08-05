@@ -17,10 +17,10 @@ private:
 public:
     LUOGU();
     void Login(string Username, string Password);
-    void GetQuestionDetail(string QuestionID);
-    void SubmitCode(string QuestionID);
+    void GetProblemDetail(string ProblemID);
+    void SubmitCode(string ProblemID);
     void ClockIn();
-    void GetAnswerOrTips(string QuestionID);
+    void GetAnswerOrTips(string ProblemID);
 };
 
 #endif

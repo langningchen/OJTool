@@ -17,42 +17,43 @@ void USACO::Login(string Username, string Password)
     Token = GetStringBetween(GetDataFromFileToString(), "a=", "\"");
     if (Token == "")
         TRIGGER_ERROR("Login failed");
+    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
     this->Username = Username;
 }
-void USACO::GetQuestionDetail(string QuestionID)
+void USACO::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/USACO-" + QuestionID + ".md"))
+    if (!IfFileExist("/tmp/USACO-" + ProblemID + ".md"))
     {
-        // Get the question detail
-        cout << "Getting question detail... " << flush;
-        GetDataToFile("https://train.usaco.org/usacoprob2?a=" + Token + "&S=" + QuestionID);
-        string QuestionDetail = GetDataFromFileToString();
-        QuestionDetail = "<table><td><b" + GetStringBetween(QuestionDetail, "<td><b", "</div>");
+        // Get the problem detail
+        cout << "Getting problem detail... " << flush;
+        GetDataToFile("https://train.usaco.org/usacoprob2?a=" + Token + "&S=" + ProblemID);
+        string ProblemDetail = GetDataFromFileToString();
+        ProblemDetail = "<table><td><b" + GetStringBetween(ProblemDetail, "<td><b", "</div>");
         SetDataFromStringToFile(
-            "/tmp/USACO-" + QuestionID + ".md",
-            QuestionDetail);
+            "/tmp/USACO-" + ProblemID + ".md",
+            ProblemDetail);
         cout << "Succeed" << endl;
     }
 
-    // Open the question detail file
-    if (system(string("code-insiders /tmp/USACO-" + QuestionID + ".md").c_str()))
-        cout << "Open file \"/tmp/USACO-" << QuestionID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get question detail succeed");
+    // Open the problem detail file
+    if (system(string("code-insiders /tmp/USACO-" + ProblemID + ".md").c_str()))
+        cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get problem detail succeed");
 }
-void USACO::SubmitCode(string QuestionID)
+void USACO::SubmitCode(string ProblemID)
 {
-    string Code = GetDataFromFileToString("USACO/" + QuestionID + ".cpp");
+    string Code = GetDataFromFileToString("USACO/" + ProblemID + ".cpp");
     Code = "/*\n"s +
            "ID: " + Username + "\n" +
-           "TASK: " + QuestionID + "\n" +
+           "TASK: " + ProblemID + "\n" +
            "LANG: C++14\n" +
            "*/\n" +
            Code;
     Code = FixString(Code);
     Code += "\n";
     string MultiPartData = "--" + MULTIPART_BOUNDARY + "\n" +
-                           "Content-Disposition: form-data; name=\"filename\"; filename=\"" + QuestionID + ".cpp\"\n" +
+                           "Content-Disposition: form-data; name=\"filename\"; filename=\"" + ProblemID + ".cpp\"\n" +
                            "Content-Type: application/octet-stream\n" +
                            "\n" +
                            Code + "\n" +
@@ -75,11 +76,11 @@ void USACO::SubmitCode(string QuestionID)
                   MULTIPART);
     cout << "Succeed" << endl;
 
-    SetDataFromStringToFile("/tmp/" + QuestionID + ".log",
+    SetDataFromStringToFile("/tmp/" + ProblemID + ".log",
                             EraseHTMLElement(
                                 GetStringBetween(
                                     GetDataFromFileToString(),
                                     "<div style=background-color:white;padding:5px;>",
                                     "</div>")));
-    system(("code-insiders /tmp/" + QuestionID + ".log").c_str());
+    system(("code-insiders /tmp/" + ProblemID + ".log").c_str());
 }

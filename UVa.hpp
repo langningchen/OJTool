@@ -9,8 +9,8 @@ class UVA : public OJ
 {
 public:
     void Login(string Username, string Password);
-    void GetQuestionDetail(string QuestionID);
-    void SubmitCode(string QuestionID);
+    void GetProblemDetail(string ProblemID);
+    void SubmitCode(string ProblemID);
 };
 
 #endif

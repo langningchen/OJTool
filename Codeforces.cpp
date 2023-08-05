@@ -173,6 +173,7 @@ void CODEFORCES::Login(string Username, string Password)
                   &HTTPResponseCode);
     if (HTTPResponseCode == 302)
     {
+        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -246,47 +247,48 @@ void CODEFORCES::Login(string Username, string Password)
         else
             TRIGGER_ERROR("Login failed");
     }
+    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
-void CODEFORCES::GetQuestionDetail(string QuestionID)
+void CODEFORCES::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/Codeforces-" + QuestionID + ".md"))
+    if (!IfFileExist("/tmp/Codeforces-" + ProblemID + ".md"))
     {
-        // Get the question detail
-        cout << "Getting question detail... " << flush;
+        // Get the problem detail
+        cout << "Getting problem detail... " << flush;
         GetDataToFile("https://codeforces.com/problemset/problem/" +
-                      QuestionID.substr(0, QuestionID.size() - 1) + "/" +
-                      QuestionID.substr(QuestionID.size() - 1));
+                      ProblemID.substr(0, ProblemID.size() - 1) + "/" +
+                      ProblemID.substr(ProblemID.size() - 1));
         cout << "Succeed" << endl;
 
-        // Format the question detail and prase it
-        cout << "Parsing question detail... " << flush;
-        TiXmlDocument QuestionXmlDocument;
-        QuestionXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
-        if (QuestionXmlDocument.Error())
-            TRIGGER_ERROR("Parse question detail error: "s + QuestionXmlDocument.ErrorDesc());
-        ofstream OutputFileStream(string("/tmp/Codeforces-" + QuestionID + ".md").c_str());
+        // Format the problem detail and prase it
+        cout << "Parsing problem detail... " << flush;
+        TiXmlDocument ProblemXmlDocument;
+        ProblemXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
+        if (ProblemXmlDocument.Error())
+            TRIGGER_ERROR("Parse problem detail error: "s + ProblemXmlDocument.ErrorDesc());
+        ofstream OutputFileStream(string("/tmp/Codeforces-" + ProblemID + ".md").c_str());
         cout << "Succeed" << endl;
 
-        // Find the question detail
-        TiXmlHandle QuestionXmlHandle = TiXmlHandle(&QuestionXmlDocument)
-                                            .FirstChild("html")
-                                            .FirstChild("body")
-                                            .Child("div", 3)
-                                            .Child("div", 4)
-                                            .Child("div", 1)
-                                            .Child("div", 2)
-                                            .Child("div", 1)
-                                            .Child("div", 0);
+        // Find the problem detail
+        TiXmlHandle ProblemXmlHandle = TiXmlHandle(&ProblemXmlDocument)
+                                           .FirstChild("html")
+                                           .FirstChild("body")
+                                           .Child("div", 3)
+                                           .Child("div", 4)
+                                           .Child("div", 1)
+                                           .Child("div", 2)
+                                           .Child("div", 1)
+                                           .Child("div", 0);
 
-        // Output the question detail
-        OutputFileStream << "# " << QuestionXmlHandle.Child(0).Child(0).ToElement()->GetText()
+        // Output the problem detail
+        OutputFileStream << "# " << ProblemXmlHandle.Child(0).Child(0).ToElement()->GetText()
                          << endl
                          << endl
                          << "## Description" << endl
-                         << Output(QuestionXmlHandle.Child(1).ToElement()) << endl
+                         << Output(ProblemXmlHandle.Child(1).ToElement()) << endl
                          << endl;
-        for (TiXmlNode *i = QuestionXmlHandle.Child(2).Node(); i != NULL; i = i->NextSibling())
+        for (TiXmlNode *i = ProblemXmlHandle.Child(2).Node(); i != NULL; i = i->NextSibling())
         {
             TiXmlNode *j = i->ToElement()->FirstChild();
             OutputFileStream << "## " << j->ToElement()->FirstChild()->ToText()->Value() << endl
@@ -300,23 +302,23 @@ void CODEFORCES::GetQuestionDetail(string QuestionID)
                          << endl
                          << "|Name|Value|" << endl
                          << "|:---:|:---:|" << endl
-                         << "|Time Limit|" << QuestionXmlHandle.Child(0).Child(1).Child(1).ToText()->Value() << "|" << endl
-                         << "|Memory Limit|" << QuestionXmlHandle.Child(0).Child(2).Child(1).ToText()->Value() << "|" << endl
-                         << "|Input|" << QuestionXmlHandle.Child(0).Child(3).Child(1).ToText()->Value() << "|" << endl
-                         << "|Output|" << QuestionXmlHandle.Child(0).Child(4).Child(1).ToText()->Value() << "|" << endl
+                         << "|Time Limit|" << ProblemXmlHandle.Child(0).Child(1).Child(1).ToText()->Value() << "|" << endl
+                         << "|Memory Limit|" << ProblemXmlHandle.Child(0).Child(2).Child(1).ToText()->Value() << "|" << endl
+                         << "|Input|" << ProblemXmlHandle.Child(0).Child(3).Child(1).ToText()->Value() << "|" << endl
+                         << "|Output|" << ProblemXmlHandle.Child(0).Child(4).Child(1).ToText()->Value() << "|" << endl
                          << endl;
         OutputFileStream.close();
     }
 
-    // Open the question detail file
-    if (system(string("code-insiders /tmp/Codeforces-" + QuestionID + ".md").c_str()))
-        cout << "Open file \"/tmp/Codeforces-" << QuestionID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get question detail succeed");
+    // Open the problem detail file
+    if (system(string("code-insiders /tmp/Codeforces-" + ProblemID + ".md").c_str()))
+        cout << "Open file \"/tmp/Codeforces-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get problem detail succeed");
 }
-void CODEFORCES::SubmitCode(string QuestionID)
+void CODEFORCES::SubmitCode(string ProblemID)
 {
     // Get the code
-    string Code = GetDataFromFileToString("Codeforces/" + QuestionID + ".cpp");
+    string Code = GetDataFromFileToString("Codeforces/" + ProblemID + ".cpp");
 
     // Add a number to the code to avoid submitting the same code
     Code += "\n\n// " + to_string(time(NULL)) + "\n";
@@ -338,8 +340,8 @@ void CODEFORCES::SubmitCode(string QuestionID)
                       "&ftaa=" + ftaa +
                       "&bfaa=" + bfaa +
                       "&action=submitSolutionFormSubmitted" +
-                      "&contestId=" + QuestionID.substr(0, QuestionID.size() - 1) +
-                      "&submittedProblemIndex=" + QuestionID.substr(QuestionID.size() - 1) +
+                      "&contestId=" + ProblemID.substr(0, ProblemID.size() - 1) +
+                      "&submittedProblemIndex=" + ProblemID.substr(ProblemID.size() - 1) +
                       "&programTypeId=50" +
                       "&source=" + URLEncode(Code) +
                       "&tabSize=4&sourceFile=&_tta=153")
@@ -405,9 +407,9 @@ void CODEFORCES::SubmitCode(string QuestionID)
     for (int i = 1; i <= TestNumber; i++)
     {
         // Save the input and output file
-        SetDataFromStringToFile("Codeforces/" + QuestionID + "_" + to_string(i) + ".in",
+        SetDataFromStringToFile("Codeforces/" + ProblemID + "_" + to_string(i) + ".in",
                                 result["input#" + to_string(i)].as_string());
-        SetDataFromStringToFile("Codeforces/" + QuestionID + "_" + to_string(i) + ".out",
+        SetDataFromStringToFile("Codeforces/" + ProblemID + "_" + to_string(i) + ".out",
                                 result["answer#" + to_string(i)].as_string());
 
         // Print the result

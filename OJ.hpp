@@ -8,8 +8,8 @@ class OJ
 {
 public:
     virtual void Login(string Username, string Password) = 0;
-    virtual void GetQuestionDetail(string QuestionID) = 0;
-    virtual void SubmitCode(string QuestionID) = 0;
+    virtual void GetProblemDetail(string ProblemID) = 0;
+    virtual void SubmitCode(string ProblemID) = 0;
 };
 
 #endif

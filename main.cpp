@@ -1,4 +1,4 @@
-// TODO Codeforces GetQuestionDetail parsing file failed
+// TODO Codeforces GetProblemDetail parsing file failed
 
 #include <regex>
 #include <errno.h>
@@ -11,7 +11,7 @@ int main(int argc, char **argv)
     string Password;
     string OJ;
     string Operation;
-    string QuestionID;
+    string ProblemID;
     for (int i = 1; i < argc; i++)
     {
         string Argument = argv[i];
@@ -36,9 +36,9 @@ int main(int argc, char **argv)
             Operation = NextArgument;
             i++;
         }
-        else if (Argument == "-q" || Argument == "--question-id")
+        else if (Argument == "-pr" || Argument == "--problem-id")
         {
-            QuestionID = NextArgument;
+            ProblemID = NextArgument;
             i++;
         }
         else
@@ -52,14 +52,14 @@ int main(int argc, char **argv)
         TRIGGER_ERROR("No OJ provided");
     if (Operation == "")
         TRIGGER_ERROR("No operation provided");
-    if (Operation != "ClockIn" && QuestionID == "")
-        TRIGGER_ERROR("No question id provided");
+    if (Operation != "ClockIn" && ProblemID == "")
+        TRIGGER_ERROR("No problem id provided");
     TOOL Tool;
     Tool.Username = Username;
     Tool.Password = Password;
     Tool.OJ = OJ;
     Tool.Operation = Operation;
-    Tool.QuestionID = QuestionID;
+    Tool.ProblemID = ProblemID;
     Tool.Execute();
     CLN_CATCH
     return 0;

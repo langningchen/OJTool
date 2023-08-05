@@ -7,6 +7,7 @@ void UVA::Login(string Username, string Password)
     GetDataToFile("https://onlinejudge.org/index.php?option=com_comprofiler");
     if (GetDataFromFileToString().find("You need to login.") == string::npos)
     {
+        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -51,24 +52,25 @@ void UVA::Login(string Username, string Password)
                   FORM);
     if (HTTPResponseCode == 200)
         TRIGGER_ERROR("Login failed");
+    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
-void UVA::GetQuestionDetail(string QuestionID)
+void UVA::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/UVa-" + QuestionID + ".pdf"))
+    if (!IfFileExist("/tmp/UVa-" + ProblemID + ".pdf"))
     {
-        // Get the question detail
-        string FixedQuestionID = QuestionID;
-        while (FixedQuestionID[0] == '0')
-            FixedQuestionID.erase(0, 1);
+        // Get the problem detail
+        string FixedProblemID = ProblemID;
+        while (FixedProblemID[0] == '0')
+            FixedProblemID.erase(0, 1);
 
         // Save the pdf file
-        cout << "Getting question detail... " << flush;
+        cout << "Getting problem detail... " << flush;
         GetDataToFile("https://onlinejudge.org/external/" +
-                          FixedQuestionID.substr(0, FixedQuestionID.size() - 2) +
-                          "/p" + FixedQuestionID + ".pdf",
+                          FixedProblemID.substr(0, FixedProblemID.size() - 2) +
+                          "/p" + FixedProblemID + ".pdf",
                       "",
-                      "/tmp/UVa-" + QuestionID + ".pdf",
+                      "/tmp/UVa-" + ProblemID + ".pdf",
                       false,
                       "",
                       NULL,
@@ -80,22 +82,22 @@ void UVA::GetQuestionDetail(string QuestionID)
     }
 
     // Open the pdf file
-    if (system(string("code-insiders /tmp/UVa-" + QuestionID + ".pdf").c_str()))
-        cout << "Open file \"/tmp/UVa-" << QuestionID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get question detail succeed");
+    if (system(string("code-insiders /tmp/UVa-" + ProblemID + ".pdf").c_str()))
+        cout << "Open file \"/tmp/UVa-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    TOOL::Speak("Get problem detail succeed");
 }
-void UVA::SubmitCode(string QuestionID)
+void UVA::SubmitCode(string ProblemID)
 {
     // Get the submit page data
     cout << "Getting submit page data... " << flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=25&page=submit_problem");
     cout << "Succeed" << endl;
-    string FixedQuestionID = QuestionID;
-    while (FixedQuestionID[0] == '0')
-        FixedQuestionID.erase(0, 1);
+    string FixedProblemID = ProblemID;
+    while (FixedProblemID[0] == '0')
+        FixedProblemID.erase(0, 1);
 
     // Get the code
-    string Code = GetDataFromFileToString("UVa/" + QuestionID + ".cpp");
+    string Code = GetDataFromFileToString("UVa/" + ProblemID + ".cpp");
 
     // Create the header list
     curl_slist *HeaderList = NULL;
@@ -125,7 +127,7 @@ void UVA::SubmitCode(string QuestionID)
                             "--" + MULTIPART_BOUNDARY + "\n" +
                             "Content-Disposition: form-data; name=\"localid\"\n" +
                             "\n" +
-                            FixedQuestionID + "\n" +
+                            FixedProblemID + "\n" +
                             "--" + MULTIPART_BOUNDARY + "\n" +
                             "Content-Disposition: form-data; name=\"language\"\n" +
                             "\n" +
