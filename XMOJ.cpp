@@ -315,12 +315,11 @@ void XMOJ::SubmitCode(string ProblemID)
                         SpeakString.push_back(ResultName[i][j]);
                         SpeakString.push_back(' ');
                     }
-                    if (ResultCounter[i] != 1)
-                        SpeakString += "s";
+                    SpeakString.pop_back();
                     SpeakString += ", ";
                 }
             SpeakString = SpeakString.substr(0, SpeakString.length() - 2);
-            SpeakString += " in this problem";
+            SpeakString += "in this problem";
             TOOL::Speak(SpeakString);
         }
     }
