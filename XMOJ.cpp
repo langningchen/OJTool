@@ -315,7 +315,6 @@ void XMOJ::SubmitCode(string ProblemID)
                         SpeakString.push_back(ResultName[i][j]);
                         SpeakString.push_back(' ');
                     }
-                    SpeakString.pop_back();
                     SpeakString += ", ";
                 }
             SpeakString = SpeakString.substr(0, SpeakString.length() - 2);
