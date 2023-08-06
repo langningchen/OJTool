@@ -311,7 +311,10 @@ void XMOJ::SubmitCode(string ProblemID)
                 {
                     SpeakString += to_string(ResultCounter[i]) + " ";
                     for (size_t j = 0; j < ResultName[i].length(); j++)
-                        SpeakString += ResultName[i][j] + " ";
+                    {
+                        SpeakString.push_back(ResultName[i][j]);
+                        SpeakString.push_back(' ');
+                    }
                     if (ResultCounter[i] != 1)
                         SpeakString += "s";
                     SpeakString += ", ";
