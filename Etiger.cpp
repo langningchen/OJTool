@@ -264,8 +264,8 @@ void ETIGER::SubmitCode(string ProblemID)
     {
         SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp", Code + "\n");
         // Remove temporary files
-        cout << "Congratulations! You have solved this problem!" << endl;
-        TOOL::Speak("Congratulations! You have solved this problem!");
+        cout << "Congratulations, you have solved this problem" << endl;
+        TOOL::Speak("Congratulations, you have solved this problem");
     }
     else
     {
@@ -291,6 +291,7 @@ void ETIGER::SubmitCode(string ProblemID)
             }
         }
         cout << SubmitInfo["data"]["grade"] << "pts" << endl;
+        TOOL::Speak("Your score is " + SubmitInfo["data"]["grade"].as_string() + " points");
         TOOL::Speak("You did not solve this problem");
     }
 }

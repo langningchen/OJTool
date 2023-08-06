@@ -127,6 +127,7 @@ void ATCODER::SubmitCode(string ProblemID)
     if (SubmissionID == "")
         TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
+    TOOL::Speak("Submit succeed");
 
     cout << "Judging... " << flush;
     while (1)
@@ -137,8 +138,8 @@ void ATCODER::SubmitCode(string ProblemID)
         if (JSONData["Status"].as_string() == "AC")
         {
             cout << "\rJudging... Succeed" << endl
-                 << "Congratulations! You have solved this problem!" << endl;
-            TOOL::Speak("Congratulations! You have solved this problem!");
+                 << "Congratulations, you have solved this problem" << endl;
+            TOOL::Speak("Congratulations, you have solved this problem");
             break;
         }
         else if (JSONData["Interval"].is_null())
@@ -146,6 +147,7 @@ void ATCODER::SubmitCode(string ProblemID)
             cout << "\rJudging... Succeed"
                  << " " << JSONData["Status"].as_string() << endl;
             system(("www-browser https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID).c_str());
+            TOOL::Speak("Your score is " + JSONData["Score"].as_string() + " points");
             TOOL::Speak("You did not solve this problem");
             break;
         }

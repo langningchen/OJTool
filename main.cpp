@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     if (Operation == "")
         TRIGGER_ERROR("No operation provided");
     if (Operation != "ClockIn" && ProblemID == "")
-        TRIGGER_ERROR("No problem id provided");
+        TRIGGER_ERROR("No problem ID provided");
     TOOL Tool;
     Tool.Username = Username;
     Tool.Password = Password;

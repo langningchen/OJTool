@@ -156,12 +156,13 @@ void UVA::SubmitCode(string ProblemID)
     if (HTTPResponseCode == 200)
         TRIGGER_ERROR("Submit failed");
 
-    // Get the submission id
+    // Get the submission ID
     string SubmissionID = FindLocation();
     SubmissionID = SubmissionID.substr(SubmissionID.find_last_of('+') + 1);
     if (atoi(SubmissionID.c_str()) == 0)
-        TRIGGER_ERROR("Get submission id failed");
+        TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
+    TOOL::Speak("Submit succeed");
 
     // Get the submission result
     cout << "Judging... " << flush;
@@ -196,6 +197,6 @@ void UVA::SubmitCode(string ProblemID)
             }
         }
         else
-            TRIGGER_ERROR("Can not find the judge result with submission id " + SubmissionID);
+            TRIGGER_ERROR("Can not find the judge result with submission ID " + SubmissionID);
     }
 }

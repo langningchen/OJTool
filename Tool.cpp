@@ -8,9 +8,22 @@
 #include "XMOJ.hpp"
 void TOOL::Speak(string Name)
 {
-    system(("mocp -l \"" + GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3\"" +
-            " > /dev/null 2>&1")
-               .c_str());
+    if (!IfFileExist(GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3"))
+    {
+        GetDataToFile("https://support.readaloud.app/ttstool/createParts",
+                      "",
+                      "/tmp/Speech.tmp",
+                      true,
+                      "[{\"voiceId\":\"Amazon US English (Salli)\",\"ssml\":\"<speak version=\\\"1.0\\\" xml:lang=\\\"en-US\\\"><prosody volume='default' rate='medium' pitch='default'>" +
+                          Name +
+                          "</prosody></speak>\"}]");
+        std::string SpeechID = GetDataFromFileToString("/tmp/Speech.tmp");
+        SpeechID = SpeechID.substr(2, SpeechID.length() - 4);
+        GetDataToFile("https://support.readaloud.app/ttstool/getParts?q=" + SpeechID + "&saveAs=Speech.mp3",
+                      "",
+                      GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3");
+    }
+    system(("mocp -l \"" + GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3\"").c_str());
 }
 string TOOL::GetCPHFileName(string Path, string FileName)
 {

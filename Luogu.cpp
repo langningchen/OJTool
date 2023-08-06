@@ -486,6 +486,7 @@ void LUOGU::SubmitCode(string ProblemID)
 
     // Get the record ID
     int RecordID = SubmitInfo["rid"].as_integer();
+    TOOL::Speak("Submit succeed");
 
     // Get the record info and wait for the result
     json RecordInfo;
@@ -506,14 +507,15 @@ void LUOGU::SubmitCode(string ProblemID)
     {
         cout << "Compile error: " << endl
              << RecordInfo["currentData"]["record"]["detail"]["compileResult"]["message"].as_string() << endl;
+        TOOL::Speak("You have a compile error");
     }
     else
     {
         // Check whether the code is accepted
         if (RecordInfo["currentData"]["record"]["score"].as_integer() == 100)
         {
-            cout << "Congratulations! You have solved this problem!" << endl;
-            TOOL::Speak("Congratulations! You have solved this problem!");
+            cout << "Congratulations, you have solved this problem" << endl;
+            TOOL::Speak("Congratulations, you have solved this problem");
         }
         else
         {
@@ -540,6 +542,7 @@ void LUOGU::SubmitCode(string ProblemID)
                         << jit2["memory"].as_integer() << "KB" << endl;
             }
             cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
+            TOOL::Speak("Your score is " + to_string(RecordInfo["currentData"]["record"]["score"].as_integer()) + " points");
             TOOL::Speak("You did not solve this problem");
         }
     }

@@ -224,12 +224,13 @@ void XMOJ::SubmitCode(string ProblemID)
         TRIGGER_ERROR("Submit failed");
     cout << "Succeed" << endl;
 
-    cout << "Getting submission id... " << flush;
+    cout << "Getting submission ID... " << flush;
     GetDataToFile("http://www.xmoj.tech/" + FindLocation());
     string SubmissionID = GetStringBetween(GetDataFromFileToString(), "<tbody>\r\n<tr class=\"oddrow\"><td></td><td>", "</td>");
     if (SubmissionID == "")
-        TRIGGER_ERROR("Can not find submission id");
+        TRIGGER_ERROR("Can not find submission ID");
     cout << "Succeed" << endl;
+    TOOL::Speak("Submit succeed");
 
     // Get the record info and wait for the result
     cout << "Judging... " << flush;
@@ -244,8 +245,8 @@ void XMOJ::SubmitCode(string ProblemID)
     if (JudgeResult == 4)
     {
         SetDataFromStringToFile("XMOJ/" + ProblemID + ".cpp", Code + "\n");
-        cout << "Congratulations! You have solved this problem!" << endl;
-        TOOL::Speak("Congratulations! You have solved this problem!");
+        cout << "Congratulations, you have solved this problem" << endl;
+        TOOL::Speak("Congratulations, you have solved this problem");
     }
     else
     {
@@ -255,11 +256,13 @@ void XMOJ::SubmitCode(string ProblemID)
             GetDataToFile("http://www.xmoj.tech/ceinfo.php?sid=" + SubmissionID);
             cout << "Compile error: " << endl
                  << HTMLDecode(GetStringBetween(GetDataFromFileToString(), "<pre class=\"brush:c;\" id='errtxt' >", "</pre>")) << endl;
+            TOOL::Speak("You have a compile error");
         }
         else
         {
             GetDataToFile("http://www.xmoj.tech/reinfo.php?sid=" + SubmissionID);
             json Result = json::parse(GetStringBetween(GetDataFromFileToString(), "var json = ", "\n"));
+            int ResultCounter[17] = {0};
             if (Result["st"].as_integer() == 0)
             {
                 map<string, pair<int, string>> Index;
@@ -275,11 +278,14 @@ void XMOJ::SubmitCode(string ProblemID)
                     Counter++;
                 }
                 for (auto i : Index)
+                {
                     cout << "#" << i.second.second << " "
                          << Result["tasks"][i.second.first]["sc"].as_integer() << "pts "
                          << ResultName[Result["tasks"][i.second.first]["s"].as_integer()] << " "
                          << Result["tasks"][i.second.first]["t"].as_integer() << "ms "
                          << Result["tasks"][i.second.first]["m"].as_integer() << "B" << endl;
+                    ResultCounter[Result["tasks"][i.second.first]["s"].as_integer()]++;
+                }
             }
             else
             {
@@ -295,11 +301,25 @@ void XMOJ::SubmitCode(string ProblemID)
                              << ResultName[j["s"].as_integer()] << " "
                              << j["t"].as_integer() << "ms "
                              << j["m"].as_integer() << "B" << endl;
+                        ResultCounter[j["s"].as_integer()]++;
                     }
                 }
             }
+            std::string SpeakString = "You have ";
+            for (int i = 0; i < 17; i++)
+                if (ResultCounter[i] != 0)
+                {
+                    SpeakString += to_string(ResultCounter[i]) + " ";
+                    for (size_t j = 0; j < ResultName[i].length(); j++)
+                        SpeakString += ResultName[i][j] + " ";
+                    if (ResultCounter[i] != 1)
+                        SpeakString += "s";
+                    SpeakString += ", ";
+                }
+            SpeakString = SpeakString.substr(0, SpeakString.length() - 2);
+            SpeakString += " in this problem";
+            TOOL::Speak(SpeakString);
         }
-        TOOL::Speak("You did not solve this problem");
     }
 }
 void XMOJ::GetContestProblemsDetails(string ContestID)
