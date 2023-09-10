@@ -318,7 +318,7 @@ void XMOJ::SubmitCode(string ProblemID)
                     SpeakString += ", ";
                 }
             SpeakString = SpeakString.substr(0, SpeakString.length() - 2);
-            SpeakString += "in this problem";
+            SpeakString += " in this problem";
             TOOL::Speak(SpeakString);
         }
     }
