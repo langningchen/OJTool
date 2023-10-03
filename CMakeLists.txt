@@ -22,7 +22,7 @@ add_executable(main
     UVa.cpp
     AtCoder.cpp
 )
-target_include_directories(main PUBLIC ~/Lib)
+target_include_directories(main PUBLIC Lib)
 
 find_library(LIBCURL curl REQUIRED)
 find_library(LIBJPEG jpeg REQUIRED)
