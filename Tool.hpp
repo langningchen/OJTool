@@ -1,5 +1,4 @@
-#ifndef TOOL_HPP
-#define TOOL_HPP
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -26,5 +25,3 @@ public:
     static string GetCPHFileName(string Path, string FileName);
     static string TidyHTMLDocument(string Input);
 };
-
-#endif

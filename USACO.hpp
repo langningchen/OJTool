@@ -1,5 +1,4 @@
-#ifndef USACO_HPP
-#define USACO_HPP
+#pragma once
 
 #include <string>
 #include "OJ.hpp"
@@ -16,5 +15,3 @@ public:
     void GetProblemDetail(string ProblemID);
     void SubmitCode(string ProblemID);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ETIGER_HPP
-#define ETIGER_HPP
+#pragma once
 
 #include <string>
 #include <map>
@@ -20,5 +19,3 @@ public:
     void ClockIn();
     void GetAnswerOrTips(string ProblemID);
 };
-
-#endif

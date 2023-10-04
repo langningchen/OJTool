@@ -1,5 +1,4 @@
-#ifndef UVA_HPP
-#define UVA_HPP
+#pragma once
 
 #include <string>
 #include "OJ.hpp"
@@ -12,5 +11,3 @@ public:
     void GetProblemDetail(string ProblemID);
     void SubmitCode(string ProblemID);
 };
-
-#endif

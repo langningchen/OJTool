@@ -1,5 +1,4 @@
-#ifndef LUOGU_HPP
-#define LUOGU_HPP
+#pragma once
 
 #include <string>
 #include <map>
@@ -22,5 +21,3 @@ public:
     void ClockIn();
     void GetAnswerOrTips(string ProblemID);
 };
-
-#endif

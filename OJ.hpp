@@ -1,5 +1,4 @@
-#ifndef OJ_HPP
-#define OJ_HPP
+#pragma once
 
 #include <string>
 using namespace std;
@@ -11,5 +10,3 @@ public:
     virtual void GetProblemDetail(string ProblemID) = 0;
     virtual void SubmitCode(string ProblemID) = 0;
 };
-
-#endif

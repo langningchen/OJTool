@@ -1,5 +1,4 @@
-#ifndef XMOJ_HPP
-#define XMOJ_HPP
+#pragma once
 
 #include <string>
 #include "OJ.hpp"
@@ -20,5 +19,3 @@ public:
     void SubmitCode(string ProblemID);
     void GetContestProblemsDetails(string ContestID);
 };
-
-#endif

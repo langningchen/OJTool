@@ -1,5 +1,4 @@
-#ifndef CODEFORCES_HPP
-#define CODEFORCES_HPP
+#pragma once
 
 #include <string>
 #include "tinyxml/tinyxml.h"
@@ -22,5 +21,3 @@ public:
     void GetProblemDetail(string ProblemID);
     void SubmitCode(string ProblemID);
 };
-
-#endif
