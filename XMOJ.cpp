@@ -76,7 +76,7 @@ void XMOJ::GetProblemDetail(string ProblemID)
 }
 void XMOJ::_GetProblemDetail(string ProblemID, string ProblemHandle)
 {
-    if (!IfFileExist("/tmp/XMOJ-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "XMOJ-" + ProblemID + ".md"))
     {
         // Gets the problem detail page
         cout << "Getting problem detail page... " << flush;
@@ -107,6 +107,7 @@ void XMOJ::_GetProblemDetail(string ProblemID, string ProblemHandle)
             Samples.push_back({{InputSample, OutputSample}, SampleDescription});
         }
 
+#ifndef _WIN32
         // Save data for CPH
         MD5 MD5Encoder;
         json CPHData;
@@ -134,6 +135,7 @@ void XMOJ::_GetProblemDetail(string ProblemID, string ProblemHandle)
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
         SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", ProblemID), CPHData.dump());
+#endif
 
         // Save data for markdown
         string OutputContent = "# " + Title + "\n";
@@ -186,7 +188,7 @@ void XMOJ::_GetProblemDetail(string ProblemID, string ProblemHandle)
                          "|Pass count|$" + PassCount + "$|\n" +
                          "|Pass rate|$" + to_string(atoi(PassCount.c_str()) * 100.0 / atoi(SubmitCount.c_str())) + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/XMOJ-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile(TempFolder + "XMOJ-" + ProblemID + ".md", OutputContent);
     }
 
     // Open the problem detail file

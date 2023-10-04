@@ -57,7 +57,7 @@ void UVA::Login(string Username, string Password)
 }
 void UVA::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/UVa-" + ProblemID + ".pdf"))
+    if (!IfFileExist(TempFolder + "UVa-" + ProblemID + ".pdf"))
     {
         // Get the problem detail
         string FixedProblemID = ProblemID;
@@ -70,7 +70,7 @@ void UVA::GetProblemDetail(string ProblemID)
                           FixedProblemID.substr(0, FixedProblemID.size() - 2) +
                           "/p" + FixedProblemID + ".pdf",
                       "",
-                      "/tmp/UVa-" + ProblemID + ".pdf",
+                      TempFolder + "UVa-" + ProblemID + ".pdf",
                       false,
                       "",
                       NULL,
@@ -178,7 +178,7 @@ void UVA::SubmitCode(string ProblemID)
         Data = StringReplaceAll(Data, " <", "<");
         Data = StringReplaceAll(Data, "> ", ">");
         Data = StringReplaceAll(Data, " >", ">");
-        SetDataFromStringToFile("/tmp/Data.tmp", Data);
+        SetDataFromStringToFile(TempFolder + "Data.tmp", Data);
 
         // Find the submission
         smatch Match;

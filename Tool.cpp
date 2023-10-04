@@ -8,23 +8,28 @@
 #include "XMOJ.hpp"
 void TOOL::Speak(string Name)
 {
-    if (!IfFileExist(GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3"))
+    if (!IfFileExist("Audios" + PathSeparator + Name + ".mp3"))
     {
         GetDataToFile("https://support.readaloud.app/ttstool/createParts",
                       "",
-                      "/tmp/Speech.tmp",
+                      TempFolder + "Speech.tmp",
                       true,
                       "[{\"voiceId\":\"Amazon US English (Salli)\",\"ssml\":\"<speak version=\\\"1.0\\\" xml:lang=\\\"en-US\\\"><prosody volume='default' rate='medium' pitch='default'>" +
                           Name +
                           "</prosody></speak>\"}]");
-        std::string SpeechID = GetDataFromFileToString("/tmp/Speech.tmp");
+        std::string SpeechID = GetDataFromFileToString(TempFolder + "Speech.tmp");
         SpeechID = SpeechID.substr(2, SpeechID.length() - 4);
         GetDataToFile("https://support.readaloud.app/ttstool/getParts?q=" + SpeechID + "&saveAs=Speech.mp3",
                       "",
-                      GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3");
+                      "Audios/" + Name + ".mp3");
     }
-    system(("mocp -l \"" + GetUserHomeFolder() + "/OJTool/Audios/" + Name + ".mp3\"").c_str());
+#ifdef _WIN32
+    system(("start Audios\\" + Name + ".mp3").c_str());
+#else
+    system(("mocp -l \"Audios/" + Name + ".mp3\"").c_str());
+#endif
 }
+#ifndef _WIN32
 string TOOL::GetCPHFileName(string Path, string FileName)
 {
     // Create an object of the MD5 class to encode the file name
@@ -34,10 +39,11 @@ string TOOL::GetCPHFileName(string Path, string FileName)
            FileName +
            ".cpp_" +
            // Encode the full path of the file
-           MD5Encoder.encode(GetUserHomeFolder() + "/" + Path + "/" + FileName + ".cpp") +
+           MD5Encoder.encode(GetUserHomeFolder() + PathSeparator + Path + PathSeparator + FileName + ".cpp") +
            // Add the .prob extension to the file name
            ".prob";
 }
+#endif
 void TOOL::Execute()
 {
     // Choose the tool

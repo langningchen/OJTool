@@ -207,7 +207,7 @@ void CODEFORCES::Login(string Username, string Password)
         if (LoginPageData.find("toNumbers"))
         {
             // Get the javascript code and write it to a file
-            SetDataFromStringToFile("/tmp/Run.js",
+            SetDataFromStringToFile(TempFolder + "Run.js",
                                     // Get the javascript library
                                     AES_JS + "\n\n\n\nfunction " +
                                         // Remove set cookie code and replace it with a variable
@@ -239,7 +239,7 @@ void CODEFORCES::Login(string Username, string Password)
                           &HTTPResponseCode,
                           FORM,
                           // Set the cookie
-                          "#HttpOnly_codeforces.com\tFALSE\t/\tFALSE\t0\tRCPC\t" + GetStringBetween(GetDataFromFileToString("/tmp/Output.tmp"), "RCPC=", ";"));
+                          "#HttpOnly_codeforces.com\tFALSE\t/\tFALSE\t0\tRCPC\t" + GetStringBetween(GetDataFromFileToString(TempFolder + "Output.tmp"), "RCPC=", ";"));
 
             if (HTTPResponseCode == 200)
                 TRIGGER_ERROR("Login failed");
@@ -252,7 +252,7 @@ void CODEFORCES::Login(string Username, string Password)
 }
 void CODEFORCES::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/Codeforces-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "Codeforces-" + ProblemID + ".md"))
     {
         // Get the problem detail
         cout << "Getting problem detail... " << flush;
@@ -267,7 +267,7 @@ void CODEFORCES::GetProblemDetail(string ProblemID)
         ProblemXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
         if (ProblemXmlDocument.Error())
             TRIGGER_ERROR("Parse problem detail error: "s + ProblemXmlDocument.ErrorDesc());
-        ofstream OutputFileStream(string("/tmp/Codeforces-" + ProblemID + ".md").c_str());
+        ofstream OutputFileStream(string(TempFolder + "Codeforces-" + ProblemID + ".md").c_str());
         cout << "Succeed" << endl;
 
         // Find the problem detail

@@ -166,7 +166,7 @@ void LUOGU::Login(string Username, string Password)
         cout << "Getting login captcha... " << flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
                       "",
-                      "/tmp/Captcha.jpeg");
+                      TempFolder + "Captcha.jpeg");
         cout << "Succeed" << endl;
 
         // Predict captcha
@@ -182,7 +182,7 @@ void LUOGU::Login(string Username, string Password)
                           true,
                           "data:image/jpeg;base64," +
                               Base64Encode(
-                                  GetDataFromFileToString("/tmp/Captcha.jpeg")),
+                                  GetDataFromFileToString(TempFolder + "Captcha.jpeg")),
                           HeaderList);
             cout << "Succeed" << endl;
             Captcha = GetDataFromFileToString();
@@ -194,7 +194,7 @@ void LUOGU::Login(string Username, string Password)
             if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
             {
                 cout << "Succeed" << endl;
-                Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
+                Captcha = FixString(GetDataFromFileToString(TempFolder + "Captcha.txt"));
             }
             else
             {
@@ -291,7 +291,7 @@ void LUOGU::ClockIn()
 }
 void LUOGU::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/Luogu-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "Luogu-" + ProblemID + ".md"))
     {
         // Gets the problem detail page
         cout << "Getting problem detail page... " << flush;
@@ -305,6 +305,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
         }
         cout << "Succeed" << endl;
 
+#ifndef _WIN32
         // Save data for CPH
         MD5 MD5Encoder;
         json CPHData;
@@ -336,6 +337,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
         SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", ProblemID), CPHData.dump());
+#endif
 
         // Save data for markdown
         string OutputContent = "# " + ProblemID + " " + ProblemInfo["currentData"]["problem"]["title"].as_string() + "\n";
@@ -427,12 +429,12 @@ void LUOGU::GetProblemDetail(string ProblemID)
                          "|From|`" + TypeName[ProblemInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
                          "|Last submit language|`" + LanguageName[ProblemInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/Luogu-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile(TempFolder + "Luogu-" + ProblemID + ".md", OutputContent);
     }
 
     // Open the file
     if (system(string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
-        cout << "Open file \"/tmp/Luogu-" << ProblemID << ".md\" failed, please open it manually" << endl;
+        cout << "Open file \"" << TempFolder << "Luogu-" << ProblemID << ".md\" failed, please open it manually" << endl;
     TOOL::Speak("Get problem detail succeed");
 }
 void LUOGU::SubmitCode(string ProblemID)

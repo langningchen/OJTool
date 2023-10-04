@@ -22,6 +22,8 @@ public:
     void Execute();
 
     static void Speak(string Name);
+#ifndef _WIN32
     static string GetCPHFileName(string Path, string FileName);
+#endif
     static string TidyHTMLDocument(string Input);
 };

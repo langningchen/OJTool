@@ -23,7 +23,7 @@ void USACO::Login(string Username, string Password)
 }
 void USACO::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/USACO-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "USACO-" + ProblemID + ".md"))
     {
         // Get the problem detail
         cout << "Getting problem detail... " << flush;
@@ -31,7 +31,7 @@ void USACO::GetProblemDetail(string ProblemID)
         string ProblemDetail = GetDataFromFileToString();
         ProblemDetail = "<table><td><b" + GetStringBetween(ProblemDetail, "<td><b", "</div>");
         SetDataFromStringToFile(
-            "/tmp/USACO-" + ProblemID + ".md",
+            TempFolder + "USACO-" + ProblemID + ".md",
             ProblemDetail);
         cout << "Succeed" << endl;
     }
@@ -76,7 +76,7 @@ void USACO::SubmitCode(string ProblemID)
                   MULTIPART);
     cout << "Succeed" << endl;
 
-    SetDataFromStringToFile("/tmp/" + ProblemID + ".log",
+    SetDataFromStringToFile(TempFolder + "" + ProblemID + ".log",
                             EraseHTMLElement(
                                 GetStringBetween(
                                     GetDataFromFileToString(),

@@ -80,7 +80,7 @@ void ETIGER::ClockIn()
 }
 void ETIGER::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/Etiger-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "Etiger-" + ProblemID + ".md"))
     {
         // Add headers
         curl_slist *HeaderList = NULL;
@@ -108,6 +108,12 @@ void ETIGER::GetProblemDetail(string ProblemID)
         }
         cout << "Succeed" << endl;
 
+        string InputSample = ProblemInfo["data"]["inputSample"].as_string();
+        string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
+        vector<string> InputSamples = SpiltString(InputSample, ";");
+        vector<string> OutputSamples = SpiltString(OutputSample, ";");
+
+#ifndef _WIN32
         // Save data for CPH
         json CPHData;
         CPHData["name"] = ProblemInfo["data"]["title"].as_string();
@@ -116,10 +122,6 @@ void ETIGER::GetProblemDetail(string ProblemID)
         CPHData["interactive"] = false;
         CPHData["memoryLimit"] = ProblemInfo["data"]["memLimit"].as_integer();
         CPHData["timeLimit"] = ProblemInfo["data"]["timeLimit"].as_integer() * 1000;
-        string InputSample = ProblemInfo["data"]["inputSample"].as_string();
-        string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
-        vector<string> InputSamples = SpiltString(InputSample, ";");
-        vector<string> OutputSamples = SpiltString(OutputSample, ";");
         for (size_t i = 0; i < InputSamples.size(); i++)
         {
             string Input = FixString(InputSamples[i]);
@@ -141,6 +143,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
         CPHData["batch"]["id"] = ProblemID;
         CPHData["batch"]["size"] = 1;
         SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
+#endif
 
         // Sava markdown file
         string OutputContent = "";
@@ -210,7 +213,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
                          "|通过人数|$" + ProblemInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
                          "|通过率|$" + ProblemInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/Etiger-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile(TempFolder + "Etiger-" + ProblemID + ".md", OutputContent);
     }
 
     // Open file
@@ -283,11 +286,13 @@ void ETIGER::SubmitCode(string ProblemID)
                 cout << "    Input: " << i["input"].as_string() << endl
                      << "    Standard output: " << i["output"].as_string() << endl
                      << "    My output: " << i["myOutput"].as_string() << endl;
+#ifndef _WIN32
                 json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", ProblemID)));
                 CPHData["tests"].push_back({{"input", i["input"].as_string()},
                                             {"output", i["output"].as_string()},
                                             {"id", Counter}});
                 SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
+#endif
             }
         }
         cout << SubmitInfo["data"]["grade"] << "pts" << endl;

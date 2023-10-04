@@ -105,10 +105,10 @@ void GetDataToFile(string URL,
                    string Cookie,
                    bool ShowProgress)
 {
-    FILE *CookiesFilePointer = fopen("/tmp/Cookies.tmp", "a");
+    FILE *CookiesFilePointer = fopen(TempFolder + "Cookies.tmp", "a");
     fclose(CookiesFilePointer);
-    FILE *HeaderFilePointer = fopen((HeaderFileName == "" ? "/tmp/Header.tmp" : HeaderFileName.c_str()), "w");
-    FILE *BodyFilePointer = fopen((BodyFileName == "" ? "/tmp/Body.tmp" : BodyFileName.c_str()), "w");
+    FILE *HeaderFilePointer = fopen((HeaderFileName == "" ? TempFolder + "Header.tmp" : HeaderFileName.c_str()), "w");
+    FILE *BodyFilePointer = fopen((BodyFileName == "" ? TempFolder + "Body.tmp" : BodyFileName.c_str()), "w");
     CURLcode CurlCode = curl_global_init(CURL_GLOBAL_ALL);
     if (CurlCode != 0)
     {
@@ -135,8 +135,8 @@ void GetDataToFile(string URL,
     }
     if (Cookie != "")
         curl_easy_setopt(Curl, CURLOPT_COOKIELIST, Cookie.c_str());
-    curl_easy_setopt(Curl, CURLOPT_COOKIEFILE, "/tmp/Cookies.tmp");
-    curl_easy_setopt(Curl, CURLOPT_COOKIEJAR, "/tmp/Cookies.tmp");
+    curl_easy_setopt(Curl, CURLOPT_COOKIEFILE, TempFolder + "Cookies.tmp");
+    curl_easy_setopt(Curl, CURLOPT_COOKIEJAR, TempFolder + "Cookies.tmp");
     curl_easy_setopt(Curl, CURLOPT_URL, URL.c_str());
     if (IsPost)
     {
@@ -290,7 +290,7 @@ string HTMLDecode(string Data)
 }
 string FindLocation()
 {
-    string Header = GetDataFromFileToString("/tmp/Header.tmp");
+    string Header = GetDataFromFileToString(TempFolder + "Header.tmp");
     Header += "\n";
     string RedirectURL = GetStringBetween(Header, "Location: ", "\n");
     if (RedirectURL == "")

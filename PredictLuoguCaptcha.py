@@ -4,6 +4,10 @@ import tensorflow as tf
 from keras.models import load_model
 from PIL import Image
 
+if path.sep == "\\":
+    TempFolder = "C:\\Windows\\Temp\\"
+else:
+    TempFolder = "/tmp/"
 
 if __name__ == "__main__":
     print("".join(map(chr,
@@ -14,11 +18,11 @@ if __name__ == "__main__":
                           ).predict(
                               np.array([
                                   np.array(
-                                      Image.open("/tmp/Captcha.jpeg")
+                                      Image.open(TempFolder + "Captcha.jpeg")
                                   ) / 255.0
                               ]),
                               verbose=0),
                           axis=-1)[0])
                       )
                   ),
-          file=open("/tmp/Captcha.txt", mode="w"))
+          file=open(TempFolder + "Captcha.txt", mode="w"))

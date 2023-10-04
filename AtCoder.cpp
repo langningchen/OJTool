@@ -50,7 +50,7 @@ void ATCODER::Login(string Username, string Password)
 }
 void ATCODER::GetProblemDetail(string ProblemID)
 {
-    if (!IfFileExist("/tmp/AtCoder-" + ProblemID + ".md"))
+    if (!IfFileExist(TempFolder + "AtCoder-" + ProblemID + ".md"))
     {
         cout << "Getting problem detail... " << flush;
         string ContestName = SpiltString(ProblemID, "_")[0];
@@ -80,7 +80,7 @@ void ATCODER::GetProblemDetail(string ProblemID)
                          "|:---:|:---:|\n" +
                          "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
                          "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-        SetDataFromStringToFile("/tmp/AtCoder-" + ProblemID + ".md", ProblemDetail);
+        SetDataFromStringToFile(TempFolder + "AtCoder-" + ProblemID + ".md", ProblemDetail);
     }
 
     // Open the problem detail file
