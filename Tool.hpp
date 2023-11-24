@@ -4,10 +4,10 @@
 #include <iostream>
 #include <regex>
 #include <map>
-#include "Curl.hpp"
-#include "MD5.hpp"
-#include "tidy/tidy.h"
-#include "tidy/tidybuffio.h"
+#include <MD5.hpp>
+#include <Curl.hpp>
+#include <tidy/tidy.h>
+#include <tidy/tidybuffio.h>
 using namespace std;
 
 class TOOL
