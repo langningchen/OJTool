@@ -43,7 +43,6 @@ void ETIGER::Login(string Username, string Password)
                                             LoginInfo["code"].as_integer(),
                                             LoginInfo["msg"].as_string());
     }
-    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 
     // Save token
@@ -132,7 +131,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
             CPHData["tests"][i]["id"] = i;
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningc2009/Etiger/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = "/home/langningchen/Etiger/" + ProblemID + ".cpp";
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -216,7 +215,6 @@ void ETIGER::GetProblemDetail(string ProblemID)
     // Open file
     if (system(string("code-insiders /tmp/Etiger-" + ProblemID + ".md").c_str()))
         cout << "Open file \"/tmp/Etiger-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
 void ETIGER::SubmitCode(string ProblemID)
@@ -261,39 +259,29 @@ void ETIGER::SubmitCode(string ProblemID)
 
     // Check whether the code is accepted
     if (SubmitInfo["data"]["grade"].as_integer() == 100)
-    {
         SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp", Code + "\n");
-        // Remove temporary files
-        cout << "Congratulations, you have solved this problem" << endl;
-        TOOL::Speak("Congratulations, you have solved this problem");
-    }
-    else
+    // Output result
+    int Counter = 1;
+    for (auto i : SubmitInfo["data"]["result"])
     {
-        // Output result
-        int Counter = 1;
-        for (auto i : SubmitInfo["data"]["result"])
+        cout << "#" << Counter << " "
+             << i["type"].as_string() << " "
+             << i["timeUsed"] << "ms "
+             << i["memUsed"] << "B" << endl;
+        Counter++;
+        if (i["input"].as_string() != "")
         {
-            cout << "#" << Counter << " "
-                 << i["type"].as_string() << " "
-                 << i["timeUsed"] << "ms "
-                 << i["memUsed"] << "B" << endl;
-            Counter++;
-            if (i["input"].as_string() != "")
-            {
-                cout << "    Input: " << i["input"].as_string() << endl
-                     << "    Standard output: " << i["output"].as_string() << endl
-                     << "    My output: " << i["myOutput"].as_string() << endl;
-                json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", ProblemID)));
-                CPHData["tests"].push_back({{"input", i["input"].as_string()},
-                                            {"output", i["output"].as_string()},
-                                            {"id", Counter}});
-                SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
-            }
+            cout << "    Input: " << i["input"].as_string() << endl
+                 << "    Standard output: " << i["output"].as_string() << endl
+                 << "    My output: " << i["myOutput"].as_string() << endl;
+            json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", ProblemID)));
+            CPHData["tests"].push_back({{"input", i["input"].as_string()},
+                                        {"output", i["output"].as_string()},
+                                        {"id", Counter}});
+            SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
         }
-        cout << SubmitInfo["data"]["grade"] << "pts" << endl;
-        TOOL::Speak("Your score is " + SubmitInfo["data"]["grade"].as_string() + " points");
-        TOOL::Speak("You did not solve this problem");
     }
+    cout << SubmitInfo["data"]["grade"] << "pts" << endl;
 }
 void ETIGER::GetAnswerOrTips(string ProblemID)
 {

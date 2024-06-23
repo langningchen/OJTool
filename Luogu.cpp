@@ -1,5 +1,6 @@
 #include "Luogu.hpp"
 #include "Tool.hpp"
+#include "Lib/StringOperation.hpp"
 LUOGU::LUOGU()
 {
     ColorList["blue-1"] = "e0f7ff";
@@ -104,6 +105,7 @@ LUOGU::LUOGU()
         LanguageMarkdownName[i["value"].as_integer()] = i["hljsMode"].as_string();
     }
     LanguageName[0] = "自动识别语言";
+    LanguageMarkdownName[0] = "cpp";
 
     // Get the difficulty information of the luogu website.
     for (auto i : Config["problemDifficulty"])
@@ -143,16 +145,15 @@ void LUOGU::Login(string Username, string Password)
     // Check if the user is logged in.
     int HTTPResponseCode = 0;
     cout << "Checking login... " << flush;
-    GetDataToFile("https://www.luogu.com.cn/auth/login",
+    GetDataToFile("https://www.luogu.com.cn/chat",
                   "",
                   "",
                   false,
                   "",
                   NULL,
                   &HTTPResponseCode);
-    if (HTTPResponseCode == 302)
+    if (HTTPResponseCode != 302)
     {
-        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -166,43 +167,23 @@ void LUOGU::Login(string Username, string Password)
         cout << "Getting login captcha... " << flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
                       "",
-                      "/tmp/Captcha.jpeg");
+                      "/tmp/Captcha.jpg");
         cout << "Succeed" << endl;
 
         // Predict captcha
-        curl_slist *HeaderList = NULL;
-        HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json");
-        cout << "Predicting captcha by web api... " << flush;
         string Captcha = "";
-        try
+        cout << "Predicting captcha by AI model... " << flush;
+        if (system("python PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
         {
-            GetDataToFile("https://luogu-captcha-bypass.piterator.com/predict/",
-                          "",
-                          "",
-                          true,
-                          "data:image/jpeg;base64," +
-                              Base64Encode(
-                                  GetDataFromFileToString("/tmp/Captcha.jpeg")),
-                          HeaderList);
             cout << "Succeed" << endl;
-            Captcha = GetDataFromFileToString();
+            Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
         }
-        catch (CLNException &Exception)
+        else
         {
-            cout << "Failed" << endl
-                 << "Predicting captcha by AI model... " << flush;
-            if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
-            {
-                cout << "Succeed" << endl;
-                Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
-            }
-            else
-            {
-                cout << "Failed" << endl;
-                system("code-insiders /tmp/Captcha.jpeg");
-                cout << "Please input the captcha: ";
-                cin >> Captcha;
-            }
+            cout << "Failed" << endl;
+            system("code-insiders /tmp/Captcha.jpg");
+            cout << "Please input the captcha: ";
+            cin >> Captcha;
         }
 
         // Create a json object to store the login request info
@@ -212,7 +193,7 @@ void LUOGU::Login(string Username, string Password)
         LoginRequest["captcha"] = Captcha;
 
         // Create a header list for the curl request
-        HeaderList = NULL;
+        curl_slist *HeaderList = NULL;
         HeaderList = curl_slist_append(HeaderList, string("X-CSRF-TOKEN: " + Token).c_str());
         HeaderList = curl_slist_append(HeaderList, string("Content-Length: " +
                                                           to_string(LoginRequest.dump().size()))
@@ -233,7 +214,7 @@ void LUOGU::Login(string Username, string Password)
 
         // Parse the response to a json object
         json LoginInfo = json::parse(GetDataFromFileToString());
-        if (!LoginInfo["status"].is_null())
+        if (!LoginInfo["status"].is_null() && LoginInfo["data"].as_string() != "您已经登录")
         {
             // If the captcha is incorrect and the error counter is less than 5, try again.
             if (LoginInfo["data"].as_string() != "验证码错误" && ErrorCounter < 5)
@@ -247,7 +228,6 @@ void LUOGU::Login(string Username, string Password)
         }
         else
         {
-            TOOL::Speak("Login succeeds");
             cout << "Succeed" << endl;
             break;
         }
@@ -259,6 +239,13 @@ void LUOGU::ClockIn()
     // Gets the clock-in page data
     cout << "Get clock in page data... " << flush;
     GetDataToFile("https://www.luogu.com.cn/");
+    string HTMLData = GetDataFromFileToString();
+    if (HTMLData.find("C3VK") != string::npos)
+    {
+        string CookieData = "www.luogu.com.cn\tTRUE\t/\tTRUE\t" + to_string(time(nullptr) + 60 * 60 * 24 * 7) + "\tC3VK\t" + GetStringBetween(HTMLData, "C3VK=", ";");
+        GetDataToFile("https://www.luogu.com.cn/", "", "", false, "", nullptr, nullptr, "", CookieData);
+        HTMLData = GetDataFromFileToString();
+    }
     string Token = GetCSRF();
     cout << "Succeed" << endl;
 
@@ -327,7 +314,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
             CPHData["tests"].push_back(json(Temp));
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningc2009/Luogu/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = "/home/langningchen/Luogu/" + ProblemID + ".cpp";
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -433,7 +420,6 @@ void LUOGU::GetProblemDetail(string ProblemID)
     // Open the file
     if (system(string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
         cout << "Open file \"/tmp/Luogu-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
 void LUOGU::SubmitCode(string ProblemID)
 {
@@ -486,7 +472,6 @@ void LUOGU::SubmitCode(string ProblemID)
 
     // Get the record ID
     int RecordID = SubmitInfo["rid"].as_integer();
-    TOOL::Speak("Submit succeed");
 
     // Get the record info and wait for the result
     json RecordInfo;
@@ -507,44 +492,32 @@ void LUOGU::SubmitCode(string ProblemID)
     {
         cout << "Compile error: " << endl
              << RecordInfo["currentData"]["record"]["detail"]["compileResult"]["message"].as_string() << endl;
-        TOOL::Speak("You have a compile error");
     }
     else
     {
-        // Check whether the code is accepted
-        if (RecordInfo["currentData"]["record"]["score"].as_integer() == 100)
+        // Get the result
+        for (auto jit : RecordInfo["currentData"]
+                                  ["record"]
+                                  ["detail"]
+                                  ["judgeResult"]
+                                  ["subtasks"])
         {
-            cout << "Congratulations, you have solved this problem" << endl;
-            TOOL::Speak("Congratulations, you have solved this problem");
+            cout << "#" << jit["id"].as_string() << endl;
+            for (auto jit2 : RecordInfo["currentData"]
+                                       ["record"]
+                                       ["detail"]
+                                       ["judgeResult"]
+                                       ["subtasks"]
+                                       [atoi(jit["id"].as_string().c_str())]
+                                       ["testCases"])
+                cout
+                    << "    #" << jit2["id"].as_integer() << " "
+                    << jit2["score"].as_integer() << "pts "
+                    << RecordName[jit2["status"].as_integer()].second << " "
+                    << jit2["time"].as_integer() << "ms "
+                    << jit2["memory"].as_integer() << "KB" << endl;
         }
-        else
-        {
-            // Get the result
-            for (auto jit : RecordInfo["currentData"]
-                                      ["record"]
-                                      ["detail"]
-                                      ["judgeResult"]
-                                      ["subtasks"])
-            {
-                cout << "#" << jit["id"].as_string() << endl;
-                for (auto jit2 : RecordInfo["currentData"]
-                                           ["record"]
-                                           ["detail"]
-                                           ["judgeResult"]
-                                           ["subtasks"]
-                                           [atoi(jit["id"].as_string().c_str())]
-                                           ["testCases"])
-                    cout
-                        << "    #" << jit2["id"].as_integer() << " "
-                        << jit2["score"].as_integer() << "pts "
-                        << RecordName[jit2["status"].as_integer()].second << " "
-                        << jit2["time"].as_integer() << "ms "
-                        << jit2["memory"].as_integer() << "KB" << endl;
-            }
-            cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
-            TOOL::Speak("Your score is " + to_string(RecordInfo["currentData"]["record"]["score"].as_integer()) + " points");
-            TOOL::Speak("You did not solve this problem");
-        }
+        cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
     }
 }
 void LUOGU::GetAnswerOrTips(string ProblemID)
@@ -594,11 +567,10 @@ void LUOGU::GetAnswerOrTips(string ProblemID)
             SetDataFromStringToFile("Luogu/" + ProblemID + ".cpp",
                                     FixString(GetDataFromFileToString("Luogu/" + ProblemID + ".cpp")) +
                                         "\n" +
-                                        "\n" +
                                         "/*\n" +
                                         Answer +
-                                        "\n*/" +
-                                        "\n");
+                                        "\n" +
+                                        "*/\n");
             break;
         }
     }

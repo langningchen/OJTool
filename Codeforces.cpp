@@ -173,7 +173,6 @@ void CODEFORCES::Login(string Username, string Password)
                   &HTTPResponseCode);
     if (HTTPResponseCode == 302)
     {
-        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -247,7 +246,6 @@ void CODEFORCES::Login(string Username, string Password)
         else
             TRIGGER_ERROR("Login failed");
     }
-    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
 void CODEFORCES::GetProblemDetail(string ProblemID)
@@ -313,7 +311,6 @@ void CODEFORCES::GetProblemDetail(string ProblemID)
     // Open the problem detail file
     if (system(string("code-insiders /tmp/Codeforces-" + ProblemID + ".md").c_str()))
         cout << "Open file \"/tmp/Codeforces-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
 void CODEFORCES::SubmitCode(string ProblemID)
 {

@@ -7,7 +7,6 @@ void UVA::Login(string Username, string Password)
     GetDataToFile("https://onlinejudge.org/index.php?option=com_comprofiler");
     if (GetDataFromFileToString().find("You need to login.") == string::npos)
     {
-        TOOL::Speak("Already logged in");
         cout << "Already logged in" << endl;
         return;
     }
@@ -52,7 +51,6 @@ void UVA::Login(string Username, string Password)
                   FORM);
     if (HTTPResponseCode == 200)
         TRIGGER_ERROR("Login failed");
-    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
 void UVA::GetProblemDetail(string ProblemID)
@@ -84,7 +82,6 @@ void UVA::GetProblemDetail(string ProblemID)
     // Open the pdf file
     if (system(string("code-insiders /tmp/UVa-" + ProblemID + ".pdf").c_str()))
         cout << "Open file \"/tmp/UVa-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
 void UVA::SubmitCode(string ProblemID)
 {
@@ -162,7 +159,6 @@ void UVA::SubmitCode(string ProblemID)
     if (atoi(SubmissionID.c_str()) == 0)
         TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
-    TOOL::Speak("Submit succeed");
 
     // Get the submission result
     cout << "Judging... " << flush;
