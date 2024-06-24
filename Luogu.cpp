@@ -159,6 +159,7 @@ void LUOGU::Login(string Username, string Password)
     }
     cout << "Not logged in" << endl;
 
+    GetDataToFile("https://www.luogu.com.cn/auth/login");
     string Token = GetCSRF();
     int ErrorCounter = 0;
     while (1)
