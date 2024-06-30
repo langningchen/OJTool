@@ -1,6 +1,4 @@
-#ifndef CODEFORCES_HPP
-#define CODEFORCES_HPP
-
+#pragma once
 #include "OJ.hpp"
 #include "tinyxml/tinystr.h"
 #include "tinyxml/tinyxml.h"
@@ -21,5 +19,3 @@ class CODEFORCES : public OJ {
     void GetProblemDetail(string ProblemID);
     void SubmitCode(string ProblemID);
 };
-
-#endif

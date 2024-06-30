@@ -1,6 +1,4 @@
-#ifndef LUOGU_HPP
-#define LUOGU_HPP
-
+#pragma once
 #include "OJ.hpp"
 #include <map>
 #include <string>
@@ -21,5 +19,3 @@ class LUOGU : public OJ {
     void ClockIn();
     void GetAnswerOrTips(string ProblemID);
 };
-
-#endif

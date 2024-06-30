@@ -1,6 +1,4 @@
-#ifndef XMOJ_HPP
-#define XMOJ_HPP
-
+#pragma once
 #include "OJ.hpp"
 #include <string>
 using namespace std;
@@ -19,5 +17,3 @@ class XMOJ : public OJ {
     void SubmitCode(string ProblemID);
     void GetContestProblemsDetails(string ContestID);
 };
-
-#endif

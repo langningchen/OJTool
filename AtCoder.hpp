@@ -1,6 +1,4 @@
-#ifndef ATCODER_HPP
-#define ATCODER_HPP
-
+#pragma once
 #include "OJ.hpp"
 #include <string>
 using namespace std;
@@ -11,5 +9,3 @@ class ATCODER : public OJ {
     void GetProblemDetail(string ProblemID);
     void SubmitCode(string ProblemID);
 };
-
-#endif

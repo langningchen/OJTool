@@ -1,6 +1,4 @@
-#ifndef ETIGER_HPP
-#define ETIGER_HPP
-
+#pragma once
 #include "OJ.hpp"
 #include <map>
 #include <string>
@@ -19,5 +17,3 @@ class ETIGER : public OJ {
     void ClockIn();
     void GetAnswerOrTips(string ProblemID);
 };
-
-#endif

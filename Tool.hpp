@@ -1,19 +1,16 @@
-#ifndef TOOL_HPP
-#define TOOL_HPP
-
-#include <string>
-#include <iostream>
-#include <regex>
-#include <map>
+#pragma once
 #include "Curl.hpp"
 #include "MD5.hpp"
 #include "tidy/tidy.h"
 #include "tidy/tidybuffio.h"
+#include <iostream>
+#include <map>
+#include <regex>
+#include <string>
 using namespace std;
 
-class TOOL
-{
-public:
+class TOOL {
+  public:
     string Username;
     string Password;
     string OJ;
@@ -26,5 +23,3 @@ public:
     static string GetCPHFileName(string Path, string FileName);
     static string TidyHTMLDocument(string Input);
 };
-
-#endif
