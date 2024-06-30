@@ -1,7 +1,6 @@
-#include "Tool.hpp"
 #include "Etiger.hpp"
-ETIGER::ETIGER()
-{
+#include "Tool.hpp"
+ETIGER::ETIGER() {
     DifficultyName[1] = make_pair("入门难度", "#979797");
     DifficultyName[2] = make_pair("普及-", "#79d479");
     DifficultyName[3] = make_pair("普及/提高-", "#4191ff");
@@ -11,8 +10,7 @@ ETIGER::ETIGER()
     DifficultyName[7] = make_pair("NOI+/CTSC/IOI", "orange");
     DifficultyName[8] = make_pair("传说", "red");
 }
-void ETIGER::Login(string Username, string Password)
-{
+void ETIGER::Login(string Username, string Password) {
     // Create login request
     json LoginRequest;
     LoginRequest["name"] = Username;
@@ -37,8 +35,7 @@ void ETIGER::Login(string Username, string Password)
     json LoginInfo = json::parse(GetDataFromFileToString());
 
     // Check login response
-    if (LoginInfo["code"] != 200)
-    {
+    if (LoginInfo["code"] != 200) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Login failed",
                                             LoginInfo["code"].as_integer(),
                                             LoginInfo["msg"].as_string());
@@ -48,8 +45,7 @@ void ETIGER::Login(string Username, string Password)
     // Save token
     Token = LoginInfo["data"]["ticket"].as_string();
 }
-void ETIGER::ClockIn()
-{
+void ETIGER::ClockIn() {
     // Add headers
     curl_slist *HeaderList = NULL;
     HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
@@ -68,8 +64,7 @@ void ETIGER::ClockIn()
 
     // Parse clock in response
     json ClockInInfo = json::parse(GetDataFromFileToString());
-    if (ClockInInfo["code"] != 200)
-    {
+    if (ClockInInfo["code"] != 200) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Clock in failed",
                                             ClockInInfo["code"].as_integer(),
                                             ClockInInfo["msg"].as_string());
@@ -77,10 +72,8 @@ void ETIGER::ClockIn()
     }
     cout << "Succeed" << endl;
 }
-void ETIGER::GetProblemDetail(string ProblemID)
-{
-    if (!IfFileExist("/tmp/Etiger-" + ProblemID + ".md"))
-    {
+void ETIGER::GetProblemDetail(string ProblemID) {
+    if (!IfFileExist("/tmp/Etiger-" + ProblemID + ".md")) {
         // Add headers
         curl_slist *HeaderList = NULL;
         HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
@@ -99,8 +92,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
 
         // Parse response
         json ProblemInfo = json::parse(GetDataFromFileToString());
-        if (ProblemInfo["code"] != 200)
-        {
+        if (ProblemInfo["code"] != 200) {
             TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get problem detail failed",
                                                 ProblemInfo["code"].as_integer(),
                                                 ProblemInfo["msg"].as_string());
@@ -119,8 +111,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
         string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
         vector<string> InputSamples = SpiltString(InputSample, ";");
         vector<string> OutputSamples = SpiltString(OutputSample, ";");
-        for (size_t i = 0; i < InputSamples.size(); i++)
-        {
+        for (size_t i = 0; i < InputSamples.size(); i++) {
             string Input = FixString(InputSamples[i]);
             string Output = FixString(OutputSamples[i]);
             // If input or output is empty, skip this test case
@@ -165,10 +156,8 @@ void ETIGER::GetProblemDetail(string ProblemID)
         OutputContent += "## 输入输出样例\n"s +
                          "\n";
         int Counter = 1;
-        while (InputSample.find(";") != string::npos && OutputSample.find(";") != string::npos)
-        {
-            if (FixString(InputSample.substr(0, InputSample.find(";"))) != "无")
-            {
+        while (InputSample.find(";") != string::npos && OutputSample.find(";") != string::npos) {
+            if (FixString(InputSample.substr(0, InputSample.find(";"))) != "无") {
                 OutputContent += "输入 #" + to_string(Counter) + "\n" +
                                  "```\n" +
                                  FixString(InputSample.substr(0, InputSample.find(";"))) + "\n" +
@@ -183,8 +172,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
             Counter++;
         }
         OutputContent += "\n";
-        if (EraseHTMLElement(ProblemInfo["data"]["description"].as_string()) != "")
-        {
+        if (EraseHTMLElement(ProblemInfo["data"]["description"].as_string()) != "") {
             OutputContent += "## 说明\n"s +
                              "\n" +
                              FixString(EraseHTMLElement(ProblemInfo["data"]["description"].as_string())) + "\n" +
@@ -217,8 +205,7 @@ void ETIGER::GetProblemDetail(string ProblemID)
         cout << "Open file \"/tmp/Etiger-" << ProblemID << ".md\" failed, please open it manually" << endl;
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
-void ETIGER::SubmitCode(string ProblemID)
-{
+void ETIGER::SubmitCode(string ProblemID) {
     // Get code and uncomment freopen
     string Code = GetDataFromFileToString("Etiger/" + ProblemID + ".cpp");
     Code = StringReplaceAll(Code, "// freopen", "freopen");
@@ -249,8 +236,7 @@ void ETIGER::SubmitCode(string ProblemID)
 
     // Get result
     json SubmitInfo = json::parse(GetDataFromFileToString());
-    if (SubmitInfo["code"] != 200)
-    {
+    if (SubmitInfo["code"] != 200) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get submit result failed",
                                             SubmitInfo["code"].as_integer(),
                                             SubmitInfo["msg"].as_string());
@@ -262,15 +248,13 @@ void ETIGER::SubmitCode(string ProblemID)
         SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp", Code + "\n");
     // Output result
     int Counter = 1;
-    for (auto i : SubmitInfo["data"]["result"])
-    {
+    for (auto i : SubmitInfo["data"]["result"]) {
         cout << "#" << Counter << " "
              << i["type"].as_string() << " "
              << i["timeUsed"] << "ms "
              << i["memUsed"] << "B" << endl;
         Counter++;
-        if (i["input"].as_string() != "")
-        {
+        if (i["input"].as_string() != "") {
             cout << "    Input: " << i["input"].as_string() << endl
                  << "    Standard output: " << i["output"].as_string() << endl
                  << "    My output: " << i["myOutput"].as_string() << endl;
@@ -283,8 +267,7 @@ void ETIGER::SubmitCode(string ProblemID)
     }
     cout << SubmitInfo["data"]["grade"] << "pts" << endl;
 }
-void ETIGER::GetAnswerOrTips(string ProblemID)
-{
+void ETIGER::GetAnswerOrTips(string ProblemID) {
     // Create header
     curl_slist *HeaderList = NULL;
     HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
@@ -303,8 +286,7 @@ void ETIGER::GetAnswerOrTips(string ProblemID)
 
     // Get result
     json CommentsData = json::parse(GetDataFromFileToString());
-    if (CommentsData["code"] != 200)
-    {
+    if (CommentsData["code"] != 200) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get comments failed",
                                             CommentsData["code"].as_integer(),
                                             CommentsData["msg"].as_string());
