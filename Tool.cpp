@@ -1,4 +1,5 @@
 #include <AtCoder.hpp>
+#include <CYEZOJ.hpp>
 #include <Codeforces.hpp>
 #include <Etiger.hpp>
 #include <Luogu.hpp>
@@ -53,6 +54,15 @@ void TOOL::Execute() {
             _XMOJ.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
             _XMOJ.SubmitCode(ProblemID);
+        else
+            TRIGGER_ERROR("Arguments invalid");
+    } else if (OJ == "CYEZ") {
+        CYEZOJ _CYEZOJ;
+        _CYEZOJ.Login(Username, Password);
+        if (Operation == "GetProblemDetail")
+            _CYEZOJ.GetProblemDetail(ProblemID);
+        else if (Operation == "SubmitCode")
+            _CYEZOJ.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     } else if (OJ == "USACO") {
