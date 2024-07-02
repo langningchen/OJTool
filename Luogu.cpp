@@ -168,12 +168,12 @@ void LUOGU::Login(std::string Username, std::string Password) {
         // Predict captcha
         std::string Captcha = "";
         std::cout << "Predicting captcha by AI model... " << std::flush;
-        if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
+        if (system("python PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
             std::cout << "Succeed" << std::endl;
             Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
         } else {
             std::cout << "Failed" << std::endl;
-            system("code-insiders /tmp/Captcha.jpeg");
+            system("code-insiders /tmp/Captcha.jpg");
             std::cout << "Please input the captcha: ";
             std::cin >> Captcha;
         }
@@ -400,7 +400,7 @@ void LUOGU::GetProblemDetail(std::string ProblemID) {
 }
 void LUOGU::SubmitCode(std::string ProblemID) {
     // Get the code
-    std::string Code = GetDataFromFileToString("Luogu/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
 
     // Get the token
     std::cout << "Getting submit page data... " << std::flush;
@@ -529,8 +529,8 @@ void LUOGU::GetAnswerOrTips(std::string ProblemID) {
         Answer = FixString(Answer);
         if (Answer != "") {
             // Write the answer as a comment to the file.
-            SetDataFromStringToFile("Luogu/" + ProblemID + ".cpp",
-                                    FixString(GetDataFromFileToString("Luogu/" + ProblemID + ".cpp")) +
+            SetDataFromStringToFile("../" + ProblemID + ".cpp",
+                                    FixString(GetDataFromFileToString("../" + ProblemID + ".cpp")) +
                                         "\n" +
                                         "/*\n" +
                                         Answer +

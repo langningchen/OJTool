@@ -37,7 +37,7 @@ void USACO::GetProblemDetail(std::string ProblemID) {
         std::cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void USACO::SubmitCode(std::string ProblemID) {
-    std::string Code = GetDataFromFileToString("USACO/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
     Code = "/*\n"s +
            "ID: " + Username + "\n" +
            "TASK: " + ProblemID + "\n" +

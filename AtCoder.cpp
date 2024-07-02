@@ -81,7 +81,7 @@ void ATCODER::GetProblemDetail(std::string ProblemID) {
 }
 void ATCODER::SubmitCode(std::string ProblemID) {
     // Get the code
-    std::string Code = GetDataFromFileToString("AtCoder/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
     std::string ContestName = SpiltString(ProblemID, "_")[0];
 
     // Get the token

@@ -181,7 +181,7 @@ void XMOJ::_GetProblemDetail(std::string ProblemID, std::string ProblemHandle) {
         std::cout << "Open file \"/tmp/XMOJ-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void XMOJ::SubmitCode(std::string ProblemID) {
-    std::string Code = GetDataFromFileToString("XMOJ/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
     Code = StringReplaceAll(Code, "// freopen", "freopen");
     std::cout << "Getting submit page data... " << std::flush;
     GetDataToFile("http://www.xmoj.tech/submitpage.php?id=" + ProblemID);
@@ -226,7 +226,7 @@ void XMOJ::SubmitCode(std::string ProblemID) {
     } while (JudgeResult < 4 || JudgeResult > 11);
     std::cout << "Succeed" << std::endl;
     if (JudgeResult == 4)
-        SetDataFromStringToFile("XMOJ/" + ProblemID + ".cpp", Code + "\n");
+        SetDataFromStringToFile("../" + ProblemID + ".cpp", Code + "\n");
     // Check whether there is a compile error
     if (JudgeResult == 11) {
         GetDataToFile("http://www.xmoj.tech/ceinfo.php?sid=" + SubmissionID);

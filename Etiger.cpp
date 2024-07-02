@@ -207,7 +207,7 @@ void ETIGER::GetProblemDetail(std::string ProblemID) {
 // TODO: When input is "data is too long to provide", don't add it to CPH
 void ETIGER::SubmitCode(std::string ProblemID) {
     // Get code and uncomment freopen
-    std::string Code = GetDataFromFileToString("Etiger/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
     Code = StringReplaceAll(Code, "// freopen", "freopen");
 
     // Create submit request
@@ -245,7 +245,7 @@ void ETIGER::SubmitCode(std::string ProblemID) {
 
     // Check whether the code is accepted
     if (SubmitInfo["data"]["grade"].as_integer() == 100)
-        SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp", Code + "\n");
+        SetDataFromStringToFile("../" + ProblemID + ".cpp", Code + "\n");
     // Output result
     int Counter = 1;
     for (auto i : SubmitInfo["data"]["result"]) {
@@ -299,8 +299,8 @@ void ETIGER::GetAnswerOrTips(std::string ProblemID) {
         Comments += FixString(i["content"].as_string()) + "\n";
 
     // Add comments to the code
-    SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp",
-                            FixString(GetDataFromFileToString("Etiger/" + ProblemID + ".cpp")) +
+    SetDataFromStringToFile("../" + ProblemID + ".cpp",
+                            FixString(GetDataFromFileToString("../" + ProblemID + ".cpp")) +
                                 "\n" +
                                 "\n" +
                                 "/*\n" +
