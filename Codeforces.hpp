@@ -1,21 +1,19 @@
 #pragma once
-#include "OJ.hpp"
-#include "tinyxml/tinystr.h"
-#include "tinyxml/tinyxml.h"
+#include <OJ.hpp>
 #include <string>
-using namespace std;
+#include <tinyxml/tinyxml.h>
 
 class CODEFORCES : public OJ {
   private:
-    const string ftaa = "rv5q0yv00p85nhpyi7";
-    const string bfaa = "f1b3f18c715565b589b7823cda7448ce";
-    string GetCSRF();
-    string OutputPre(TiXmlElement *Input);
-    string Output(TiXmlElement *Input, bool InLatex = false);
-    string ToNormalName(string Input);
+    const std::string ftaa = "rv5q0yv00p85nhpyi7";
+    const std::string bfaa = "f1b3f18c715565b589b7823cda7448ce";
+    std::string GetCSRF();
+    std::string OutputPre(TiXmlElement *Input);
+    std::string Output(TiXmlElement *Input, bool InLatex = false);
+    std::string ToNormalName(std::string Input);
 
   public:
-    void Login(string Username, string Password);
-    void GetProblemDetail(string ProblemID);
-    void SubmitCode(string ProblemID);
+    void Login(std::string Username, std::string Password);
+    void GetProblemDetail(std::string ProblemID);
+    void SubmitCode(std::string ProblemID);
 };

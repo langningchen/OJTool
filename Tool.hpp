@@ -1,27 +1,24 @@
 #pragma once
-#include "Curl.hpp"
-#include "MD5.hpp"
-#include "tidy/tidy.h"
-#include "tidy/tidybuffio.h"
+
+#include <Curl.hpp>
+#include <MD5.hpp>
 #include <iostream>
 #include <map>
 #include <regex>
 #include <string>
-using namespace std;
+#include <tidy/tidy.h>
+#include <tidy/tidybuffio.h>
 
 class TOOL {
   public:
-    string Username;
-    string Password;
-    string OJ;
-    string Operation;
-    string ProblemID;
+    std::string Username;
+    std::string Password;
+    std::string OJ;
+    std::string Operation;
+    std::string ProblemID;
 
     void Execute();
 
-    static void Speak(string Name);
-#ifndef _WIN32
-    static string GetCPHFileName(string Path, string FileName);
-#endif
-    static string TidyHTMLDocument(string Input);
+    static std::string GetCPHFileName(std::string Path, std::string FileName);
+    static std::string TidyHTMLDocument(std::string Input);
 };

@@ -1,9 +1,8 @@
-#include "Tool.hpp"
-#include "USACO.hpp"
-void USACO::Login(string Username, string Password)
-{
+#include <Tool.hpp>
+#include <USACO.hpp>
+void USACO::Login(std::string Username, std::string Password) {
     // Login to USACO
-    cout << "Logging in... " << flush;
+    std::cout << "Logging in... " << std::flush;
     GetDataToFile("https://train.usaco.org/usacogate",
                   "",
                   "",
@@ -17,31 +16,28 @@ void USACO::Login(string Username, string Password)
     Token = GetStringBetween(GetDataFromFileToString(), "a=", "\"");
     if (Token == "")
         TRIGGER_ERROR("Login failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
     this->Username = Username;
 }
-void USACO::GetProblemDetail(string ProblemID)
-{
-    if (!IfFileExist(TempFolder + "USACO-" + ProblemID + ".md"))
-    {
+void USACO::GetProblemDetail(std::string ProblemID) {
+    if (!IfFileExist("/tmp/USACO-" + ProblemID + ".md")) {
         // Get the problem detail
-        cout << "Getting problem detail... " << flush;
+        std::cout << "Getting problem detail... " << std::flush;
         GetDataToFile("https://train.usaco.org/usacoprob2?a=" + Token + "&S=" + ProblemID);
-        string ProblemDetail = GetDataFromFileToString();
+        std::string ProblemDetail = GetDataFromFileToString();
         ProblemDetail = "<table><td><b" + GetStringBetween(ProblemDetail, "<td><b", "</div>");
         SetDataFromStringToFile(
-            TempFolder + "USACO-" + ProblemID + ".md",
+            "/tmp/USACO-" + ProblemID + ".md",
             ProblemDetail);
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
     }
 
     // Open the problem detail file
-    if (system(string("code-insiders /tmp/USACO-" + ProblemID + ".md").c_str()))
-        cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    if (system(std::string("code-insiders /tmp/USACO-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
-void USACO::SubmitCode(string ProblemID)
-{
-    string Code = GetDataFromFileToString("USACO/" + ProblemID + ".cpp");
+void USACO::SubmitCode(std::string ProblemID) {
+    std::string Code = GetDataFromFileToString("USACO/" + ProblemID + ".cpp");
     Code = "/*\n"s +
            "ID: " + Username + "\n" +
            "TASK: " + ProblemID + "\n" +
@@ -50,20 +46,20 @@ void USACO::SubmitCode(string ProblemID)
            Code;
     Code = FixString(Code);
     Code += "\n";
-    string MultiPartData = "--" + MULTIPART_BOUNDARY + "\n" +
-                           "Content-Disposition: form-data; name=\"filename\"; filename=\"" + ProblemID + ".cpp\"\n" +
-                           "Content-Type: application/octet-stream\n" +
-                           "\n" +
-                           Code + "\n" +
-                           "--" + MULTIPART_BOUNDARY + "\n" +
-                           "Content-Disposition: form-data; name=\"a\"\n" +
-                           "\n" +
-                           Token + "\n" +
-                           "--" + MULTIPART_BOUNDARY + "--\n";
+    std::string MultiPartData = "--" + MULTIPART_BOUNDARY + "\n" +
+                                "Content-Disposition: form-data; name=\"filename\"; filename=\"" + ProblemID + ".cpp\"\n" +
+                                "Content-Type: application/octet-stream\n" +
+                                "\n" +
+                                Code + "\n" +
+                                "--" + MULTIPART_BOUNDARY + "\n" +
+                                "Content-Disposition: form-data; name=\"a\"\n" +
+                                "\n" +
+                                Token + "\n" +
+                                "--" + MULTIPART_BOUNDARY + "--\n";
     SetDataFromStringToFile("MultiPartData.tmp", MultiPartData);
 
     // Submit code
-    cout << "Submitting code... " << flush;
+    std::cout << "Submitting code... " << std::flush;
     GetDataToFile("https://train.usaco.org/upload3",
                   "",
                   "",
@@ -72,9 +68,9 @@ void USACO::SubmitCode(string ProblemID)
                   NULL,
                   NULL,
                   MULTIPART);
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
-    SetDataFromStringToFile(TempFolder + "" + ProblemID + ".log",
+    SetDataFromStringToFile("/tmp/" + ProblemID + ".log",
                             EraseHTMLElement(
                                 GetStringBetween(
                                     GetDataFromFileToString(),

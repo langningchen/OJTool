@@ -1,19 +1,18 @@
 #pragma once
-#include "OJ.hpp"
+#include <OJ.hpp>
 #include <string>
-using namespace std;
 
 class XMOJ : public OJ {
   private:
-    string ResultName[17];
-    string GetCSRF();
-    string HTMLToText(string Data);
-    void _GetProblemDetail(string ProblemID, string ProblemHandle);
+    std::string ResultName[17];
+    std::string GetCSRF();
+    std::string HTMLToText(std::string Data);
+    void _GetProblemDetail(std::string ProblemID, std::string ProblemHandle);
 
   public:
     XMOJ();
-    void Login(string Username, string Password);
-    void GetProblemDetail(string ProblemID);
-    void SubmitCode(string ProblemID);
-    void GetContestProblemsDetails(string ContestID);
+    void Login(std::string Username, std::string Password);
+    void GetProblemDetail(std::string ProblemID);
+    void SubmitCode(std::string ProblemID);
+    void GetContestProblemsDetails(std::string ContestID);
 };

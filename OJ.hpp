@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
-using namespace std;
 
 class OJ {
   public:
-    virtual void Login(string Username, string Password) = 0;
-    virtual void GetProblemDetail(string ProblemID) = 0;
-    virtual void SubmitCode(string ProblemID) = 0;
+    virtual void Login(std::string Username, std::string Password) = 0;
+    virtual void GetProblemDetail(std::string ProblemID) = 0;
+    virtual void SubmitCode(std::string ProblemID) = 0;
 };

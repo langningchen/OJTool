@@ -4,17 +4,12 @@ import tensorflow as tf
 from keras.models import load_model
 from PIL import Image
 
-if path.sep == "\\":
-    TempFolder = "C:\\Windows\\Temp\\"
-else:
-    TempFolder = "/tmp/"
-
 if __name__ == "__main__":
     Model = load_model(
         path.join(path.dirname(__file__), "LuoguCaptchaModule", "LuoguCaptcha.keras")
     )
 
-    Image = Image.open(TempFolder + "Captcha.jpg")
+    Image = Image.open("/tmp/Captcha.jpg")
     ImageArray = np.array(Image) / 255.0
 
     Prediction = Model.predict(np.array([ImageArray]), verbose=0)
@@ -22,5 +17,5 @@ if __name__ == "__main__":
 
     print(
         "".join(map(chr, map(int, Prediction[0]))),
-        file=open(TempFolder + "Captcha.txt", mode="w"),
+        file=open("/tmp/Captcha.txt", mode="w"),
     )

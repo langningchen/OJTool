@@ -1,12 +1,12 @@
-#include "Tool.hpp"
-#include "AtCoder.hpp"
-#include "Codeforces.hpp"
-#include "Etiger.hpp"
-#include "Luogu.hpp"
-#include "USACO.hpp"
-#include "UVa.hpp"
-#include "XMOJ.hpp"
-string TOOL::GetCPHFileName(string Path, string FileName) {
+#include <AtCoder.hpp>
+#include <Codeforces.hpp>
+#include <Etiger.hpp>
+#include <Luogu.hpp>
+#include <Tool.hpp>
+#include <USACO.hpp>
+#include <UVa.hpp>
+#include <XMOJ.hpp>
+std::string TOOL::GetCPHFileName(std::string Path, std::string FileName) {
     // Create an object of the MD5 class to encode the file name
     MD5 MD5Encoder;
     // Return the file name in the CPH directory
@@ -14,7 +14,7 @@ string TOOL::GetCPHFileName(string Path, string FileName) {
            FileName +
            ".cpp_" +
            // Encode the full path of the file
-           MD5Encoder.encode(GetUserHomeFolder() + PathSeparator + Path + PathSeparator + FileName + ".cpp") +
+           MD5Encoder.encode(GetUserHomeFolder() + "/" + Path + "/" + FileName + ".cpp") +
            // Add the .prob extension to the file name
            ".prob";
 }
@@ -94,7 +94,7 @@ void TOOL::Execute() {
     } else
         TRIGGER_ERROR("Arguments invalid");
 }
-string TOOL::TidyHTMLDocument(string Input) {
+std::string TOOL::TidyHTMLDocument(std::string Input) {
     // Use Tidy to tidy the HTML document to XHTML
     TidyBuffer OutputBuffer = {0};
     TidyBuffer ErrorBuffer = {0};
@@ -106,7 +106,7 @@ string TOOL::TidyHTMLDocument(string Input) {
     tidyRunDiagnostics(TidyDocument);
     tidyOptSetBool(TidyDocument, TidyForceOutput, yes);
     tidySaveBuffer(TidyDocument, &OutputBuffer);
-    string Output = string(reinterpret_cast<const char *>(OutputBuffer.bp));
+    std::string Output = std::string(reinterpret_cast<const char *>(OutputBuffer.bp));
     tidyBufFree(&OutputBuffer);
     tidyBufFree(&ErrorBuffer);
     tidyRelease(TidyDocument);

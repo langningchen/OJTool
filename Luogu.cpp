@@ -1,6 +1,6 @@
-#include "Luogu.hpp"
-#include "Lib/StringOperation.hpp"
-#include "Tool.hpp"
+#include <Luogu.hpp>
+#include <StringOperation.hpp>
+#include <Tool.hpp>
 LUOGU::LUOGU() {
     ColorList["blue-1"] = "e0f7ff";
     ColorList["blue-2"] = "89d1f5";
@@ -86,16 +86,16 @@ LUOGU::LUOGU() {
     ColorList["vip"] = "dfc289";
 
     // Get the configuration information of the luogu website.
-    cout << "Getting luogu config... " << flush;
+    std::cout << "Getting luogu config... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/_lfe/config");
     json Config = json::parse(GetDataFromFileToString());
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Get the tag information of the luogu website.
-    cout << "Getting luogu tags... " << flush;
+    std::cout << "Getting luogu tags... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/_lfe/tags");
     json Tag = json::parse(GetDataFromFileToString());
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Get the language information of the luogu website.
     for (auto i : Config["codeLanguages"]) {
@@ -129,18 +129,18 @@ LUOGU::LUOGU() {
         RecordName[i["id"].as_integer()] = make_pair(i["name"].as_string(),
                                                      i["shortName"].as_string());
 }
-string LUOGU::GetCSRF() {
+std::string LUOGU::GetCSRF() {
     // Get csrf token
-    string Token = GetStringBetween(GetDataFromFileToString(),
-                                    "<meta name=\"csrf-token\" content=\"", "\"");
+    std::string Token = GetStringBetween(GetDataFromFileToString(),
+                                         "<meta name=\"csrf-token\" content=\"", "\"");
     if (Token == "")
         TRIGGER_ERROR("Can not find csrf token");
     return Token;
 }
-void LUOGU::Login(string Username, string Password) {
+void LUOGU::Login(std::string Username, std::string Password) {
     // Check if the user is logged in.
     int HTTPResponseCode = 0;
-    cout << "Checking login... " << flush;
+    std::cout << "Checking login... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/chat",
                   "",
                   "",
@@ -149,47 +149,33 @@ void LUOGU::Login(string Username, string Password) {
                   NULL,
                   &HTTPResponseCode);
     if (HTTPResponseCode != 302) {
-        cout << "Already logged in" << endl;
+        std::cout << "Already logged in" << std::endl;
         return;
     }
-    cout << "Not logged in" << endl;
+    std::cout << "Not logged in" << std::endl;
 
     GetDataToFile("https://www.luogu.com.cn/auth/login");
-    string Token = GetCSRF();
+    std::string Token = GetCSRF();
     int ErrorCounter = 0;
     while (1) {
         // Get login captcha
-        cout << "Getting login captcha... " << flush;
+        std::cout << "Getting login captcha... " << std::flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
                       "",
-                      TempFolder + "Captcha.jpg");
-        cout << "Succeed" << endl;
+                      "/tmp/Captcha.jpg");
+        std::cout << "Succeed" << std::endl;
 
         // Predict captcha
-        string Captcha = "";
-        try {
-            GetDataToFile("https://luogu-captcha-bypass.piterator.com/predict/",
-                          "",
-                          "",
-                          true,
-                          "data:image/jpeg;base64," +
-                              Base64Encode(
-                                  GetDataFromFileToString("/tmp/Captcha.jpeg")),
-                          HeaderList);
-            cout << "Succeed" << endl;
-            Captcha = GetDataFromFileToString();
-        } catch (CLNException &Exception) {
-            cout << "Failed" << endl
-                 << "Predicting captcha by AI model... " << flush;
-            if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
-                cout << "Succeed" << endl;
-                Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
-            } else {
-                cout << "Failed" << endl;
-                system("code-insiders /tmp/Captcha.jpeg");
-                cout << "Please input the captcha: ";
-                cin >> Captcha;
-            }
+        std::string Captcha = "";
+        std::cout << "Predicting captcha by AI model... " << std::flush;
+        if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
+            std::cout << "Succeed" << std::endl;
+            Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
+        } else {
+            std::cout << "Failed" << std::endl;
+            system("code-insiders /tmp/Captcha.jpeg");
+            std::cout << "Please input the captcha: ";
+            std::cin >> Captcha;
         }
 
         // Create a json object to store the login request info
@@ -200,9 +186,9 @@ void LUOGU::Login(string Username, string Password) {
 
         // Create a header list for the curl request
         curl_slist *HeaderList = NULL;
-        HeaderList = curl_slist_append(HeaderList, string("X-CSRF-TOKEN: " + Token).c_str());
-        HeaderList = curl_slist_append(HeaderList, string("Content-Length: " +
-                                                          to_string(LoginRequest.dump().size()))
+        HeaderList = curl_slist_append(HeaderList, std::string("X-CSRF-TOKEN: " + Token).c_str());
+        HeaderList = curl_slist_append(HeaderList, std::string("Content-Length: " +
+                                                               std::to_string(LoginRequest.dump().size()))
                                                        .c_str());
         HeaderList = curl_slist_append(HeaderList, "Host: www.luogu.com.cn");
         HeaderList = curl_slist_append(HeaderList, "Referer: https://www.luogu.com.cn/auth/login");
@@ -210,7 +196,7 @@ void LUOGU::Login(string Username, string Password) {
         HeaderList = curl_slist_append(HeaderList, "X-Requested-With: XMLHttpRequest");
 
         // Send the login request to the server
-        cout << "Logging in... " << flush;
+        std::cout << "Logging in... " << std::flush;
         GetDataToFile("https://www.luogu.com.cn/api/auth/userPassLogin",
                       "",
                       "",
@@ -227,9 +213,9 @@ void LUOGU::Login(string Username, string Password) {
                                                     LoginInfo["status"].as_integer(),
                                                     LoginInfo["data"].as_string());
             } else
-                cout << "Failed (Captcha check failed for " << ErrorCounter + 1 << " times)" << endl;
+                std::cout << "Failed (Captcha check failed for " << ErrorCounter + 1 << " times)" << std::endl;
         } else {
-            cout << "Succeed" << endl;
+            std::cout << "Succeed" << std::endl;
             break;
         }
         ErrorCounter++;
@@ -237,27 +223,27 @@ void LUOGU::Login(string Username, string Password) {
 }
 void LUOGU::ClockIn() {
     // Gets the clock-in page data
-    cout << "Get clock in page data... " << flush;
+    std::cout << "Get clock in page data... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/");
-    string HTMLData = GetDataFromFileToString();
-    if (HTMLData.find("C3VK") != string::npos) {
-        string CookieData = "www.luogu.com.cn\tTRUE\t/\tTRUE\t" + to_string(time(nullptr) + 60 * 60 * 24 * 7) + "\tC3VK\t" + GetStringBetween(HTMLData, "C3VK=", ";");
+    std::string HTMLData = GetDataFromFileToString();
+    if (HTMLData.find("C3VK") != std::string::npos) {
+        std::string CookieData = "www.luogu.com.cn\tTRUE\t/\tTRUE\t" + std::to_string(time(nullptr) + 60 * 60 * 24 * 7) + "\tC3VK\t" + GetStringBetween(HTMLData, "C3VK=", ";");
         GetDataToFile("https://www.luogu.com.cn/", "", "", false, "", nullptr, nullptr, "", CookieData);
         HTMLData = GetDataFromFileToString();
     }
-    string Token = GetCSRF();
-    cout << "Succeed" << endl;
+    std::string Token = GetCSRF();
+    std::cout << "Succeed" << std::endl;
 
     // Gets the clock-in header
     curl_slist *HeaderList = NULL;
-    HeaderList = curl_slist_append(HeaderList, string("X-CSRF-TOKEN: " + Token).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("X-CSRF-TOKEN: " + Token).c_str());
     HeaderList = curl_slist_append(HeaderList, "Host: www.luogu.com.cn");
     HeaderList = curl_slist_append(HeaderList, "Referer: https://www.luogu.com.cn/");
     HeaderList = curl_slist_append(HeaderList, "Origin: https://www.luogu.com.cn");
     HeaderList = curl_slist_append(HeaderList, "X-Requested-With: XMLHttpRequest");
 
     // Clocks in
-    cout << "Clocking in... " << flush;
+    std::cout << "Clocking in... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/index/ajax_punch",
                   "",
                   "",
@@ -272,12 +258,12 @@ void LUOGU::ClockIn() {
                                             ClockInInfo["code"].as_integer(),
                                             ClockInInfo["message"].as_string());
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 }
-void LUOGU::GetProblemDetail(string ProblemID) {
+void LUOGU::GetProblemDetail(std::string ProblemID) {
     if (!IfFileExist("/tmp/Luogu-" + ProblemID + ".md")) {
         // Gets the problem detail page
-        cout << "Getting problem detail page... " << flush;
+        std::cout << "Getting problem detail page... " << std::flush;
         GetDataToFile("https://www.luogu.com.cn/problem/" + ProblemID + "?_contentOnly=1");
         json ProblemInfo = json::parse(GetDataFromFileToString());
         if (ProblemInfo["code"].as_integer() != 200) {
@@ -285,9 +271,8 @@ void LUOGU::GetProblemDetail(string ProblemID) {
                                                 ProblemInfo["code"].as_integer(),
                                                 ProblemInfo["currentData"]["errorMessage"].as_string());
         }
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
 
-#ifndef _WIN32
         // Save data for CPH
         MD5 MD5Encoder;
         json CPHData;
@@ -297,10 +282,10 @@ void LUOGU::GetProblemDetail(string ProblemID) {
         CPHData["interactive"] = false;
         CPHData["memoryLimit"] = 0;
         for (auto i : ProblemInfo["currentData"]["problem"]["limits"]["memory"])
-            CPHData["memoryLimit"] = max(CPHData["memoryLimit"].as_integer(), i.as_integer());
+            CPHData["memoryLimit"] = std::max(CPHData["memoryLimit"].as_integer(), i.as_integer());
         CPHData["timeLimit"] = 0;
         for (auto i : ProblemInfo["currentData"]["problem"]["limits"]["time"])
-            CPHData["timeLimit"] = max(CPHData["timeLimit"].as_integer(), i.as_integer());
+            CPHData["timeLimit"] = std::max(CPHData["timeLimit"].as_integer(), i.as_integer());
         for (size_t i = 0; i < ProblemInfo["currentData"]["problem"]["samples"].size(); i++) {
             json Temp;
             Temp["id"] = i;
@@ -318,10 +303,9 @@ void LUOGU::GetProblemDetail(string ProblemID) {
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
         SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", ProblemID), CPHData.dump());
-#endif
 
         // Save data for markdown
-        string OutputContent = "# " + ProblemID + " " + ProblemInfo["currentData"]["problem"]["title"].as_string() + "\n";
+        std::string OutputContent = "# " + ProblemID + " " + ProblemInfo["currentData"]["problem"]["title"].as_string() + "\n";
         if (ProblemInfo["currentData"]["problem"]["accepted"].as_bool())
             OutputContent += "***您已经通过此题！***\n"s +
                              "\n";
@@ -353,11 +337,11 @@ void LUOGU::GetProblemDetail(string ProblemID) {
             int Counter = 0;
             for (auto i : ProblemInfo["currentData"]["problem"]["samples"]) {
                 Counter++;
-                OutputContent += string("Input #" + to_string(Counter) + "\n") +
+                OutputContent += std::string("Input #" + std::to_string(Counter) + "\n") +
                                  "```\n" +
                                  FixString(i[0].as_string()) + "\n" +
                                  "```\n" +
-                                 "Output #" + to_string(Counter) + "\n" +
+                                 "Output #" + std::to_string(Counter) + "\n" +
                                  "```\n" +
                                  FixString(i[1].as_string()) + "\n" +
                                  "```\n";
@@ -373,9 +357,9 @@ void LUOGU::GetProblemDetail(string ProblemID) {
         OutputContent += "|Test case|Time limit|Memory limit|\n"s +
                          "|:---:|:---:|:---:|\n";
         for (unsigned int Counter = 0; Counter < ProblemInfo["currentData"]["problem"]["limits"]["memory"].size(); Counter++) {
-            OutputContent += "|$" + to_string(Counter + 1) + "$|" +
-                             "$" + to_string(ProblemInfo["currentData"]["problem"]["limits"]["memory"][Counter].as_integer() / 1024.0) + "MB$|" +
-                             "$" + to_string(ProblemInfo["currentData"]["problem"]["limits"]["time"][Counter].as_integer() / 1000) + "s$|\n";
+            OutputContent += "|$" + std::to_string(Counter + 1) + "$|" +
+                             "$" + std::to_string(ProblemInfo["currentData"]["problem"]["limits"]["memory"][Counter].as_integer() / 1024.0) + "MB$|" +
+                             "$" + std::to_string(ProblemInfo["currentData"]["problem"]["limits"]["time"][Counter].as_integer() / 1000) + "s$|\n";
         }
         OutputContent += "\n"s +
                          "## Last submit code\n" +
@@ -386,7 +370,7 @@ void LUOGU::GetProblemDetail(string ProblemID) {
                          "\n" +
                          "## Other information\n" +
                          "\n";
-        string Tags = "";
+        std::string Tags = "";
         for (auto i : ProblemInfo["currentData"]["problem"]["tags"])
             Tags += "<span style=\"display: inline-block; "s +
                     "margin-right: 5px; " +
@@ -403,26 +387,26 @@ void LUOGU::GetProblemDetail(string ProblemID) {
                          "|Label|" + Tags + "|\n" +
                          "|Submit count|$" + ProblemInfo["currentData"]["problem"]["totalSubmit"].as_string() + "$|\n" +
                          "|Pass count|$" + ProblemInfo["currentData"]["problem"]["totalAccepted"].as_string() + "$|\n" +
-                         "|Pass rate|$" + to_string(ProblemInfo["currentData"]["problem"]["totalAccepted"].as_integer() * 100.0 / ProblemInfo["currentData"]["problem"]["totalSubmit"].as_integer()) + "\\%$|\n" +
+                         "|Pass rate|$" + std::to_string(ProblemInfo["currentData"]["problem"]["totalAccepted"].as_integer() * 100.0 / ProblemInfo["currentData"]["problem"]["totalSubmit"].as_integer()) + "\\%$|\n" +
                          "|From|`" + TypeName[ProblemInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
                          "|Last submit language|`" + LanguageName[ProblemInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
                          "\n";
-        SetDataFromStringToFile(TempFolder + "Luogu-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile("/tmp/Luogu-" + ProblemID + ".md", OutputContent);
     }
 
     // Open the file
-    if (system(string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
-        cout << "Open file \"" << TempFolder << "Luogu-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    if (system(std::string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/tmp/Luogu-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
-void LUOGU::SubmitCode(string ProblemID) {
+void LUOGU::SubmitCode(std::string ProblemID) {
     // Get the code
-    string Code = GetDataFromFileToString("Luogu/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("Luogu/" + ProblemID + ".cpp");
 
     // Get the token
-    cout << "Getting submit page data... " << flush;
+    std::cout << "Getting submit page data... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/problem/" + ProblemID);
-    string Token = GetCSRF();
-    cout << "Succeed" << endl;
+    std::string Token = GetCSRF();
+    std::cout << "Succeed" << std::endl;
 
     // Create the request
     json SubmitRequest;
@@ -432,19 +416,19 @@ void LUOGU::SubmitCode(string ProblemID) {
 
     // Create the header
     curl_slist *HeaderList = NULL;
-    HeaderList = curl_slist_append(HeaderList, string("X-CSRF-TOKEN: " + Token).c_str());
-    HeaderList = curl_slist_append(HeaderList, string("Content-Length: " +
-                                                      to_string(SubmitRequest.dump().size()))
+    HeaderList = curl_slist_append(HeaderList, std::string("X-CSRF-TOKEN: " + Token).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("Content-Length: " +
+                                                           std::to_string(SubmitRequest.dump().size()))
                                                    .c_str());
     HeaderList = curl_slist_append(HeaderList, "Host: www.luogu.com.cn");
-    HeaderList = curl_slist_append(HeaderList, string("Referer: https://www.luogu.com.cn/problem/" +
-                                                      ProblemID)
+    HeaderList = curl_slist_append(HeaderList, std::string("Referer: https://www.luogu.com.cn/problem/" +
+                                                           ProblemID)
                                                    .c_str());
     HeaderList = curl_slist_append(HeaderList, "Origin: https://www.luogu.com.cn");
     HeaderList = curl_slist_append(HeaderList, "X-Requested-With: XMLHttpRequest");
 
     // Submit the code
-    cout << "Submitting... " << flush;
+    std::cout << "Submitting... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/fe/api/problem/submit/" + ProblemID,
                   "",
                   "",
@@ -459,28 +443,28 @@ void LUOGU::SubmitCode(string ProblemID) {
                                             SubmitInfo["status"].as_integer(),
                                             SubmitInfo["errorMessage"].as_string());
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Get the record ID
     int RecordID = SubmitInfo["rid"].as_integer();
 
     // Get the record info and wait for the result
     json RecordInfo;
-    cout << "Judging... " << flush;
+    std::cout << "Judging... " << std::flush;
     while (1) {
-        GetDataToFile("https://www.luogu.com.cn/record/" + to_string(RecordID) + "?_contentOnly=1");
+        GetDataToFile("https://www.luogu.com.cn/record/" + std::to_string(RecordID) + "?_contentOnly=1");
         RecordInfo = json::parse(GetDataFromFileToString());
         if (RecordInfo["currentData"]["record"]["status"].is_number() &&
             RecordInfo["currentData"]["record"]["status"].as_integer() >= 2)
             break;
         usleep(500000);
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Check whether there is a compile error
     if (!RecordInfo["currentData"]["record"]["detail"]["compileResult"]["success"].as_bool()) {
-        cout << "Compile error: " << endl
-             << RecordInfo["currentData"]["record"]["detail"]["compileResult"]["message"].as_string() << endl;
+        std::cout << "Compile error: " << std::endl
+                  << RecordInfo["currentData"]["record"]["detail"]["compileResult"]["message"].as_string() << std::endl;
     } else {
         // Get the result
         for (auto jit : RecordInfo["currentData"]
@@ -488,7 +472,7 @@ void LUOGU::SubmitCode(string ProblemID) {
                                   ["detail"]
                                   ["judgeResult"]
                                   ["subtasks"]) {
-            cout << "#" << jit["id"].as_string() << endl;
+            std::cout << "#" << jit["id"].as_string() << std::endl;
             for (auto jit2 : RecordInfo["currentData"]
                                        ["record"]
                                        ["detail"]
@@ -496,31 +480,31 @@ void LUOGU::SubmitCode(string ProblemID) {
                                        ["subtasks"]
                                        [atoi(jit["id"].as_string().c_str())]
                                        ["testCases"])
-                cout
+                std::cout
                     << "    #" << jit2["id"].as_integer() << " "
                     << jit2["score"].as_integer() << "pts "
                     << RecordName[jit2["status"].as_integer()].second << " "
                     << jit2["time"].as_integer() << "ms "
-                    << jit2["memory"].as_integer() << "KB" << endl;
+                    << jit2["memory"].as_integer() << "KB" << std::endl;
         }
-        cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
+        std::cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << std::endl;
     }
 }
-void LUOGU::GetAnswerOrTips(string ProblemID) {
+void LUOGU::GetAnswerOrTips(std::string ProblemID) {
     // Get the solution page data
-    cout << "Getting solution page data... " << flush;
+    std::cout << "Getting solution page data... " << std::flush;
     GetDataToFile("https://www.luogu.com.cn/problem/solution/" + ProblemID + "?_contentOnly=1");
     json SolutionInfo = json::parse(GetDataFromFileToString());
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
     for (auto i : SolutionInfo["currentData"]["solutions"]["result"]) {
-        string Answer = "";
+        std::string Answer = "";
 
         // Iterate through all the code blocks
-        vector<string> Spilt = SpiltString(i["content"].as_string(), "```");
+        std::vector<std::string> Spilt = SpiltString(i["content"].as_string(), "```");
         for (size_t j = 0; j < Spilt.size(); j++) {
             if (j % 2) {
                 // Get the code block
-                string CurrentAnswer = Spilt[j];
+                std::string CurrentAnswer = Spilt[j];
 
                 // If the code block is only one line, skip it
                 size_t k = 0;
@@ -530,13 +514,13 @@ void LUOGU::GetAnswerOrTips(string ProblemID) {
                     continue;
 
                 // Delete the first line which is the language names
-                CurrentAnswer = CurrentAnswer.substr(k + 1, string::npos);
+                CurrentAnswer = CurrentAnswer.substr(k + 1, std::string::npos);
 
                 // If the code block is a C++ code block and it's longer than the current answer, replace the current answer
-                if (CurrentAnswer.find("main") != string::npos &&
-                    CurrentAnswer.find("include") != string::npos &&
-                    CurrentAnswer.find("return") != string::npos &&
-                    CurrentAnswer.find(";") != string::npos &&
+                if (CurrentAnswer.find("main") != std::string::npos &&
+                    CurrentAnswer.find("include") != std::string::npos &&
+                    CurrentAnswer.find("return") != std::string::npos &&
+                    CurrentAnswer.find(";") != std::string::npos &&
                     CurrentAnswer.size() > Answer.size())
                     Answer = CurrentAnswer;
             }

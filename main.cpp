@@ -1,19 +1,19 @@
 // TODO Codeforces GetProblemDetail parsing file failed
 
-#include "Tool.hpp"
+#include <Tool.hpp>
 #include <errno.h>
 #include <regex>
 
 int main(int argc, char **argv) {
     CLN_TRY
-    string Username;
-    string Password;
-    string OJ;
-    string Operation;
-    string ProblemID;
+    std::string Username;
+    std::string Password;
+    std::string OJ;
+    std::string Operation;
+    std::string ProblemID;
     for (int i = 1; i < argc; i++) {
-        string Argument = argv[i];
-        string NextArgument = i + 1 == argc ? "" : argv[i + 1];
+        std::string Argument = argv[i];
+        std::string NextArgument = i + 1 == argc ? "" : argv[i + 1];
         if (Argument == "-u" || Argument == "--username") {
             Username = NextArgument;
             i++;

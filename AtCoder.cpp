@@ -1,13 +1,11 @@
-#include "AtCoder.hpp"
-#include "Curl.hpp"
-#include "Tool.hpp"
-#include "tinyxml/tinystr.h"
-#include "tinyxml/tinyxml.h"
+#include <AtCoder.hpp>
+#include <Curl.hpp>
+#include <Tool.hpp>
 #include <iostream>
-using namespace std;
+#include <tinyxml/tinyxml.h>
 
-void ATCODER::Login(string Username, string Password) {
-    cout << "Checking logged... " << flush;
+void ATCODER::Login(std::string Username, std::string Password) {
+    std::cout << "Checking logged... " << std::flush;
     int HTTPResponseCode = 0;
     GetDataToFile("https://atcoder.jp/settings",
                   "",
@@ -17,21 +15,21 @@ void ATCODER::Login(string Username, string Password) {
                   NULL,
                   &HTTPResponseCode);
     if (HTTPResponseCode != 302) {
-        cout << "Already logged in" << endl;
+        std::cout << "Already logged in" << std::endl;
         return;
     }
-    cout << "Not logged in" << endl;
+    std::cout << "Not logged in" << std::endl;
 
-    cout << "Getting CSRF token... " << flush;
+    std::cout << "Getting CSRF token... " << std::flush;
     GetDataToFile("https://atcoder.jp/login");
-    string CSRFToken = GetStringBetween(GetDataFromFileToString(),
-                                        "var csrfToken = \"",
-                                        "\"");
+    std::string CSRFToken = GetStringBetween(GetDataFromFileToString(),
+                                             "var csrfToken = \"",
+                                             "\"");
     if (CSRFToken == "")
         TRIGGER_ERROR("Get CSRF token failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
-    cout << "Logging in... " << flush;
+    std::cout << "Logging in... " << std::flush;
     GetDataToFile("https://atcoder.jp/login",
                   "",
                   "",
@@ -40,23 +38,23 @@ void ATCODER::Login(string Username, string Password) {
                   NULL,
                   NULL,
                   FORM);
-    if (FindLocation().find("login") != string::npos)
+    if (FindLocation().find("login") != std::string::npos)
         TRIGGER_ERROR("Login failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 }
-void ATCODER::GetProblemDetail(string ProblemID) {
-    if (!IfFileExist(TempFolder + "AtCoder-" + ProblemID + ".md")) {
-        cout << "Getting problem detail... " << flush;
-        string ContestName = SpiltString(ProblemID, "_")[0];
+void ATCODER::GetProblemDetail(std::string ProblemID) {
+    if (!IfFileExist("/tmp/AtCoder-" + ProblemID + ".md")) {
+        std::cout << "Getting problem detail... " << std::flush;
+        std::string ContestName = SpiltString(ProblemID, "_")[0];
         GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
 
-        cout << "Parsing problem detail... " << flush;
+        std::cout << "Parsing problem detail... " << std::flush;
         TiXmlDocument ProblemXmlDocument;
         ProblemXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
         if (ProblemXmlDocument.Error())
             TRIGGER_ERROR("Parse problem detail error: "s + ProblemXmlDocument.ErrorDesc());
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
 
         TiXmlHandle ProblemXmlHandle = TiXmlHandle(&ProblemXmlDocument)
                                            .FirstChild("html")
@@ -65,36 +63,36 @@ void ATCODER::GetProblemDetail(string ProblemID) {
                                            .FirstChild("div")
                                            .FirstChild("div")
                                            .Child("div", 1);
-        string ProblemDetail = "# " + ContestName + " " + ProblemXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
-                               "\n";
-        string TimeAndMemoryLimit = FixString(ProblemXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
+        std::string ProblemDetail = "# " + ContestName + " " + ProblemXmlHandle.FirstChild("span").FirstChild().ToText()->Value() + "\n" +
+                                    "\n";
+        std::string TimeAndMemoryLimit = FixString(ProblemXmlHandle.FirstChild("p").FirstChild().ToText()->Value()) + "__END__";
         ProblemDetail += "## Other information\n"s +
                          "\n" +
                          "|Item|Value|\n" +
                          "|:---:|:---:|\n" +
                          "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
                          "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-        SetDataFromStringToFile(TempFolder + "AtCoder-" + ProblemID + ".md", ProblemDetail);
+        SetDataFromStringToFile("/tmp/AtCoder-" + ProblemID + ".md", ProblemDetail);
     }
 
     // Open the problem detail file
-    if (system(string("code-insiders /tmp/AtCoder-" + ProblemID + ".md").c_str()))
-        cout << "Open file \"/tmp/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    if (system(std::string("code-insiders /tmp/AtCoder-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/tmp/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
-void ATCODER::SubmitCode(string ProblemID) {
+void ATCODER::SubmitCode(std::string ProblemID) {
     // Get the code
-    string Code = GetDataFromFileToString("AtCoder/" + ProblemID + ".cpp");
-    string ContestName = SpiltString(ProblemID, "_")[0];
+    std::string Code = GetDataFromFileToString("AtCoder/" + ProblemID + ".cpp");
+    std::string ContestName = SpiltString(ProblemID, "_")[0];
 
     // Get the token
-    cout << "Getting submit page data... " << flush;
+    std::cout << "Getting submit page data... " << std::flush;
     GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
-    string CSRFToken = GetStringBetween(GetDataFromFileToString(),
-                                        "var csrfToken = \"",
-                                        "\"");
-    cout << "Succeed" << endl;
+    std::string CSRFToken = GetStringBetween(GetDataFromFileToString(),
+                                             "var csrfToken = \"",
+                                             "\"");
+    std::cout << "Succeed" << std::endl;
 
-    cout << "Submitting... " << flush;
+    std::cout << "Submitting... " << std::flush;
     int HTTPResponseCode = 0;
     GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submit",
                   "",
@@ -108,25 +106,25 @@ void ATCODER::SubmitCode(string ProblemID) {
         TRIGGER_ERROR_WITH_CODE("Submit failed",
                                 HTTPResponseCode);
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
-    cout << "Getting submission ID... " << flush;
+    std::cout << "Getting submission ID... " << std::flush;
     GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/me");
-    string SubmissionID = GetStringBetween(GetDataFromFileToString(),
-                                           "data-id=\"",
-                                           "\"");
+    std::string SubmissionID = GetStringBetween(GetDataFromFileToString(),
+                                                "data-id=\"",
+                                                "\"");
     if (SubmissionID == "")
         TRIGGER_ERROR("Get submission ID failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
-    cout << "Judging... " << flush;
+    std::cout << "Judging... " << std::flush;
     while (1) {
         GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID + "/status/json");
         json JSONData = json::parse(GetDataFromFileToString());
-        cout << "\rJudging... " << GetStringBetween(JSONData["Html"].as_string(), ">", "<") << flush;
+        std::cout << "\rJudging... " << GetStringBetween(JSONData["Html"].as_string(), ">", "<") << std::flush;
         if (JSONData["Interval"].is_null()) {
-            cout << "\rJudging... Succeed"
-                 << " " << JSONData["Status"].as_string() << endl;
+            std::cout << "\rJudging... Succeed"
+                      << " " << JSONData["Status"].as_string() << std::endl;
             system(("www-browser https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID).c_str());
             break;
         }

@@ -1,5 +1,5 @@
-#include "Curl.hpp"
-string UA = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36 Edg/108.0.1462.76";
+#include <Curl.hpp>
+std::string UA = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36 Edg/108.0.1462.76";
 int GetDataToFileProgressCallback(void *_Param,
                                   curl_off_t DownloadTotal, curl_off_t DownloadNow,
                                   curl_off_t UploadTotal, curl_off_t UploadNow) {
@@ -11,8 +11,8 @@ int GetDataToFileProgressCallback(void *_Param,
     curl_easy_getinfo(Curl, CURLINFO_SPEED_DOWNLOAD, &Speed);
 
     // Output download progress bar
-    string ProgressBarString[8] = {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
-    string CurrentProgressBarString = "|";
+    std::string ProgressBarString[8] = {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
+    std::string CurrentProgressBarString = "|";
     int ProgressBarLength = 50;
     double CurrentProgressBarLength = DownloadNow * 1.0 / DownloadTotal * ProgressBarLength;
     for (int i = 0; i < floor(CurrentProgressBarLength); i++)
@@ -23,7 +23,7 @@ int GetDataToFileProgressCallback(void *_Param,
     CurrentProgressBarString += "|";
 
     // Output network status
-    string NetworkStatus;
+    std::string NetworkStatus;
     if (Speed == 0)
         NetworkStatus = "▂     ";
     else if (Speed < 1024)
@@ -38,7 +38,7 @@ int GetDataToFileProgressCallback(void *_Param,
         NetworkStatus = "▂▃▄▅▆▇";
 
     // Output download speed
-    string Unit = "";
+    std::string Unit = "";
     double SpeedInUnit = 0;
     if (Speed > 1024 * 1024 * 1024) {
         SpeedInUnit = Speed / 1024 / 1024 / 1024;
@@ -55,7 +55,7 @@ int GetDataToFileProgressCallback(void *_Param,
     }
 
     // Output time left
-    string TimeLeft;
+    std::string TimeLeft;
     int HoursLeft = -1;
     int MinutesLeft = -1;
     int SecondsLeft = -1;
@@ -66,10 +66,10 @@ int GetDataToFileProgressCallback(void *_Param,
         SecondsLeft = TimeLeft - HoursLeft * 3600 - MinutesLeft * 60;
     }
 
-    string LoadingString[8] = {"⣰", "⣤", "⣆", "⡇", "⠏", "⠛", "⠹", "⢸"};
+    std::string LoadingString[8] = {"⣰", "⣤", "⣆", "⡇", "⠏", "⠛", "⠹", "⢸"};
     struct timeval TimeVal;
     gettimeofday(&TimeVal, NULL);
-    string CurrentLoadingString = LoadingString[(int)(TimeVal.tv_usec / 125000) % 8];
+    std::string CurrentLoadingString = LoadingString[(int)(TimeVal.tv_usec / 125000) % 8];
 
     // Output and flush
     printf("\033[2K\r%.2f%% %s%s %s %.2f%s %02d:%02d:%02d",
@@ -85,20 +85,20 @@ int GetDataToFileProgressCallback(void *_Param,
     fflush(stdout);
     return 0;
 }
-void GetDataToFile(string URL,
-                   string HeaderFileName,
-                   string BodyFileName,
+void GetDataToFile(std::string URL,
+                   std::string HeaderFileName,
+                   std::string BodyFileName,
                    bool IsPost,
-                   string PostData,
+                   std::string PostData,
                    curl_slist *HeaderList,
                    int *HTTPResponseCode,
-                   string PostContentType,
-                   string Cookie,
+                   std::string PostContentType,
+                   std::string Cookie,
                    bool ShowProgress) {
-    FILE *CookiesFilePointer = fopen((TempFolder + "Cookies.tmp").c_str(), "a");
+    FILE *CookiesFilePointer = fopen("/tmp/Cookies.tmp", "a");
     fclose(CookiesFilePointer);
-    FILE *HeaderFilePointer = fopen((HeaderFileName == "" ? TempFolder + "Header.tmp" : HeaderFileName).c_str(), "w");
-    FILE *BodyFilePointer = fopen((BodyFileName == "" ? TempFolder + "Body.tmp" : BodyFileName).c_str(), "w");
+    FILE *HeaderFilePointer = fopen((HeaderFileName == "" ? "/tmp/Header.tmp" : HeaderFileName.c_str()), "w");
+    FILE *BodyFilePointer = fopen((BodyFileName == "" ? "/tmp/Body.tmp" : BodyFileName.c_str()), "w");
     CURLcode CurlCode = curl_global_init(CURL_GLOBAL_ALL);
     if (CurlCode != 0) {
         fclose(BodyFilePointer);
@@ -113,8 +113,8 @@ void GetDataToFile(string URL,
     curl_easy_setopt(Curl, CURLOPT_WRITEDATA, BodyFilePointer);
     curl_easy_setopt(Curl, CURLOPT_CONNECTTIMEOUT, 10);
     if (ShowProgress) {
-        cout << "\033[s" << endl
-             << "\033[?25l";
+        std::cout << "\033[s" << std::endl
+                  << "\033[?25l";
         struct PROGRESS Param;
         Param.Curl = Curl;
         curl_easy_setopt(Curl, CURLOPT_XFERINFOFUNCTION, GetDataToFileProgressCallback);
@@ -123,19 +123,19 @@ void GetDataToFile(string URL,
     }
     if (Cookie != "")
         curl_easy_setopt(Curl, CURLOPT_COOKIELIST, Cookie.c_str());
-    curl_easy_setopt(Curl, CURLOPT_COOKIEFILE, TempFolder + "Cookies.tmp");
-    curl_easy_setopt(Curl, CURLOPT_COOKIEJAR, TempFolder + "Cookies.tmp");
+    curl_easy_setopt(Curl, CURLOPT_COOKIEFILE, "/tmp/Cookies.tmp");
+    curl_easy_setopt(Curl, CURLOPT_COOKIEJAR, "/tmp/Cookies.tmp");
     curl_easy_setopt(Curl, CURLOPT_URL, URL.c_str());
     if (IsPost) {
-        HeaderList = curl_slist_append(HeaderList, string("Content-Type: " + PostContentType).c_str());
+        HeaderList = curl_slist_append(HeaderList, std::string("Content-Type: " + PostContentType).c_str());
         curl_easy_setopt(Curl, CURLOPT_POST, true);
         curl_easy_setopt(Curl, CURLOPT_POSTFIELDS, PostData.c_str());
     }
-    HeaderList = curl_slist_append(HeaderList, string("User-Agent: " + UA).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("User-Agent: " + UA).c_str());
     curl_easy_setopt(Curl, CURLOPT_HTTPHEADER, HeaderList);
     CurlCode = curl_easy_perform(Curl);
     if (ShowProgress)
-        cout << "\033[2K\033[?25h\033[u";
+        std::cout << "\033[2K\033[?25h\033[u";
     if (CurlCode != 0) {
         fclose(BodyFilePointer);
         fclose(HeaderFilePointer);
@@ -154,7 +154,7 @@ void GetDataToFile(string URL,
     fclose(BodyFilePointer);
     fclose(HeaderFilePointer);
 }
-string EraseHTMLElement(string Data) {
+std::string EraseHTMLElement(std::string Data) {
     int HTMLStartIndex = 0;
     for (unsigned int i = 0; i < Data.size(); i++)
         if (Data[i] == '<')
@@ -165,12 +165,12 @@ string EraseHTMLElement(string Data) {
         }
     return Data;
 }
-string Base64Encode(string Input) {
-    string base64_chars =
+std::string Base64Encode(std::string Input) {
+    std::string base64_chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz"
         "0123456789+/";
-    string Output;
+    std::string Output;
     for (unsigned int k = 0; k < Input.size(); k += 3) {
         Output.push_back(base64_chars[(Input[k] & 0xfc) >> 2]);
         Output.push_back(base64_chars[((Input[k] & 0x03) << 4) + ((Input[k + 1] & 0xf0) >> 4)]);
@@ -199,8 +199,8 @@ unsigned char FromHex(unsigned char x) {
     }
     return y;
 }
-string URLEncode(string Input) {
-    string Output = "";
+std::string URLEncode(std::string Input) {
+    std::string Output = "";
     size_t length = Input.length();
     for (size_t i = 0; i < length; i++) {
         if (isalnum((unsigned char)Input[i]) ||
@@ -219,8 +219,8 @@ string URLEncode(string Input) {
     }
     return Output;
 }
-string URLDecode(string Input) {
-    string Output = "";
+std::string URLDecode(std::string Input) {
+    std::string Output = "";
     size_t length = Input.length();
     for (size_t i = 0; i < length; i++) {
         if (Input[i] == '+')
@@ -235,7 +235,7 @@ string URLDecode(string Input) {
     }
     return Output;
 }
-string HTMLEncode(string Data) {
+std::string HTMLEncode(std::string Data) {
     Data = StringReplaceAllNoLoop(Data, "&", "&amp;");
     Data = StringReplaceAll(Data, "<", "&lt;");
     Data = StringReplaceAll(Data, ">", "&gt;");
@@ -246,7 +246,7 @@ string HTMLEncode(string Data) {
     Data = StringReplaceAll(Data, "’", "&rsquo;");
     return Data;
 }
-string HTMLDecode(string Data) {
+std::string HTMLDecode(std::string Data) {
     Data = StringReplaceAll(Data, "&amp;", "&");
     Data = StringReplaceAll(Data, "&lt;", "<");
     Data = StringReplaceAll(Data, "&gt;", ">");
@@ -257,10 +257,10 @@ string HTMLDecode(string Data) {
     Data = StringReplaceAll(Data, "&rsquo;", "’");
     return Data;
 }
-string FindLocation() {
-    string Header = GetDataFromFileToString("/tmp/Header.tmp");
+std::string FindLocation() {
+    std::string Header = GetDataFromFileToString("/tmp/Header.tmp");
     Header += "\n";
-    string RedirectURL = GetStringBetween(Header, "Location: ", "\n");
+    std::string RedirectURL = GetStringBetween(Header, "Location: ", "\n");
     if (RedirectURL == "")
         RedirectURL = GetStringBetween(Header, "location: ", "\n");
     if (RedirectURL == "") {

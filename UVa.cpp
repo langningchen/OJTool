@@ -1,74 +1,70 @@
-#include "Tool.hpp"
-#include "UVa.hpp"
-void UVA::Login(string Username, string Password)
-{
+#include <Tool.hpp>
+#include <UVa.hpp>
+void UVA::Login(std::string Username, std::string Password) {
     // Check if already logged in
-    cout << "Checking login... " << flush;
+    std::cout << "Checking login... " << std::flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_comprofiler");
-    if (GetDataFromFileToString().find("You need to login.") == string::npos)
-    {
-        cout << "Already logged in" << endl;
+    if (GetDataFromFileToString().find("You need to login.") == std::string::npos) {
+        std::cout << "Already logged in" << std::endl;
         return;
     }
-    cout << "Not logged in" << endl;
+    std::cout << "Not logged in" << std::endl;
 
     // Get the login page data
     GetDataToFile("https://onlinejudge.org/index.php");
-    string LoginPageHTML = GetDataFromFileToString();
+    std::string LoginPageHTML = GetDataFromFileToString();
     int HTTPResponseCode = 0;
-    string cbsecuritym3 = GetStringBetween(LoginPageHTML,
-                                           "<input type=\"hidden\" name=\"cbsecuritym3\" value=\"",
-                                           "\" />");
+    std::string cbsecuritym3 = GetStringBetween(LoginPageHTML,
+                                                "<input type=\"hidden\" name=\"cbsecuritym3\" value=\"",
+                                                "\" />");
 
     // Login
-    cout << "Logging in... " << flush;
+    std::cout << "Logging in... " << std::flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_comprofiler&task=login",
                   "",
                   "",
                   true,
-                  string("username=" + URLEncode(Username) +
-                         "&passwd=" + URLEncode(Password) +
-                         "&op2=login" +
-                         "&lang=english" +
-                         "&force_session=1" +
-                         "&return=" +
-                         URLEncode(
-                             GetStringBetween(LoginPageHTML.c_str(),
-                                              "<input type=\"hidden\" name=\"return\" value=\"",
-                                              "\" />")) +
-                         "&message=0" +
-                         "&loginfrom=loginmodule" +
-                         "&cbsecuritym3=" + cbsecuritym3 +
-                         "&" +
-                         GetStringBetween(LoginPageHTML.c_str(),
-                                          cbsecuritym3 + "\" />\n<input type=\"hidden\" name=\"",
-                                          "\" value=\"1\" />") +
-                         "=1" +
-                         "&remember=yes" +
-                         "&Submit=Login"),
+                  std::string("username=" + URLEncode(Username) +
+                              "&passwd=" + URLEncode(Password) +
+                              "&op2=login" +
+                              "&lang=english" +
+                              "&force_session=1" +
+                              "&return=" +
+                              URLEncode(
+                                  GetStringBetween(LoginPageHTML.c_str(),
+                                                   "<input type=\"hidden\" name=\"return\" value=\"",
+                                                   "\" />")) +
+                              "&message=0" +
+                              "&loginfrom=loginmodule" +
+                              "&cbsecuritym3=" + cbsecuritym3 +
+                              "&" +
+                              GetStringBetween(LoginPageHTML.c_str(),
+                                               cbsecuritym3 + "\" />\n<input type=\"hidden\" name=\"",
+                                               "\" value=\"1\" />") +
+                              "=1" +
+                              "&remember=yes" +
+                              "&Submit=Login"),
                   NULL,
                   &HTTPResponseCode,
                   FORM);
     if (HTTPResponseCode == 200)
         TRIGGER_ERROR("Login failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 }
-void UVA::GetProblemDetail(string ProblemID)
-{
-    if (!IfFileExist(TempFolder + "UVa-" + ProblemID + ".pdf"))
-    {
+void UVA::GetProblemDetail(std::string ProblemID) {
+    if (!IfFileExist("/tmp/UVa-" + ProblemID + ".pdf")) {
         // Get the problem detail
-        string FixedProblemID = ProblemID;
+        std::string FixedProblemID = ProblemID;
         while (FixedProblemID[0] == '0')
             FixedProblemID.erase(0, 1);
 
         // Save the pdf file
-        cout << "Getting problem detail... " << flush;
+        std::cout << "Getting problem detail... " << std::flush;
         GetDataToFile("https://onlinejudge.org/external/" +
                           FixedProblemID.substr(0, FixedProblemID.size() - 2) +
                           "/p" + FixedProblemID + ".pdf",
                       "",
-                      TempFolder + "UVa-" + ProblemID + ".pdf",
+                      "/tmp/UVa-" + ProblemID + ".pdf",
                       false,
                       "",
                       NULL,
@@ -76,25 +72,24 @@ void UVA::GetProblemDetail(string ProblemID)
                       "application/json",
                       "",
                       true);
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
     }
 
     // Open the pdf file
-    if (system(string("code-insiders /tmp/UVa-" + ProblemID + ".pdf").c_str()))
-        cout << "Open file \"/tmp/UVa-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    if (system(std::string("code-insiders /tmp/UVa-" + ProblemID + ".pdf").c_str()))
+        std::cout << "Open file \"/tmp/UVa-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
-void UVA::SubmitCode(string ProblemID)
-{
+void UVA::SubmitCode(std::string ProblemID) {
     // Get the submit page data
-    cout << "Getting submit page data... " << flush;
+    std::cout << "Getting submit page data... " << std::flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=25&page=submit_problem");
-    cout << "Succeed" << endl;
-    string FixedProblemID = ProblemID;
+    std::cout << "Succeed" << std::endl;
+    std::string FixedProblemID = ProblemID;
     while (FixedProblemID[0] == '0')
         FixedProblemID.erase(0, 1);
 
     // Get the code
-    string Code = GetDataFromFileToString("UVa/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("UVa/" + ProblemID + ".cpp");
 
     // Create the header list
     curl_slist *HeaderList = NULL;
@@ -113,35 +108,35 @@ void UVA::SubmitCode(string ProblemID)
     int HTTPResponseCode = 0;
 
     // Create the multipart data
-    string SubmitPostBody = "--" + MULTIPART_BOUNDARY + "\n" +
-                            "Content-Disposition: form-data; name=\"problemid\"\n" +
-                            "\n" +
-                            "\n" +
-                            "--" + MULTIPART_BOUNDARY + "\n" +
-                            "Content-Disposition: form-data; name=\"category\"\n" +
-                            "\n" +
-                            "\n" +
-                            "--" + MULTIPART_BOUNDARY + "\n" +
-                            "Content-Disposition: form-data; name=\"localid\"\n" +
-                            "\n" +
-                            FixedProblemID + "\n" +
-                            "--" + MULTIPART_BOUNDARY + "\n" +
-                            "Content-Disposition: form-data; name=\"language\"\n" +
-                            "\n" +
-                            "5\n" +
-                            "--" + MULTIPART_BOUNDARY + "\n" +
-                            "Content-Disposition: form-data; name=\"code\"\n" +
-                            "\n" +
-                            Code + "\n" +
-                            "\n" +
-                            "--" + MULTIPART_BOUNDARY + "\nContent-Disposition: form-data; name=\"codeupl\"; filename=\"\"\n" +
-                            "Content-Type: application/octet-stream\n" +
-                            "\n" +
-                            "\n" +
-                            "--" + MULTIPART_BOUNDARY + "--\n";
+    std::string SubmitPostBody = "--" + MULTIPART_BOUNDARY + "\n" +
+                                 "Content-Disposition: form-data; name=\"problemid\"\n" +
+                                 "\n" +
+                                 "\n" +
+                                 "--" + MULTIPART_BOUNDARY + "\n" +
+                                 "Content-Disposition: form-data; name=\"category\"\n" +
+                                 "\n" +
+                                 "\n" +
+                                 "--" + MULTIPART_BOUNDARY + "\n" +
+                                 "Content-Disposition: form-data; name=\"localid\"\n" +
+                                 "\n" +
+                                 FixedProblemID + "\n" +
+                                 "--" + MULTIPART_BOUNDARY + "\n" +
+                                 "Content-Disposition: form-data; name=\"language\"\n" +
+                                 "\n" +
+                                 "5\n" +
+                                 "--" + MULTIPART_BOUNDARY + "\n" +
+                                 "Content-Disposition: form-data; name=\"code\"\n" +
+                                 "\n" +
+                                 Code + "\n" +
+                                 "\n" +
+                                 "--" + MULTIPART_BOUNDARY + "\nContent-Disposition: form-data; name=\"codeupl\"; filename=\"\"\n" +
+                                 "Content-Type: application/octet-stream\n" +
+                                 "\n" +
+                                 "\n" +
+                                 "--" + MULTIPART_BOUNDARY + "--\n";
 
     // Submit the code
-    cout << "Submitting... " << flush;
+    std::cout << "Submitting... " << std::flush;
     GetDataToFile("https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=25&page=save_submission",
                   "",
                   "",
@@ -154,19 +149,18 @@ void UVA::SubmitCode(string ProblemID)
         TRIGGER_ERROR("Submit failed");
 
     // Get the submission ID
-    string SubmissionID = FindLocation();
+    std::string SubmissionID = FindLocation();
     SubmissionID = SubmissionID.substr(SubmissionID.find_last_of('+') + 1);
     if (atoi(SubmissionID.c_str()) == 0)
         TRIGGER_ERROR("Get submission ID failed");
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Get the submission result
-    cout << "Judging... " << flush;
-    while (1)
-    {
+    std::cout << "Judging... " << std::flush;
+    while (1) {
         // Get the submission list
         GetDataToFile("https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=9");
-        string Data = GetDataFromFileToString();
+        std::string Data = GetDataFromFileToString();
         Data = StringReplaceAll(Data, "\t", "");
         Data = StringReplaceAll(Data, "\r", "");
         Data = StringReplaceAll(Data, "\n", "");
@@ -174,25 +168,22 @@ void UVA::SubmitCode(string ProblemID)
         Data = StringReplaceAll(Data, " <", "<");
         Data = StringReplaceAll(Data, "> ", ">");
         Data = StringReplaceAll(Data, " >", ">");
-        SetDataFromStringToFile(TempFolder + "Data.tmp", Data);
+        SetDataFromStringToFile("/tmp/Data.tmp", Data);
 
         // Find the submission
-        smatch Match;
-        if (regex_search(Data.cbegin(), Data.cend(), Match, regex("<tr class=\"sectiontableentry[0-9]\"><td>" + SubmissionID + "</td><td align=\"right\"><a href=\"index\\.php\\?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=[0-9]*\">[0-9]*</a></td><td><a href=\"index\\.php\\?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=[0-9]*\">[^<]*</a></td><td>([^<]*)</td><td>C\\+\\+11</td><td>([0-9\\.]*)</td><!--<td></td>--><td>[^<]*</td></tr>")))
-        {
+        std::smatch Match;
+        if (std::regex_search(Data.cbegin(), Data.cend(), Match, std::regex("<tr class=\"sectiontableentry[0-9]\"><td>" + SubmissionID + "</td><td align=\"right\"><a href=\"index\\.php\\?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=[0-9]*\">[0-9]*</a></td><td><a href=\"index\\.php\\?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=[0-9]*\">[^<]*</a></td><td>([^<]*)</td><td>C\\+\\+11</td><td>([0-9\\.]*)</td><!--<td></td>--><td>[^<]*</td></tr>"))) {
             // Get the result
-            string Verdict = Match[1];
+            std::string Verdict = Match[1];
             if (Verdict == "In judge queue")
                 usleep(500000);
-            else
-            {
-                cout << "Succeed" << endl
-                     << "Verdict: " << Verdict << endl
-                     << "Run Time: " << Match[2] << "s" << endl;
+            else {
+                std::cout << "Succeed" << std::endl
+                          << "Verdict: " << Verdict << std::endl
+                          << "Run Time: " << Match[2] << "s" << std::endl;
                 break;
             }
-        }
-        else
+        } else
             TRIGGER_ERROR("Can not find the judge result with submission ID " + SubmissionID);
     }
 }

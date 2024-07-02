@@ -1,16 +1,16 @@
-#include "Etiger.hpp"
-#include "Tool.hpp"
+#include <Etiger.hpp>
+#include <Tool.hpp>
 ETIGER::ETIGER() {
-    DifficultyName[1] = make_pair("入门难度", "#979797");
-    DifficultyName[2] = make_pair("普及-", "#79d479");
-    DifficultyName[3] = make_pair("普及/提高-", "#4191ff");
-    DifficultyName[4] = make_pair("普及+/提高", "yellowgreen");
-    DifficultyName[5] = make_pair("提高+/省选-", "plum");
-    DifficultyName[6] = make_pair("省选+/NOI", "goldenrod");
-    DifficultyName[7] = make_pair("NOI+/CTSC/IOI", "orange");
-    DifficultyName[8] = make_pair("传说", "red");
+    DifficultyName[1] = std::make_pair("入门难度", "#979797");
+    DifficultyName[2] = std::make_pair("普及-", "#79d479");
+    DifficultyName[3] = std::make_pair("普及/提高-", "#4191ff");
+    DifficultyName[4] = std::make_pair("普及+/提高", "yellowgreen");
+    DifficultyName[5] = std::make_pair("提高+/省选-", "plum");
+    DifficultyName[6] = std::make_pair("省选+/NOI", "goldenrod");
+    DifficultyName[7] = std::make_pair("NOI+/CTSC/IOI", "orange");
+    DifficultyName[8] = std::make_pair("传说", "red");
 }
-void ETIGER::Login(string Username, string Password) {
+void ETIGER::Login(std::string Username, std::string Password) {
     // Create login request
     json LoginRequest;
     LoginRequest["name"] = Username;
@@ -23,7 +23,7 @@ void ETIGER::Login(string Username, string Password) {
     HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
 
     // Send login request
-    cout << "Logging in... " << flush;
+    std::cout << "Logging in... " << std::flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/user/login",
                   "",
                   "",
@@ -40,7 +40,7 @@ void ETIGER::Login(string Username, string Password) {
                                             LoginInfo["code"].as_integer(),
                                             LoginInfo["msg"].as_string());
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Save token
     Token = LoginInfo["data"]["ticket"].as_string();
@@ -51,10 +51,10 @@ void ETIGER::ClockIn() {
     HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
     HeaderList = curl_slist_append(HeaderList, "lang: zh");
     HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
-    HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("Token: " + Token).c_str());
 
     // Send clock in request
-    cout << "Clocking in... " << flush;
+    std::cout << "Clocking in... " << std::flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/sign/dailySign",
                   "",
                   "",
@@ -70,19 +70,19 @@ void ETIGER::ClockIn() {
                                             ClockInInfo["msg"].as_string());
         return;
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 }
-void ETIGER::GetProblemDetail(string ProblemID) {
-    if (!IfFileExist(TempFolder + "Etiger-" + ProblemID + ".md")) {
+void ETIGER::GetProblemDetail(std::string ProblemID) {
+    if (!IfFileExist("/tmp/Etiger-" + ProblemID + ".md")) {
         // Add headers
         curl_slist *HeaderList = NULL;
         HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
         HeaderList = curl_slist_append(HeaderList, "lang: zh");
         HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
-        HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
+        HeaderList = curl_slist_append(HeaderList, std::string("Token: " + Token).c_str());
 
         // Send request
-        cout << "Getting problem detail... " << flush;
+        std::cout << "Getting problem detail... " << std::flush;
         GetDataToFile("https://www.etiger.vip/thrall-web/question/getById?id=" + ProblemID,
                       "",
                       "",
@@ -97,14 +97,8 @@ void ETIGER::GetProblemDetail(string ProblemID) {
                                                 ProblemInfo["code"].as_integer(),
                                                 ProblemInfo["msg"].as_string());
         }
-        cout << "Succeed" << endl;
+        std::cout << "Succeed" << std::endl;
 
-        string InputSample = ProblemInfo["data"]["inputSample"].as_string();
-        string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
-        vector<string> InputSamples = SpiltString(InputSample, ";");
-        vector<string> OutputSamples = SpiltString(OutputSample, ";");
-
-#ifndef _WIN32
         // Save data for CPH
         json CPHData;
         CPHData["name"] = ProblemInfo["data"]["title"].as_string();
@@ -113,13 +107,13 @@ void ETIGER::GetProblemDetail(string ProblemID) {
         CPHData["interactive"] = false;
         CPHData["memoryLimit"] = ProblemInfo["data"]["memLimit"].as_integer();
         CPHData["timeLimit"] = ProblemInfo["data"]["timeLimit"].as_integer() * 1000;
-        string InputSample = ProblemInfo["data"]["inputSample"].as_string();
-        string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
-        vector<string> InputSamples = SpiltString(InputSample, ";");
-        vector<string> OutputSamples = SpiltString(OutputSample, ";");
+        std::string InputSample = ProblemInfo["data"]["inputSample"].as_string();
+        std::string OutputSample = ProblemInfo["data"]["outputSample"].as_string();
+        std::vector<std::string> InputSamples = SpiltString(InputSample, ";");
+        std::vector<std::string> OutputSamples = SpiltString(OutputSample, ";");
         for (size_t i = 0; i < InputSamples.size(); i++) {
-            string Input = FixString(InputSamples[i]);
-            string Output = FixString(OutputSamples[i]);
+            std::string Input = FixString(InputSamples[i]);
+            std::string Output = FixString(OutputSamples[i]);
             // If input or output is empty, skip this test case
             if (Input == "" || Input == "无" || Output == "" || Output == "无")
                 continue;
@@ -137,10 +131,9 @@ void ETIGER::GetProblemDetail(string ProblemID) {
         CPHData["batch"]["id"] = ProblemID;
         CPHData["batch"]["size"] = 1;
         SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
-#endif
 
         // Sava markdown file
-        string OutputContent = "";
+        std::string OutputContent = "";
         OutputContent += "# " + ProblemID + " " + ProblemInfo["data"]["title"].as_string() + "\n" +
                          "\n" +
                          "## 题目描述\n" +
@@ -163,13 +156,13 @@ void ETIGER::GetProblemDetail(string ProblemID) {
         OutputContent += "## 输入输出样例\n"s +
                          "\n";
         int Counter = 1;
-        while (InputSample.find(";") != string::npos && OutputSample.find(";") != string::npos) {
+        while (InputSample.find(";") != std::string::npos && OutputSample.find(";") != std::string::npos) {
             if (FixString(InputSample.substr(0, InputSample.find(";"))) != "无") {
-                OutputContent += "输入 #" + to_string(Counter) + "\n" +
+                OutputContent += "输入 #" + std::to_string(Counter) + "\n" +
                                  "```\n" +
                                  FixString(InputSample.substr(0, InputSample.find(";"))) + "\n" +
                                  "```\n" +
-                                 "输出 #" + to_string(Counter) + "\n" +
+                                 "输出 #" + std::to_string(Counter) + "\n" +
                                  "```\n" +
                                  FixString(OutputSample.substr(0, OutputSample.find(";"))) + "\n" +
                                  "```\n";
@@ -204,17 +197,17 @@ void ETIGER::GetProblemDetail(string ProblemID) {
                          "|通过人数|$" + ProblemInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
                          "|通过率|$" + ProblemInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile(TempFolder + "Etiger-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile("/tmp/Etiger-" + ProblemID + ".md", OutputContent);
     }
 
     // Open file
-    if (system(string("code-insiders /tmp/Etiger-" + ProblemID + ".md").c_str()))
-        cout << "Open file \"/tmp/Etiger-" << ProblemID << ".md\" failed, please open it manually" << endl;
+    if (system(std::string("code-insiders /tmp/Etiger-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/tmp/Etiger-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
-void ETIGER::SubmitCode(string ProblemID) {
+void ETIGER::SubmitCode(std::string ProblemID) {
     // Get code and uncomment freopen
-    string Code = GetDataFromFileToString("Etiger/" + ProblemID + ".cpp");
+    std::string Code = GetDataFromFileToString("Etiger/" + ProblemID + ".cpp");
     Code = StringReplaceAll(Code, "// freopen", "freopen");
 
     // Create submit request
@@ -230,10 +223,10 @@ void ETIGER::SubmitCode(string ProblemID) {
     HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
     HeaderList = curl_slist_append(HeaderList, "lang: zh");
     HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
-    HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("Token: " + Token).c_str());
 
     // Submit
-    cout << "Submitting... " << flush;
+    std::cout << "Submitting... " << std::flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/saveSubmit",
                   "",
                   "",
@@ -248,28 +241,23 @@ void ETIGER::SubmitCode(string ProblemID) {
                                             SubmitInfo["code"].as_integer(),
                                             SubmitInfo["msg"].as_string());
     }
-    cout << "Succeed" << endl;
+    std::cout << "Succeed" << std::endl;
 
     // Check whether the code is accepted
     if (SubmitInfo["data"]["grade"].as_integer() == 100)
         SetDataFromStringToFile("Etiger/" + ProblemID + ".cpp", Code + "\n");
-    // Remove temporary files
-    cout << "Congratulations, you have solved this problem" << endl;
-    TOOL::Speak("Congratulations, you have solved this problem");
-}
-else {
     // Output result
     int Counter = 1;
     for (auto i : SubmitInfo["data"]["result"]) {
-        cout << "#" << Counter << " "
-             << i["type"].as_string() << " "
-             << i["timeUsed"] << "ms "
-             << i["memUsed"] << "B" << endl;
+        std::cout << "#" << Counter << " "
+                  << i["type"].as_string() << " "
+                  << i["timeUsed"] << "ms "
+                  << i["memUsed"] << "B" << std::endl;
         Counter++;
         if (i["input"].as_string() != "") {
-            cout << "    Input: " << i["input"].as_string() << endl
-                 << "    Standard output: " << i["output"].as_string() << endl
-                 << "    My output: " << i["myOutput"].as_string() << endl;
+            std::cout << "    Input: " << i["input"].as_string() << std::endl
+                      << "    Standard output: " << i["output"].as_string() << std::endl
+                      << "    My output: " << i["myOutput"].as_string() << std::endl;
             json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", ProblemID)));
             CPHData["tests"].push_back({{"input", i["input"].as_string()},
                                         {"output", i["output"].as_string()},
@@ -277,21 +265,18 @@ else {
             SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
         }
     }
-    cout << SubmitInfo["data"]["grade"] << "pts" << endl;
-    TOOL::Speak("Your score is " + SubmitInfo["data"]["grade"].as_string() + " points");
-    TOOL::Speak("You did not solve this problem");
+    std::cout << SubmitInfo["data"]["grade"] << "pts" << std::endl;
 }
-}
-void ETIGER::GetAnswerOrTips(string ProblemID) {
+void ETIGER::GetAnswerOrTips(std::string ProblemID) {
     // Create header
     curl_slist *HeaderList = NULL;
     HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
     HeaderList = curl_slist_append(HeaderList, "lang: zh");
     HeaderList = curl_slist_append(HeaderList, "Host: www.etiger.vip");
-    HeaderList = curl_slist_append(HeaderList, string("Token: " + Token).c_str());
+    HeaderList = curl_slist_append(HeaderList, std::string("Token: " + Token).c_str());
 
     // Get tips
-    cout << "Getting comments page data... " << flush;
+    std::cout << "Getting comments page data... " << std::flush;
     GetDataToFile("https://www.etiger.vip/thrall-web/comment/getByQuestionForPage?questionId=" + ProblemID + "&cpage=1&pagesize=10",
                   "",
                   "",
@@ -306,10 +291,10 @@ void ETIGER::GetAnswerOrTips(string ProblemID) {
                                             CommentsData["code"].as_integer(),
                                             CommentsData["msg"].as_string());
     }
-    cout << "Success" << endl;
+    std::cout << "Success" << std::endl;
 
-    // Save comments to a string joined by newline
-    string Comments = "";
+    // Save comments to a std::string joined by newline
+    std::string Comments = "";
     for (auto i : CommentsData["data"]["records"])
         Comments += FixString(i["content"].as_string()) + "\n";
 

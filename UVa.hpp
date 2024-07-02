@@ -1,11 +1,10 @@
 #pragma once
-#include "OJ.hpp"
+#include <OJ.hpp>
 #include <string>
-using namespace std;
 
 class UVA : public OJ {
   public:
-    void Login(string Username, string Password);
-    void GetProblemDetail(string ProblemID);
-    void SubmitCode(string ProblemID);
+    void Login(std::string Username, std::string Password);
+    void GetProblemDetail(std::string ProblemID);
+    void SubmitCode(std::string ProblemID);
 };

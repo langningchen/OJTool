@@ -1,19 +1,18 @@
 #pragma once
-#include "OJ.hpp"
+#include <OJ.hpp>
 #include <map>
 #include <string>
-using namespace std;
 
 class ETIGER : public OJ {
   private:
-    string Token = "";
-    map<int, pair<string, string>> DifficultyName;
+    std::string Token = "";
+    std::map<int, std::pair<std::string, std::string>> DifficultyName;
 
   public:
     ETIGER();
-    void Login(string Username, string Password);
-    void GetProblemDetail(string ProblemID);
-    void SubmitCode(string ProblemID);
+    void Login(std::string Username, std::string Password);
+    void GetProblemDetail(std::string ProblemID);
+    void SubmitCode(std::string ProblemID);
     void ClockIn();
-    void GetAnswerOrTips(string ProblemID);
+    void GetAnswerOrTips(std::string ProblemID);
 };

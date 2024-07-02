@@ -1,21 +1,20 @@
 #pragma once
-#include "OJ.hpp"
+#include <OJ.hpp>
 #include <map>
 #include <string>
-using namespace std;
 
 class LUOGU : public OJ {
   private:
-    map<int, string> LanguageName, LanguageMarkdownName;
-    map<int, pair<string, string>> DifficultyName, TagName, RecordName;
-    map<string, string> TypeName, ColorList;
-    string GetCSRF();
+    std::map<int, std::string> LanguageName, LanguageMarkdownName;
+    std::map<int, std::pair<std::string, std::string>> DifficultyName, TagName, RecordName;
+    std::map<std::string, std::string> TypeName, ColorList;
+    std::string GetCSRF();
 
   public:
     LUOGU();
-    void Login(string Username, string Password);
-    void GetProblemDetail(string ProblemID);
-    void SubmitCode(string ProblemID);
+    void Login(std::string Username, std::string Password);
+    void GetProblemDetail(std::string ProblemID);
+    void SubmitCode(std::string ProblemID);
     void ClockIn();
-    void GetAnswerOrTips(string ProblemID);
+    void GetAnswerOrTips(std::string ProblemID);
 };
