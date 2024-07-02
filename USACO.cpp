@@ -20,21 +20,21 @@ void USACO::Login(std::string Username, std::string Password) {
     this->Username = Username;
 }
 void USACO::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/USACO-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/USACO-" + ProblemID + ".md")) {
         // Get the problem detail
         std::cout << "Getting problem detail... " << std::flush;
         GetDataToFile("https://train.usaco.org/usacoprob2?a=" + Token + "&S=" + ProblemID);
         std::string ProblemDetail = GetDataFromFileToString();
         ProblemDetail = "<table><td><b" + GetStringBetween(ProblemDetail, "<td><b", "</div>");
         SetDataFromStringToFile(
-            "/tmp/USACO-" + ProblemID + ".md",
+            "/OJTool/USACO-" + ProblemID + ".md",
             ProblemDetail);
         std::cout << "Succeed" << std::endl;
     }
 
     // Open the problem detail file
-    if (system(std::string("code-insiders /tmp/USACO-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/USACO-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/USACO-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void USACO::SubmitCode(std::string ProblemID) {
     std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");
@@ -70,11 +70,11 @@ void USACO::SubmitCode(std::string ProblemID) {
                   MULTIPART);
     std::cout << "Succeed" << std::endl;
 
-    SetDataFromStringToFile("/tmp/" + ProblemID + ".log",
+    SetDataFromStringToFile("/OJTool/" + ProblemID + ".log",
                             EraseHTMLElement(
                                 GetStringBetween(
                                     GetDataFromFileToString(),
                                     "<div style=background-color:white;padding:5px;>",
                                     "</div>")));
-    system(("code-insiders /tmp/" + ProblemID + ".log").c_str());
+    system(("code-insiders /OJTool/" + ProblemID + ".log").c_str());
 }

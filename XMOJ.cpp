@@ -67,7 +67,7 @@ void XMOJ::GetProblemDetail(std::string ProblemID) {
     _GetProblemDetail(ProblemID, "id=" + ProblemID);
 }
 void XMOJ::_GetProblemDetail(std::string ProblemID, std::string ProblemHandle) {
-    if (!IfFileExist("/tmp/XMOJ-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/XMOJ-" + ProblemID + ".md")) {
         // Gets the problem detail page
         std::cout << "Getting problem detail page... " << std::flush;
         GetDataToFile("http://www.xmoj.tech/problem.php?" + ProblemHandle);
@@ -113,7 +113,7 @@ void XMOJ::_GetProblemDetail(std::string ProblemID, std::string ProblemHandle) {
             CPHData["tests"].push_back(json(Temp));
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningchen/XMOJ/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = TOOL::GetSourceCodePath(ProblemID);
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -121,7 +121,7 @@ void XMOJ::_GetProblemDetail(std::string ProblemID, std::string ProblemHandle) {
         CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
-        SetDataFromStringToFile(TOOL::GetCPHFileName("XMOJ", ProblemID), CPHData.dump());
+        SetDataFromStringToFile(TOOL::GetCPHFileName(ProblemID), CPHData.dump());
 
         // Save data for markdown
         std::string OutputContent = "# " + Title + "\n";
@@ -173,12 +173,12 @@ void XMOJ::_GetProblemDetail(std::string ProblemID, std::string ProblemHandle) {
                          "|Pass count|$" + PassCount + "$|\n" +
                          "|Pass rate|$" + std::to_string(atoi(PassCount.c_str()) * 100.0 / atoi(SubmitCount.c_str())) + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/XMOJ-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile("/OJTool/XMOJ-" + ProblemID + ".md", OutputContent);
     }
 
     // Open the problem detail file
-    if (system(std::string("code-insiders /tmp/XMOJ-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/XMOJ-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/XMOJ-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/XMOJ-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void XMOJ::SubmitCode(std::string ProblemID) {
     std::string Code = GetDataFromFileToString("../" + ProblemID + ".cpp");

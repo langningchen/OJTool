@@ -193,7 +193,7 @@ void CODEFORCES::Login(std::string Username, std::string Password) {
         // If the login failed because of the check of javascript
         if (LoginPageData.find("toNumbers")) {
             // Get the javascript code and write it to a file
-            SetDataFromStringToFile("/tmp/Run.js",
+            SetDataFromStringToFile("/OJTool/Run.js",
                                     // Get the javascript library
                                     AES_JS + "\n\n\n\nfunction " +
                                         // Remove set cookie code and replace it with a variable
@@ -205,7 +205,7 @@ void CODEFORCES::Login(std::string Username, std::string Password) {
                                         "\n\nconsole.log(Output);\n");
 
             // Run the javascript code
-            system(std::string("nodejs /tmp/Run.js >> /tmp/Output.tmp").c_str());
+            system(std::string("nodejs /OJTool/Run.js >> /OJTool/Output.tmp").c_str());
 
             // Get the output of the javascript code and try to login again
             GetDataToFile(GetStringBetween(LoginPageData, "document.location.href=\"", "\";</script>"),
@@ -225,7 +225,7 @@ void CODEFORCES::Login(std::string Username, std::string Password) {
                           &HTTPResponseCode,
                           FORM,
                           // Set the cookie
-                          "#HttpOnly_codeforces.com\tFALSE\t/\tFALSE\t0\tRCPC\t" + GetStringBetween(GetDataFromFileToString("/tmp/Output.tmp"), "RCPC=", ";"));
+                          "#HttpOnly_codeforces.com\tFALSE\t/\tFALSE\t0\tRCPC\t" + GetStringBetween(GetDataFromFileToString("/OJTool/Output.tmp"), "RCPC=", ";"));
 
             if (HTTPResponseCode == 200)
                 TRIGGER_ERROR("Login failed");
@@ -235,7 +235,7 @@ void CODEFORCES::Login(std::string Username, std::string Password) {
     std::cout << "Succeed" << std::endl;
 }
 void CODEFORCES::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/Codeforces-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/Codeforces-" + ProblemID + ".md")) {
         // Get the problem detail
         std::cout << "Getting problem detail... " << std::flush;
         GetDataToFile("https://codeforces.com/problemset/problem/" +
@@ -249,7 +249,7 @@ void CODEFORCES::GetProblemDetail(std::string ProblemID) {
         ProblemXmlDocument.Parse(TOOL::TidyHTMLDocument(GetDataFromFileToString()).c_str());
         if (ProblemXmlDocument.Error())
             TRIGGER_ERROR("Parse problem detail error: "s + ProblemXmlDocument.ErrorDesc());
-        std::ofstream OutputFileStream(std::string("/tmp/Codeforces-" + ProblemID + ".md").c_str());
+        std::ofstream OutputFileStream(std::string("/OJTool/Codeforces-" + ProblemID + ".md").c_str());
         std::cout << "Succeed" << std::endl;
 
         // Find the problem detail
@@ -292,8 +292,8 @@ void CODEFORCES::GetProblemDetail(std::string ProblemID) {
     }
 
     // Open the problem detail file
-    if (system(std::string("code-insiders /tmp/Codeforces-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/Codeforces-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/Codeforces-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/Codeforces-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void CODEFORCES::SubmitCode(std::string ProblemID) {
     // Get the code

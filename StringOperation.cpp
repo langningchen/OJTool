@@ -74,11 +74,19 @@ std::string FixString(std::string Data) {
         Data.erase(Data.size() - 1, 1);
     return Data;
 }
-#ifndef _WIN32
+std::string GetCurrentDir() {
+    char Buffer[256] = {0};
+    getcwd(Buffer, sizeof(Buffer));
+    return Buffer;
+}
+std::string GetRealpath(std::string Input) {
+    char Buffer[4096] = {0};
+    realpath(Input.c_str(), Buffer);
+    return Buffer;
+}
 std::string GetUserHomeFolder() {
     char *HomeFolder = getenv("HOME");
     if (HomeFolder == NULL)
         TRIGGER_ERROR("Cannot get user home folder");
     return HomeFolder;
 }
-#endif

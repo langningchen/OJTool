@@ -19,6 +19,7 @@ class TOOL {
 
     void Execute();
 
-    static std::string GetCPHFileName(std::string Path, std::string FileName);
+    static std::string GetSourceCodePath(std::string Filename);
+    static std::string GetCPHFileName(std::string Filename);
     static std::string TidyHTMLDocument(std::string Input);
 };

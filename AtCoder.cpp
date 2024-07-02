@@ -43,7 +43,7 @@ void ATCODER::Login(std::string Username, std::string Password) {
     std::cout << "Succeed" << std::endl;
 }
 void ATCODER::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/AtCoder-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/AtCoder-" + ProblemID + ".md")) {
         std::cout << "Getting problem detail... " << std::flush;
         std::string ContestName = SpiltString(ProblemID, "_")[0];
         GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
@@ -72,12 +72,12 @@ void ATCODER::GetProblemDetail(std::string ProblemID) {
                          "|:---:|:---:|\n" +
                          "|Time limit|$" + GetStringBetween(TimeAndMemoryLimit, "Time Limit: ", " / ") + "$|\n" +
                          "|Memory limit|$" + GetStringBetween(TimeAndMemoryLimit, "Memory Limit: ", "__END__") + "$|\n";
-        SetDataFromStringToFile("/tmp/AtCoder-" + ProblemID + ".md", ProblemDetail);
+        SetDataFromStringToFile("/OJTool/AtCoder-" + ProblemID + ".md", ProblemDetail);
     }
 
     // Open the problem detail file
-    if (system(std::string("code-insiders /tmp/AtCoder-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/AtCoder-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void ATCODER::SubmitCode(std::string ProblemID) {
     // Get the code

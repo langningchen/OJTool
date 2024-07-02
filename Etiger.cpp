@@ -73,7 +73,7 @@ void ETIGER::ClockIn() {
     std::cout << "Succeed" << std::endl;
 }
 void ETIGER::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/Etiger-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/Etiger-" + ProblemID + ".md")) {
         // Add headers
         curl_slist *HeaderList = NULL;
         HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json;charset=utf-8");
@@ -122,7 +122,7 @@ void ETIGER::GetProblemDetail(std::string ProblemID) {
             CPHData["tests"][i]["id"] = i;
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningchen/Etiger/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = TOOL::GetSourceCodePath(ProblemID);
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -130,7 +130,7 @@ void ETIGER::GetProblemDetail(std::string ProblemID) {
         CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
         CPHData["batch"]["id"] = ProblemID;
         CPHData["batch"]["size"] = 1;
-        SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
+        SetDataFromStringToFile(TOOL::GetCPHFileName(ProblemID), CPHData.dump());
 
         // Sava markdown file
         std::string OutputContent = "";
@@ -197,12 +197,12 @@ void ETIGER::GetProblemDetail(std::string ProblemID) {
                          "|通过人数|$" + ProblemInfo["data"]["submitInfo"]["passCount"].as_string() + "$|\n" +
                          "|通过率|$" + ProblemInfo["data"]["submitInfo"]["passRate"].as_string() + "\\%$|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/Etiger-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile("/OJTool/Etiger-" + ProblemID + ".md", OutputContent);
     }
 
     // Open file
-    if (system(std::string("code-insiders /tmp/Etiger-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/Etiger-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/Etiger-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/Etiger-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 // TODO: When input is "data is too long to provide", don't add it to CPH
 void ETIGER::SubmitCode(std::string ProblemID) {
@@ -258,11 +258,11 @@ void ETIGER::SubmitCode(std::string ProblemID) {
             std::cout << "    Input: " << i["input"].as_string() << std::endl
                       << "    Standard output: " << i["output"].as_string() << std::endl
                       << "    My output: " << i["myOutput"].as_string() << std::endl;
-            json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName("Etiger", ProblemID)));
+            json CPHData = json::parse(GetDataFromFileToString(TOOL::GetCPHFileName(ProblemID)));
             CPHData["tests"].push_back({{"input", i["input"].as_string()},
                                         {"output", i["output"].as_string()},
                                         {"id", Counter}});
-            SetDataFromStringToFile(TOOL::GetCPHFileName("Etiger", ProblemID), CPHData.dump());
+            SetDataFromStringToFile(TOOL::GetCPHFileName(ProblemID), CPHData.dump());
         }
     }
     std::cout << SubmitInfo["data"]["grade"] << "pts" << std::endl;

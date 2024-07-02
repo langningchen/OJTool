@@ -52,7 +52,7 @@ void UVA::Login(std::string Username, std::string Password) {
     std::cout << "Succeed" << std::endl;
 }
 void UVA::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/UVa-" + ProblemID + ".pdf")) {
+    if (!IfFileExist("/OJTool/UVa-" + ProblemID + ".pdf")) {
         // Get the problem detail
         std::string FixedProblemID = ProblemID;
         while (FixedProblemID[0] == '0')
@@ -64,7 +64,7 @@ void UVA::GetProblemDetail(std::string ProblemID) {
                           FixedProblemID.substr(0, FixedProblemID.size() - 2) +
                           "/p" + FixedProblemID + ".pdf",
                       "",
-                      "/tmp/UVa-" + ProblemID + ".pdf",
+                      "/OJTool/UVa-" + ProblemID + ".pdf",
                       false,
                       "",
                       NULL,
@@ -76,8 +76,8 @@ void UVA::GetProblemDetail(std::string ProblemID) {
     }
 
     // Open the pdf file
-    if (system(std::string("code-insiders /tmp/UVa-" + ProblemID + ".pdf").c_str()))
-        std::cout << "Open file \"/tmp/UVa-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/UVa-" + ProblemID + ".pdf").c_str()))
+        std::cout << "Open file \"/OJTool/UVa-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void UVA::SubmitCode(std::string ProblemID) {
     // Get the submit page data
@@ -168,7 +168,7 @@ void UVA::SubmitCode(std::string ProblemID) {
         Data = StringReplaceAll(Data, " <", "<");
         Data = StringReplaceAll(Data, "> ", ">");
         Data = StringReplaceAll(Data, " >", ">");
-        SetDataFromStringToFile("/tmp/Data.tmp", Data);
+        SetDataFromStringToFile("/OJTool/Data.tmp", Data);
 
         // Find the submission
         std::smatch Match;

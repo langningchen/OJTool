@@ -9,7 +9,7 @@ if __name__ == "__main__":
         path.join(path.dirname(__file__), "LuoguCaptchaModule", "LuoguCaptcha.keras")
     )
 
-    Image = Image.open("/tmp/Captcha.jpg")
+    Image = Image.open("/OJTool/Captcha.jpg")
     ImageArray = np.array(Image) / 255.0
 
     Prediction = Model.predict(np.array([ImageArray]), verbose=0)
@@ -17,5 +17,5 @@ if __name__ == "__main__":
 
     print(
         "".join(map(chr, map(int, Prediction[0]))),
-        file=open("/tmp/Captcha.txt", mode="w"),
+        file=open("/OJTool/Captcha.txt", mode="w"),
     )

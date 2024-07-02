@@ -162,7 +162,7 @@ void LUOGU::Login(std::string Username, std::string Password) {
         std::cout << "Getting login captcha... " << std::flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
                       "",
-                      "/tmp/Captcha.jpg");
+                      "/OJTool/Captcha.jpg");
         std::cout << "Succeed" << std::endl;
 
         // Predict captcha
@@ -170,10 +170,10 @@ void LUOGU::Login(std::string Username, std::string Password) {
         std::cout << "Predicting captcha by AI model... " << std::flush;
         if (system("python PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
             std::cout << "Succeed" << std::endl;
-            Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
+            Captcha = FixString(GetDataFromFileToString("/OJTool/Captcha.txt"));
         } else {
             std::cout << "Failed" << std::endl;
-            system("code-insiders /tmp/Captcha.jpg");
+            system("code-insiders /OJTool/Captcha.jpg");
             std::cout << "Please input the captcha: ";
             std::cin >> Captcha;
         }
@@ -261,7 +261,7 @@ void LUOGU::ClockIn() {
     std::cout << "Succeed" << std::endl;
 }
 void LUOGU::GetProblemDetail(std::string ProblemID) {
-    if (!IfFileExist("/tmp/Luogu-" + ProblemID + ".md")) {
+    if (!IfFileExist("/OJTool/Luogu-" + ProblemID + ".md")) {
         // Gets the problem detail page
         std::cout << "Getting problem detail page... " << std::flush;
         GetDataToFile("https://www.luogu.com.cn/problem/" + ProblemID + "?_contentOnly=1");
@@ -294,7 +294,7 @@ void LUOGU::GetProblemDetail(std::string ProblemID) {
             CPHData["tests"].push_back(json(Temp));
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningchen/Luogu/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = TOOL::GetSourceCodePath(ProblemID);
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -302,7 +302,8 @@ void LUOGU::GetProblemDetail(std::string ProblemID) {
         CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
-        SetDataFromStringToFile(TOOL::GetCPHFileName("Luogu", ProblemID), CPHData.dump());
+        std::cout << TOOL::GetCPHFileName(ProblemID) << " " << TOOL::GetSourceCodePath(ProblemID) << std::endl;
+        SetDataFromStringToFile(TOOL::GetCPHFileName(ProblemID), CPHData.dump());
 
         // Save data for markdown
         std::string OutputContent = "# " + ProblemID + " " + ProblemInfo["currentData"]["problem"]["title"].as_string() + "\n";
@@ -391,12 +392,12 @@ void LUOGU::GetProblemDetail(std::string ProblemID) {
                          "|From|`" + TypeName[ProblemInfo["currentData"]["problem"]["type"].as_string()] + "`|\n" +
                          "|Last submit language|`" + LanguageName[ProblemInfo["currentData"]["lastLanguage"].as_integer()] + "`|\n" +
                          "\n";
-        SetDataFromStringToFile("/tmp/Luogu-" + ProblemID + ".md", OutputContent);
+        SetDataFromStringToFile("/OJTool/Luogu-" + ProblemID + ".md", OutputContent);
     }
 
     // Open the file
-    if (system(std::string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
-        std::cout << "Open file \"/tmp/Luogu-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
+    if (system(std::string("code-insiders /OJTool/Luogu-" + ProblemID + ".md").c_str()))
+        std::cout << "Open file \"/OJTool/Luogu-" << ProblemID << ".md\" failed, please open it manually" << std::endl;
 }
 void LUOGU::SubmitCode(std::string ProblemID) {
     // Get the code

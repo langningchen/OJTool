@@ -1,5 +1,4 @@
 #include <AtCoder.hpp>
-#include <CYEZOJ.hpp>
 #include <Codeforces.hpp>
 #include <Etiger.hpp>
 #include <Luogu.hpp>
@@ -7,15 +6,18 @@
 #include <USACO.hpp>
 #include <UVa.hpp>
 #include <XMOJ.hpp>
-std::string TOOL::GetCPHFileName(std::string Path, std::string FileName) {
+std::string TOOL::GetSourceCodePath(std::string Filename) {
+    return GetRealpath(GetCurrentDir() + "/../" + Filename + ".cpp");
+}
+std::string TOOL::GetCPHFileName(std::string Filename) {
     // Create an object of the MD5 class to encode the file name
     MD5 MD5Encoder;
     // Return the file name in the CPH directory
-    return "/CPH/." +
-           FileName +
+    return "/OJTool/." +
+           Filename +
            ".cpp_" +
            // Encode the full path of the file
-           MD5Encoder.encode(GetUserHomeFolder() + "/" + Path + "/" + FileName + ".cpp") +
+           MD5Encoder.encode(GetSourceCodePath(Filename)) +
            // Add the .prob extension to the file name
            ".prob";
 }
@@ -54,15 +56,6 @@ void TOOL::Execute() {
             _XMOJ.GetProblemDetail(ProblemID);
         else if (Operation == "SubmitCode")
             _XMOJ.SubmitCode(ProblemID);
-        else
-            TRIGGER_ERROR("Arguments invalid");
-    } else if (OJ == "CYEZ") {
-        CYEZOJ _CYEZOJ;
-        _CYEZOJ.Login(Username, Password);
-        if (Operation == "GetProblemDetail")
-            _CYEZOJ.GetProblemDetail(ProblemID);
-        else if (Operation == "SubmitCode")
-            _CYEZOJ.SubmitCode(ProblemID);
         else
             TRIGGER_ERROR("Arguments invalid");
     } else if (OJ == "USACO") {
