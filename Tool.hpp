@@ -1,18 +1,16 @@
 #pragma once
-
-#include <string>
+#include "Curl.hpp"
+#include "MD5.hpp"
+#include "tidy/tidy.h"
+#include "tidy/tidybuffio.h"
 #include <iostream>
-#include <regex>
 #include <map>
-#include <MD5.hpp>
-#include <Curl.hpp>
-#include <tidy/tidy.h>
-#include <tidy/tidybuffio.h>
+#include <regex>
+#include <string>
 using namespace std;
 
-class TOOL
-{
-public:
+class TOOL {
+  public:
     string Username;
     string Password;
     string OJ;

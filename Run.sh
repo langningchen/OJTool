@@ -1,3 +1,3 @@
 #!/bin/fish
-cmake -B build
-cmake --build build
+cmake -B Build
+cmake --build Build

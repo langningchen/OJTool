@@ -1,7 +1,7 @@
 #include "Luogu.hpp"
+#include "Lib/StringOperation.hpp"
 #include "Tool.hpp"
-LUOGU::LUOGU()
-{
+LUOGU::LUOGU() {
     ColorList["blue-1"] = "e0f7ff";
     ColorList["blue-2"] = "89d1f5";
     ColorList["blue-3"] = "3498db";
@@ -98,12 +98,12 @@ LUOGU::LUOGU()
     cout << "Succeed" << endl;
 
     // Get the language information of the luogu website.
-    for (auto i : Config["codeLanguages"])
-    {
+    for (auto i : Config["codeLanguages"]) {
         LanguageName[i["value"].as_integer()] = i["name"].as_string();
         LanguageMarkdownName[i["value"].as_integer()] = i["hljsMode"].as_string();
     }
     LanguageName[0] = "自动识别语言";
+    LanguageMarkdownName[0] = "cpp";
 
     // Get the difficulty information of the luogu website.
     for (auto i : Config["problemDifficulty"])
@@ -129,8 +129,7 @@ LUOGU::LUOGU()
         RecordName[i["id"].as_integer()] = make_pair(i["name"].as_string(),
                                                      i["shortName"].as_string());
 }
-string LUOGU::GetCSRF()
-{
+string LUOGU::GetCSRF() {
     // Get csrf token
     string Token = GetStringBetween(GetDataFromFileToString(),
                                     "<meta name=\"csrf-token\" content=\"", "\"");
@@ -138,66 +137,54 @@ string LUOGU::GetCSRF()
         TRIGGER_ERROR("Can not find csrf token");
     return Token;
 }
-void LUOGU::Login(string Username, string Password)
-{
+void LUOGU::Login(string Username, string Password) {
     // Check if the user is logged in.
     int HTTPResponseCode = 0;
     cout << "Checking login... " << flush;
-    GetDataToFile("https://www.luogu.com.cn/auth/login",
+    GetDataToFile("https://www.luogu.com.cn/chat",
                   "",
                   "",
                   false,
                   "",
                   NULL,
                   &HTTPResponseCode);
-    if (HTTPResponseCode == 302)
-    {
-        TOOL::Speak("Already logged in");
+    if (HTTPResponseCode != 302) {
         cout << "Already logged in" << endl;
         return;
     }
     cout << "Not logged in" << endl;
 
+    GetDataToFile("https://www.luogu.com.cn/auth/login");
     string Token = GetCSRF();
     int ErrorCounter = 0;
-    while (1)
-    {
+    while (1) {
         // Get login captcha
         cout << "Getting login captcha... " << flush;
         GetDataToFile("https://www.luogu.com.cn/api/verify/captcha",
                       "",
-                      TempFolder + "Captcha.jpeg");
+                      TempFolder + "Captcha.jpg");
         cout << "Succeed" << endl;
 
         // Predict captcha
-        curl_slist *HeaderList = NULL;
-        HeaderList = curl_slist_append(HeaderList, "Content-Type: application/json");
-        cout << "Predicting captcha by web api... " << flush;
         string Captcha = "";
-        try
-        {
+        try {
             GetDataToFile("https://luogu-captcha-bypass.piterator.com/predict/",
                           "",
                           "",
                           true,
                           "data:image/jpeg;base64," +
                               Base64Encode(
-                                  GetDataFromFileToString(TempFolder + "Captcha.jpeg")),
+                                  GetDataFromFileToString("/tmp/Captcha.jpeg")),
                           HeaderList);
             cout << "Succeed" << endl;
             Captcha = GetDataFromFileToString();
-        }
-        catch (CLNException &Exception)
-        {
+        } catch (CLNException &Exception) {
             cout << "Failed" << endl
                  << "Predicting captcha by AI model... " << flush;
-            if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0)
-            {
+            if (system("python OJTool/PredictLuoguCaptcha.py > /dev/null 2>&1") == 0) {
                 cout << "Succeed" << endl;
-                Captcha = FixString(GetDataFromFileToString(TempFolder + "Captcha.txt"));
-            }
-            else
-            {
+                Captcha = FixString(GetDataFromFileToString("/tmp/Captcha.txt"));
+            } else {
                 cout << "Failed" << endl;
                 system("code-insiders /tmp/Captcha.jpeg");
                 cout << "Please input the captcha: ";
@@ -212,7 +199,7 @@ void LUOGU::Login(string Username, string Password)
         LoginRequest["captcha"] = Captcha;
 
         // Create a header list for the curl request
-        HeaderList = NULL;
+        curl_slist *HeaderList = NULL;
         HeaderList = curl_slist_append(HeaderList, string("X-CSRF-TOKEN: " + Token).c_str());
         HeaderList = curl_slist_append(HeaderList, string("Content-Length: " +
                                                           to_string(LoginRequest.dump().size()))
@@ -233,32 +220,31 @@ void LUOGU::Login(string Username, string Password)
 
         // Parse the response to a json object
         json LoginInfo = json::parse(GetDataFromFileToString());
-        if (!LoginInfo["status"].is_null())
-        {
+        if (!LoginInfo["status"].is_null() && LoginInfo["data"].as_string() != "您已经登录") {
             // If the captcha is incorrect and the error counter is less than 5, try again.
-            if (LoginInfo["data"].as_string() != "验证码错误" && ErrorCounter < 5)
-            {
+            if (LoginInfo["data"].as_string() != "验证码错误" && ErrorCounter < 5) {
                 TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Login failed",
                                                     LoginInfo["status"].as_integer(),
                                                     LoginInfo["data"].as_string());
-            }
-            else
+            } else
                 cout << "Failed (Captcha check failed for " << ErrorCounter + 1 << " times)" << endl;
-        }
-        else
-        {
-            TOOL::Speak("Login succeeds");
+        } else {
             cout << "Succeed" << endl;
             break;
         }
         ErrorCounter++;
     }
 }
-void LUOGU::ClockIn()
-{
+void LUOGU::ClockIn() {
     // Gets the clock-in page data
     cout << "Get clock in page data... " << flush;
     GetDataToFile("https://www.luogu.com.cn/");
+    string HTMLData = GetDataFromFileToString();
+    if (HTMLData.find("C3VK") != string::npos) {
+        string CookieData = "www.luogu.com.cn\tTRUE\t/\tTRUE\t" + to_string(time(nullptr) + 60 * 60 * 24 * 7) + "\tC3VK\t" + GetStringBetween(HTMLData, "C3VK=", ";");
+        GetDataToFile("https://www.luogu.com.cn/", "", "", false, "", nullptr, nullptr, "", CookieData);
+        HTMLData = GetDataFromFileToString();
+    }
     string Token = GetCSRF();
     cout << "Succeed" << endl;
 
@@ -281,24 +267,20 @@ void LUOGU::ClockIn()
 
     // Parse the response to a json object
     json ClockInInfo = json::parse(GetDataFromFileToString());
-    if (ClockInInfo["code"].as_integer() != 200)
-    {
+    if (ClockInInfo["code"].as_integer() != 200) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Clock in failed",
                                             ClockInInfo["code"].as_integer(),
                                             ClockInInfo["message"].as_string());
     }
     cout << "Succeed" << endl;
 }
-void LUOGU::GetProblemDetail(string ProblemID)
-{
-    if (!IfFileExist(TempFolder + "Luogu-" + ProblemID + ".md"))
-    {
+void LUOGU::GetProblemDetail(string ProblemID) {
+    if (!IfFileExist("/tmp/Luogu-" + ProblemID + ".md")) {
         // Gets the problem detail page
         cout << "Getting problem detail page... " << flush;
         GetDataToFile("https://www.luogu.com.cn/problem/" + ProblemID + "?_contentOnly=1");
         json ProblemInfo = json::parse(GetDataFromFileToString());
-        if (ProblemInfo["code"].as_integer() != 200)
-        {
+        if (ProblemInfo["code"].as_integer() != 200) {
             TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Get problem detail failed",
                                                 ProblemInfo["code"].as_integer(),
                                                 ProblemInfo["currentData"]["errorMessage"].as_string());
@@ -319,8 +301,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
         CPHData["timeLimit"] = 0;
         for (auto i : ProblemInfo["currentData"]["problem"]["limits"]["time"])
             CPHData["timeLimit"] = max(CPHData["timeLimit"].as_integer(), i.as_integer());
-        for (size_t i = 0; i < ProblemInfo["currentData"]["problem"]["samples"].size(); i++)
-        {
+        for (size_t i = 0; i < ProblemInfo["currentData"]["problem"]["samples"].size(); i++) {
             json Temp;
             Temp["id"] = i;
             Temp["input"] = FixString(ProblemInfo["currentData"]["problem"]["samples"][i][0].as_string());
@@ -328,7 +309,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
             CPHData["tests"].push_back(json(Temp));
         }
         CPHData["local"] = false;
-        CPHData["srcPath"] = "/home/langningc2009/Luogu/" + ProblemID + ".cpp";
+        CPHData["srcPath"] = "/home/langningchen/Luogu/" + ProblemID + ".cpp";
         CPHData["testType"] = "single";
         CPHData["input"]["type"] = "stdin";
         CPHData["output"]["type"] = "stdout";
@@ -368,11 +349,9 @@ void LUOGU::GetProblemDetail(string ProblemID)
                          "\n";
         if (ProblemInfo["currentData"]["problem"]["samples"].size() == 0)
             OutputContent += "None\n\n";
-        else
-        {
+        else {
             int Counter = 0;
-            for (auto i : ProblemInfo["currentData"]["problem"]["samples"])
-            {
+            for (auto i : ProblemInfo["currentData"]["problem"]["samples"]) {
                 Counter++;
                 OutputContent += string("Input #" + to_string(Counter) + "\n") +
                                  "```\n" +
@@ -393,8 +372,7 @@ void LUOGU::GetProblemDetail(string ProblemID)
         OutputContent += "## Limits\n";
         OutputContent += "|Test case|Time limit|Memory limit|\n"s +
                          "|:---:|:---:|:---:|\n";
-        for (unsigned int Counter = 0; Counter < ProblemInfo["currentData"]["problem"]["limits"]["memory"].size(); Counter++)
-        {
+        for (unsigned int Counter = 0; Counter < ProblemInfo["currentData"]["problem"]["limits"]["memory"].size(); Counter++) {
             OutputContent += "|$" + to_string(Counter + 1) + "$|" +
                              "$" + to_string(ProblemInfo["currentData"]["problem"]["limits"]["memory"][Counter].as_integer() / 1024.0) + "MB$|" +
                              "$" + to_string(ProblemInfo["currentData"]["problem"]["limits"]["time"][Counter].as_integer() / 1000) + "s$|\n";
@@ -435,10 +413,8 @@ void LUOGU::GetProblemDetail(string ProblemID)
     // Open the file
     if (system(string("code-insiders /tmp/Luogu-" + ProblemID + ".md").c_str()))
         cout << "Open file \"" << TempFolder << "Luogu-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
-void LUOGU::SubmitCode(string ProblemID)
-{
+void LUOGU::SubmitCode(string ProblemID) {
     // Get the code
     string Code = GetDataFromFileToString("Luogu/" + ProblemID + ".cpp");
 
@@ -478,8 +454,7 @@ void LUOGU::SubmitCode(string ProblemID)
 
     // Get the result
     json SubmitInfo = json::parse(GetDataFromFileToString());
-    if (!SubmitInfo["status"].is_null())
-    {
+    if (!SubmitInfo["status"].is_null()) {
         TRIGGER_ERROR_WITH_CODE_AND_MESSAGE("Submit failed",
                                             SubmitInfo["status"].as_integer(),
                                             SubmitInfo["errorMessage"].as_string());
@@ -488,13 +463,11 @@ void LUOGU::SubmitCode(string ProblemID)
 
     // Get the record ID
     int RecordID = SubmitInfo["rid"].as_integer();
-    TOOL::Speak("Submit succeed");
 
     // Get the record info and wait for the result
     json RecordInfo;
     cout << "Judging... " << flush;
-    while (1)
-    {
+    while (1) {
         GetDataToFile("https://www.luogu.com.cn/record/" + to_string(RecordID) + "?_contentOnly=1");
         RecordInfo = json::parse(GetDataFromFileToString());
         if (RecordInfo["currentData"]["record"]["status"].is_number() &&
@@ -505,67 +478,47 @@ void LUOGU::SubmitCode(string ProblemID)
     cout << "Succeed" << endl;
 
     // Check whether there is a compile error
-    if (!RecordInfo["currentData"]["record"]["detail"]["compileResult"]["success"].as_bool())
-    {
+    if (!RecordInfo["currentData"]["record"]["detail"]["compileResult"]["success"].as_bool()) {
         cout << "Compile error: " << endl
              << RecordInfo["currentData"]["record"]["detail"]["compileResult"]["message"].as_string() << endl;
-        TOOL::Speak("You have a compile error");
-    }
-    else
-    {
-        // Check whether the code is accepted
-        if (RecordInfo["currentData"]["record"]["score"].as_integer() == 100)
-        {
-            cout << "Congratulations, you have solved this problem" << endl;
-            TOOL::Speak("Congratulations, you have solved this problem");
+    } else {
+        // Get the result
+        for (auto jit : RecordInfo["currentData"]
+                                  ["record"]
+                                  ["detail"]
+                                  ["judgeResult"]
+                                  ["subtasks"]) {
+            cout << "#" << jit["id"].as_string() << endl;
+            for (auto jit2 : RecordInfo["currentData"]
+                                       ["record"]
+                                       ["detail"]
+                                       ["judgeResult"]
+                                       ["subtasks"]
+                                       [atoi(jit["id"].as_string().c_str())]
+                                       ["testCases"])
+                cout
+                    << "    #" << jit2["id"].as_integer() << " "
+                    << jit2["score"].as_integer() << "pts "
+                    << RecordName[jit2["status"].as_integer()].second << " "
+                    << jit2["time"].as_integer() << "ms "
+                    << jit2["memory"].as_integer() << "KB" << endl;
         }
-        else
-        {
-            // Get the result
-            for (auto jit : RecordInfo["currentData"]
-                                      ["record"]
-                                      ["detail"]
-                                      ["judgeResult"]
-                                      ["subtasks"])
-            {
-                cout << "#" << jit["id"].as_string() << endl;
-                for (auto jit2 : RecordInfo["currentData"]
-                                           ["record"]
-                                           ["detail"]
-                                           ["judgeResult"]
-                                           ["subtasks"]
-                                           [atoi(jit["id"].as_string().c_str())]
-                                           ["testCases"])
-                    cout
-                        << "    #" << jit2["id"].as_integer() << " "
-                        << jit2["score"].as_integer() << "pts "
-                        << RecordName[jit2["status"].as_integer()].second << " "
-                        << jit2["time"].as_integer() << "ms "
-                        << jit2["memory"].as_integer() << "KB" << endl;
-            }
-            cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
-            TOOL::Speak("Your score is " + to_string(RecordInfo["currentData"]["record"]["score"].as_integer()) + " points");
-            TOOL::Speak("You did not solve this problem");
-        }
+        cout << RecordInfo["currentData"]["record"]["score"].as_integer() << "pts" << endl;
     }
 }
-void LUOGU::GetAnswerOrTips(string ProblemID)
-{
+void LUOGU::GetAnswerOrTips(string ProblemID) {
     // Get the solution page data
     cout << "Getting solution page data... " << flush;
     GetDataToFile("https://www.luogu.com.cn/problem/solution/" + ProblemID + "?_contentOnly=1");
     json SolutionInfo = json::parse(GetDataFromFileToString());
     cout << "Succeed" << endl;
-    for (auto i : SolutionInfo["currentData"]["solutions"]["result"])
-    {
+    for (auto i : SolutionInfo["currentData"]["solutions"]["result"]) {
         string Answer = "";
 
         // Iterate through all the code blocks
         vector<string> Spilt = SpiltString(i["content"].as_string(), "```");
-        for (size_t j = 0; j < Spilt.size(); j++)
-        {
-            if (j % 2)
-            {
+        for (size_t j = 0; j < Spilt.size(); j++) {
+            if (j % 2) {
                 // Get the code block
                 string CurrentAnswer = Spilt[j];
 
@@ -590,17 +543,15 @@ void LUOGU::GetAnswerOrTips(string ProblemID)
         }
         // Delete leading and trailing spaces and line breaks.
         Answer = FixString(Answer);
-        if (Answer != "")
-        {
+        if (Answer != "") {
             // Write the answer as a comment to the file.
             SetDataFromStringToFile("Luogu/" + ProblemID + ".cpp",
                                     FixString(GetDataFromFileToString("Luogu/" + ProblemID + ".cpp")) +
                                         "\n" +
-                                        "\n" +
                                         "/*\n" +
                                         Answer +
-                                        "\n*/" +
-                                        "\n");
+                                        "\n" +
+                                        "*/\n");
             break;
         }
     }

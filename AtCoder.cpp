@@ -1,13 +1,12 @@
-#include <iostream>
-#include "tinyxml/tinyxml.h"
-#include "tinyxml/tinystr.h"
+#include "AtCoder.hpp"
 #include "Curl.hpp"
 #include "Tool.hpp"
-#include "AtCoder.hpp"
+#include "tinyxml/tinystr.h"
+#include "tinyxml/tinyxml.h"
+#include <iostream>
 using namespace std;
 
-void ATCODER::Login(string Username, string Password)
-{
+void ATCODER::Login(string Username, string Password) {
     cout << "Checking logged... " << flush;
     int HTTPResponseCode = 0;
     GetDataToFile("https://atcoder.jp/settings",
@@ -17,9 +16,7 @@ void ATCODER::Login(string Username, string Password)
                   "",
                   NULL,
                   &HTTPResponseCode);
-    if (HTTPResponseCode != 302)
-    {
-        TOOL::Speak("Already logged in");
+    if (HTTPResponseCode != 302) {
         cout << "Already logged in" << endl;
         return;
     }
@@ -45,13 +42,10 @@ void ATCODER::Login(string Username, string Password)
                   FORM);
     if (FindLocation().find("login") != string::npos)
         TRIGGER_ERROR("Login failed");
-    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
 }
-void ATCODER::GetProblemDetail(string ProblemID)
-{
-    if (!IfFileExist(TempFolder + "AtCoder-" + ProblemID + ".md"))
-    {
+void ATCODER::GetProblemDetail(string ProblemID) {
+    if (!IfFileExist(TempFolder + "AtCoder-" + ProblemID + ".md")) {
         cout << "Getting problem detail... " << flush;
         string ContestName = SpiltString(ProblemID, "_")[0];
         GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/tasks/" + ProblemID);
@@ -86,10 +80,8 @@ void ATCODER::GetProblemDetail(string ProblemID)
     // Open the problem detail file
     if (system(string("code-insiders /tmp/AtCoder-" + ProblemID + ".md").c_str()))
         cout << "Open file \"/tmp/AtCoder-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
-void ATCODER::SubmitCode(string ProblemID)
-{
+void ATCODER::SubmitCode(string ProblemID) {
     // Get the code
     string Code = GetDataFromFileToString("AtCoder/" + ProblemID + ".cpp");
     string ContestName = SpiltString(ProblemID, "_")[0];
@@ -112,8 +104,7 @@ void ATCODER::SubmitCode(string ProblemID)
                   NULL,
                   &HTTPResponseCode,
                   FORM);
-    if (HTTPResponseCode != 302)
-    {
+    if (HTTPResponseCode != 302) {
         TRIGGER_ERROR_WITH_CODE("Submit failed",
                                 HTTPResponseCode);
     }
@@ -127,28 +118,16 @@ void ATCODER::SubmitCode(string ProblemID)
     if (SubmissionID == "")
         TRIGGER_ERROR("Get submission ID failed");
     cout << "Succeed" << endl;
-    TOOL::Speak("Submit succeed");
 
     cout << "Judging... " << flush;
-    while (1)
-    {
+    while (1) {
         GetDataToFile("https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID + "/status/json");
         json JSONData = json::parse(GetDataFromFileToString());
         cout << "\rJudging... " << GetStringBetween(JSONData["Html"].as_string(), ">", "<") << flush;
-        if (JSONData["Status"].as_string() == "AC")
-        {
-            cout << "\rJudging... Succeed" << endl
-                 << "Congratulations, you have solved this problem" << endl;
-            TOOL::Speak("Congratulations, you have solved this problem");
-            break;
-        }
-        else if (JSONData["Interval"].is_null())
-        {
+        if (JSONData["Interval"].is_null()) {
             cout << "\rJudging... Succeed"
                  << " " << JSONData["Status"].as_string() << endl;
             system(("www-browser https://atcoder.jp/contests/" + ContestName + "/submissions/" + SubmissionID).c_str());
-            TOOL::Speak("Your score is " + JSONData["Score"].as_string() + " points");
-            TOOL::Speak("You did not solve this problem");
             break;
         }
         usleep(500000);

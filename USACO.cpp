@@ -17,7 +17,6 @@ void USACO::Login(string Username, string Password)
     Token = GetStringBetween(GetDataFromFileToString(), "a=", "\"");
     if (Token == "")
         TRIGGER_ERROR("Login failed");
-    TOOL::Speak("Login succeeds");
     cout << "Succeed" << endl;
     this->Username = Username;
 }
@@ -39,7 +38,6 @@ void USACO::GetProblemDetail(string ProblemID)
     // Open the problem detail file
     if (system(string("code-insiders /tmp/USACO-" + ProblemID + ".md").c_str()))
         cout << "Open file \"/tmp/USACO-" << ProblemID << ".md\" failed, please open it manually" << endl;
-    TOOL::Speak("Get problem detail succeed");
 }
 void USACO::SubmitCode(string ProblemID)
 {
