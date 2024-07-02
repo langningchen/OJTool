@@ -1,33 +1,51 @@
+/**********************************************************************
+OJTool: Get problem and submit code for OJ just from your CLI!
+Copyright (C) 2024  langningchen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+**********************************************************************/
+
 #pragma once
 
 #include <iostream>
 #include <stdexcept>
 #include <string>
 using namespace std::literals::string_literals;
-#define TRIGGER_ERROR(ErrorDetail)                                  \
-    throw CLNException("an error! \n"s +                            \
-                       "\n" +                                       \
-                       std::string(ErrorDetail) + "\n" +            \
-                       "File: " + __FILE__ + "\n" +                 \
-                       "Line: " + std::to_string(__LINE__) + "\n" + \
-                       "Function: " + __func__ + "\n" +             \
-                       "Errno: " + std::to_string(errno))
-#define TRIGGER_ERROR_WITH_CODE(ErrorDetail, ErrorCode)                  \
-    throw CLNException("an error! " + std::to_string(ErrorCode) + "\n" + \
-                       "\n" +                                            \
-                       std::string(ErrorDetail) + "\n" +                 \
-                       "File: " + __FILE__ + "\n" +                      \
-                       "Line: " + std::to_string(__LINE__) + "\n" +      \
-                       "Function: " + __func__ + "\n" +                  \
-                       "Errno: " + std::to_string(errno))
-#define TRIGGER_ERROR_WITH_CODE_AND_MESSAGE(ErrorDetail, ErrorCode, ErrorMessage)              \
-    throw CLNException("an error! " + std::to_string(ErrorCode) + ": " + ErrorMessage + "\n" + \
-                       "\n" +                                                                  \
-                       std::string(ErrorDetail) + "\n" +                                       \
-                       "File: " + __FILE__ + "\n" +                                            \
-                       "Line: " + std::to_string(__LINE__) + "\n" +                            \
-                       "Function: " + __func__ + "\n" +                                        \
-                       "Errno: " + std::to_string(errno))
+#define TRIGGER_ERROR(ErrorDetail)                               \
+    throw Exception("an error! \n"s +                            \
+                    "\n" +                                       \
+                    std::string(ErrorDetail) + "\n" +            \
+                    "File: " + __FILE__ + "\n" +                 \
+                    "Line: " + std::to_string(__LINE__) + "\n" + \
+                    "Function: " + __func__ + "\n" +             \
+                    "Errno: " + std::to_string(errno))
+#define TRIGGER_ERROR_WITH_CODE(ErrorDetail, ErrorCode)               \
+    throw Exception("an error! " + std::to_string(ErrorCode) + "\n" + \
+                    "\n" +                                            \
+                    std::string(ErrorDetail) + "\n" +                 \
+                    "File: " + __FILE__ + "\n" +                      \
+                    "Line: " + std::to_string(__LINE__) + "\n" +      \
+                    "Function: " + __func__ + "\n" +                  \
+                    "Errno: " + std::to_string(errno))
+#define TRIGGER_ERROR_WITH_CODE_AND_MESSAGE(ErrorDetail, ErrorCode, ErrorMessage)           \
+    throw Exception("an error! " + std::to_string(ErrorCode) + ": " + ErrorMessage + "\n" + \
+                    "\n" +                                                                  \
+                    std::string(ErrorDetail) + "\n" +                                       \
+                    "File: " + __FILE__ + "\n" +                                            \
+                    "Line: " + std::to_string(__LINE__) + "\n" +                            \
+                    "Function: " + __func__ + "\n" +                                        \
+                    "Errno: " + std::to_string(errno))
 
 #define CLN_TRY \
     try {       \
@@ -47,21 +65,21 @@ using namespace std::literals::string_literals;
         TRIGGER_ERROR("a standard error: "s + Exception.what());         \
     }                                                                    \
     }                                                                    \
-    catch (const CLNException &Exception) {                              \
-        std::cerr << Exception.what() << std::endl;                      \
+    catch (const Exception &ExceptionData) {                             \
+        std::cerr << ExceptionData.what() << std::endl;                  \
         exit(1);                                                         \
     }
 
 std::string
 GetStackTrace();
 
-class CLNException {
+class Exception {
   private:
     std::string Content = "";
 
   public:
-    CLNException();
-    CLNException(const std::string &message);
+    Exception();
+    Exception(const std::string &message);
     std::string what() const;
-    ~CLNException();
+    ~Exception();
 };
