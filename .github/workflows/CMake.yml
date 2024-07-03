@@ -12,7 +12,6 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt upgrade -y
         sudo apt install libcurl4-openssl-dev libjpeg-dev libtidy-dev -y
     - name: Configure CMake
       run: >
