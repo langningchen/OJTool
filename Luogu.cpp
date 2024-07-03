@@ -320,7 +320,6 @@ void LUOGU::GetProblemDetail(std::string ProblemID) {
         CPHData["languages"]["java"]["taskClass"] = "GCastleDefense";
         CPHData["batch"]["id"] = MD5Encoder.encode(ProblemID);
         CPHData["batch"]["size"] = 1;
-        std::cout << TOOL::GetCPHFileName(ProblemID) << " " << TOOL::GetSourceCodePath(ProblemID) << std::endl;
         SetDataFromStringToFile(TOOL::GetCPHFileName(ProblemID), CPHData.dump());
 
         // Save data for markdown
