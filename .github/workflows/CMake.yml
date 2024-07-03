@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        apt update
+        apt upgrade -y
+        apt install libcurl4-openssl-dev libjpeg-dev libtidy-dev -y
     - name: Configure CMake
       run: >
         cmake -B ${{ github.workspace }}/Build
@@ -16,11 +21,6 @@ jobs:
         -DCMAKE_C_COMPILER=gcc
         -DCMAKE_BUILD_TYPE=Release
         -S ${{ github.workspace }}
-    - name: Install dependencies
-      run: |
-        apt update
-        apt upgrade -y
-        apt install libcurl4-openssl-dev libjpeg-dev libtidy-dev -y
     - name: Build
       run: cmake --build ${{ github.workspace }}/Build --config Release
     - name: Upload a Build Artifact
