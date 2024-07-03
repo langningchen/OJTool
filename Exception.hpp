@@ -50,24 +50,24 @@ using namespace std::literals::string_literals;
 #define CLN_TRY \
     try {       \
         try {
-#define CLN_CATCH                                                        \
-    }                                                                    \
-    catch (const configor::configor_exception &Exception) {              \
-        TRIGGER_ERROR("a JSON error: "s + Exception.what());             \
-    }                                                                    \
-    catch (const std::logic_error &Exception) {                          \
-        TRIGGER_ERROR("a standard logic error: "s + Exception.what());   \
-    }                                                                    \
-    catch (const std::runtime_error &Exception) {                        \
-        TRIGGER_ERROR("a standard runtime error: "s + Exception.what()); \
-    }                                                                    \
-    catch (const std::exception &Exception) {                            \
-        TRIGGER_ERROR("a standard error: "s + Exception.what());         \
-    }                                                                    \
-    }                                                                    \
-    catch (const Exception &ExceptionData) {                             \
-        std::cerr << ExceptionData.what() << std::endl;                  \
-        exit(1);                                                         \
+#define CLN_CATCH                                                            \
+    }                                                                        \
+    catch (const configor::configor_exception &ExceptionData) {              \
+        TRIGGER_ERROR("a JSON error: "s + ExceptionData.what());             \
+    }                                                                        \
+    catch (const std::logic_error &ExceptionData) {                          \
+        TRIGGER_ERROR("a standard logic error: "s + ExceptionData.what());   \
+    }                                                                        \
+    catch (const std::runtime_error &ExceptionData) {                        \
+        TRIGGER_ERROR("a standard runtime error: "s + ExceptionData.what()); \
+    }                                                                        \
+    catch (const std::exception &ExceptionData) {                            \
+        TRIGGER_ERROR("a standard error: "s + ExceptionData.what());         \
+    }                                                                        \
+    }                                                                        \
+    catch (const Exception &ExceptionData) {                                 \
+        std::cerr << ExceptionData.what() << std::endl;                      \
+        exit(1);                                                             \
     }
 
 std::string
