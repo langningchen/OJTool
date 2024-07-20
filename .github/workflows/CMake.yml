@@ -9,9 +9,6 @@ jobs:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: |
-        brew reinstall jpeg-turbo
     - name: Configure CMake
       run: >
         cmake -B ${{ github.workspace }}/Build
