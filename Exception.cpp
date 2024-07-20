@@ -22,7 +22,7 @@ Exception::Exception() {
 Exception::Exception(const std::string &Message) {
     Content = "We're sorry but this program occurred " + Message + "\n" +
               "\n" +
-              "Please try to run this program again later, if this error still occurred, contact the developer for help! Thanks! \n";
+              "Please try to run this program again later, if this error still occurrs, contact the developer for help! Thanks! \n";
 }
 std::string Exception::what() const {
     return Content;
