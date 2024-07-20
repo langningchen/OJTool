@@ -6,7 +6,7 @@ on:
     branches: [ "master" ]
 jobs:
   build-macos:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     - name: Configure CMake
@@ -19,7 +19,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4.3.3
       with:
-        name: OJTool-macos
+        name: OJTool-macOS-arm64
         path: ${{ github.workspace }}/Build/OJTool
   build-linux:
     runs-on: ubuntu-latest
